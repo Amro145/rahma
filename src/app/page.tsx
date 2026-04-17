@@ -8,7 +8,7 @@ export default function Home() {
   const { data: session } = useSession();
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-[family-name:--font-cairo]">
+    <div className="min-h-screen bg-white text-slate-900 font-[--font-cairo]">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -123,7 +123,7 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 px-6">
         <div className="max-w-5xl mx-auto rounded-[3rem] bg-teal-800 p-12 text-center text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-teal-200 via-transparent to-transparent"></div>
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-teal-200 via-transparent to-transparent"></div>
           <div className="relative z-10 space-y-8">
             <Heart className="w-16 h-16 mx-auto text-teal-300 animate-pulse" />
             <h2 className="text-4xl md:text-5xl font-black leading-tight">

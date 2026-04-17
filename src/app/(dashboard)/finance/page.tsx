@@ -103,7 +103,7 @@ export default function FinancePage() {
   });
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-[family-name:--font-cairo]">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-[--font-cairo]">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-black tracking-tight text-slate-900 border-r-4 border-teal-600 pr-3">سجل المعاملات المالية</h2>
         
@@ -140,7 +140,7 @@ export default function FinancePage() {
                 <Plus className="w-5 h-5 ml-2 -mr-1" />
                 إضافة سجل جديد
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[family-name:--font-cairo]">
+            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-black text-slate-900 text-right">تسجيل حركة مالية</DialogTitle>
               </DialogHeader>

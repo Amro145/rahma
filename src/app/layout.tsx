@@ -29,7 +29,7 @@ export default function RootLayout({
 			<head>
 				<link rel="icon" href="/favicon.svg" type="image/svg+xml"></link>
 			</head>
-			<body className={`${inter.variable} ${cairo.variable} antialiased bg-slate-50 font-[family-name:--font-cairo]`}>
+			<body className={`${inter.variable} ${cairo.variable} antialiased bg-slate-50 font-[--font-cairo]`}>
 				{children}
 			</body>
 		</html>

@@ -14,7 +14,7 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 h-screen border-l border-slate-200 bg-white flex flex-col fixed right-0 top-0 z-10 font-[family-name:--font-cairo]">
+    <aside className="w-64 h-screen border-l border-slate-200 bg-white flex flex-col fixed right-0 top-0 z-10 font-[--font-cairo]">
       <div className="h-16 flex items-center px-6 border-b border-slate-200">
         <div className="flex items-center gap-2 text-teal-700">
           <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">

@@ -34,7 +34,7 @@ export default function DashboardLayout({
 
   if (isPending) {
     return (
-      <div className="flex items-center justify-center h-screen w-full bg-slate-50 font-[family-name:--font-cairo]">
+      <div className="flex items-center justify-center h-screen w-full bg-slate-50 font-[--font-cairo]">
         <div className="animate-pulse flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-slate-500 text-sm font-bold">جاري تحميل المنصة...</p>
@@ -55,7 +55,7 @@ export default function DashboardLayout({
   const activeTitle = titleMapping[pathname] || "لوحة التحكم";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex text-slate-900 font-[family-name:--font-cairo]" dir="rtl">
+    <div className="min-h-screen bg-slate-50 flex text-slate-900 font-[--font-cairo]" dir="rtl">
       <Sidebar />
       <div className="mr-64 flex flex-col flex-1 min-h-screen transition-all duration-300">
         {/* Top Header */}
