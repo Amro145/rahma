@@ -62,7 +62,6 @@ export default function StudentsPage() {
 
       if (!res.ok) throw new Error("Failed to confirm payment");
 
-      // Update locally
       setStudents((prev) =>
         prev.map((s) => (s.id === id ? { ...s, status: "paid" } : s))
       );
@@ -80,84 +79,87 @@ export default function StudentsPage() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Students List</h1>
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Student Directory</h2>
+        <div className="relative w-full sm:w-80">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search students..."
-            className="pl-9 bg-background"
+            placeholder="Search by student name..."
+            className="pl-10 h-10 bg-white border-slate-200 rounded-xl shadow-sm focus-visible:ring-teal-600"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead>Name</TableHead>
-              <TableHead>WhatsApp</TableHead>
-              <TableHead>Required Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Action</TableHead>
+            <TableRow className="bg-slate-50/80 border-b border-slate-200 hover:bg-slate-50/80">
+              <TableHead className="font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider">Student Name</TableHead>
+              <TableHead className="font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider">Contact</TableHead>
+              <TableHead className="font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider">Required Tuition</TableHead>
+              <TableHead className="font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider">Status</TableHead>
+              <TableHead className="text-right font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider pr-6">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                  Loading students...
+                <TableCell colSpan={5} className="h-32 text-center text-slate-500">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="h-4 w-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+                    Loading students...
+                  </div>
                 </TableCell>
               </TableRow>
             ) : filteredStudents.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                  No students found.
+                <TableCell colSpan={5} className="h-32 text-center text-slate-500">
+                  No students found matching your criteria.
                 </TableCell>
               </TableRow>
             ) : (
               filteredStudents.map((student) => (
-                <TableRow key={student.id} className="transition-colors hover:bg-muted/30">
-                  <TableCell className="font-medium">{student.name}</TableCell>
-                  <TableCell>
+                <TableRow key={student.id} className="transition-colors hover:bg-slate-50/50 border-b border-slate-100 last:border-0">
+                  <TableCell className="font-medium text-slate-900 py-4 font-[family-name:--font-cairo] text-base">{student.name}</TableCell>
+                  <TableCell className="py-4">
                     <a
                       href={`https://wa.me/${student.whatsapp}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 transition-colors"
+                      className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 font-medium transition-colors"
                     >
                       {student.whatsapp}
-                      <ExternalLink className="w-3 h-3" />
+                      <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </TableCell>
-                  <TableCell className="font-medium">${student.requiredAmount.toLocaleString()}</TableCell>
-                  <TableCell>
+                  <TableCell className="font-semibold text-slate-700 py-4">${student.requiredAmount.toLocaleString()}</TableCell>
+                  <TableCell className="py-4">
                     <Badge
                       variant="outline"
                       className={
                         student.status === "paid"
-                          ? "bg-green-50 text-green-700 border-green-200"
-                          : "bg-yellow-50 text-yellow-700 border-yellow-200"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-3 py-1 text-xs font-semibold"
+                          : "bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-3 py-1 text-xs font-semibold"
                       }
                     >
-                      {student.status.toUpperCase()}
+                      {student.status === "paid" ? "PAID" : "PENDING"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right py-4 pr-6">
                     {student.status === "pending" ? (
                       <Button
                         size="sm"
-                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        className="bg-teal-600 text-white hover:bg-teal-700 rounded-lg shadow-sm"
                         onClick={() => handleConfirmPayment(student.id)}
                         disabled={actionLoading === student.id}
                       >
-                        {actionLoading === student.id ? "Confirming..." : "Confirm Payment"}
+                        {actionLoading === student.id ? "Processing..." : "Confirm Payment"}
                       </Button>
                     ) : (
-                      <Button size="sm" variant="outline" disabled className="text-green-600 border-green-200 bg-green-50/50">
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Paid
+                      <Button size="sm" variant="outline" disabled className="text-emerald-600 border-none bg-emerald-50 rounded-lg opacity-100 font-medium">
+                        <CheckCircle className="w-4 h-4 mr-1.5" />
+                        Settled
                       </Button>
                     )}
                   </TableCell>

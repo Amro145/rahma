@@ -2,18 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, LogOut } from "lucide-react";
-import { authClient } from "@/lib/auth.client";
-import { useRouter } from "next/navigation";
+import { LayoutDashboard, Users, FileText } from "lucide-react";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const handleSignOut = async () => {
-    await authClient.signOut();
-    router.push("/signin");
-  };
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -22,38 +14,34 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 h-screen border-r bg-card flex flex-col fixed left-0 top-0">
-      <div className="h-16 flex items-center px-6 border-b">
-        <h2 className="text-lg font-semibold tracking-tight text-primary">RAHMA Dashboard</h2>
+    <aside className="w-64 h-screen border-r border-slate-200 bg-white flex flex-col fixed left-0 top-0 z-10">
+      <div className="h-16 flex items-center px-6 border-b border-slate-200">
+        <div className="flex items-center gap-2 text-teal-700">
+          <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
+            <span className="text-white font-bold text-lg leading-none">R</span>
+          </div>
+          <h2 className="text-xl font-bold tracking-tight">RAHMA</h2>
+        </div>
       </div>
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+      <nav className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-teal-50 text-teal-700 hover:bg-teal-100"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
-              <item.icon className={`h-5 w-5 ${isActive ? "text-primary" : ""}`} />
+              <item.icon className={`h-5 w-5 ${isActive ? "text-teal-700" : "text-slate-400"}`} />
               {item.name}
             </Link>
           );
         })}
       </nav>
-      <div className="p-4 border-t">
-        <button
-          onClick={handleSignOut}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-red-500 hover:bg-red-500/10 transition-colors"
-        >
-          <LogOut className="h-5 w-5" />
-          Sign Out
-        </button>
-      </div>
     </aside>
   );
 }

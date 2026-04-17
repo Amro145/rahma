@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowDown, ArrowUp, DollarSign } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Users, Wallet, Banknote } from "lucide-react";
 
 type SummaryData = {
   summary: {
@@ -51,11 +50,10 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Overview</h1>
+      <div className="space-y-8">
         <div className="grid gap-6 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 rounded-xl bg-muted animate-pulse"></div>
+            <div key={i} className="h-40 rounded-2xl bg-white border border-slate-100 shadow-sm animate-pulse"></div>
           ))}
         </div>
       </div>
@@ -69,49 +67,56 @@ export default function DashboardPage() {
   const currentBalance = data?.summary.finances.netBalance || 0;
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h1 className="text-3xl font-bold tracking-tight text-foreground">Overview</h1>
-
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="grid gap-6 md:grid-cols-3">
         {/* Total Income */}
-        <Card className="border-t-4 border-t-green-500 shadow-sm transition-all hover:shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
-            <div className="p-2 bg-green-500/10 rounded-full">
-              <ArrowUp className="w-4 h-4 text-green-500" />
+        <Card className="rounded-2xl border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between p-6 pb-2 space-y-0">
+            <CardTitle className="text-sm font-semibold tracking-wide text-slate-500 uppercase">Total Income</CardTitle>
+            <div className="p-2.5 bg-teal-50 rounded-xl">
+              <Banknote className="w-5 h-5 text-teal-700" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">${totalIncome.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Include student payments</p>
+          <CardContent className="p-6 pt-2">
+            <div className="text-3xl font-black text-slate-900">
+              <span className="text-emerald-500 mr-1">+</span>${totalIncome.toLocaleString()}
+            </div>
+            <p className="text-sm text-slate-400 mt-2 font-medium">Includes student tuition payments</p>
           </CardContent>
         </Card>
 
         {/* Total Expenses */}
-        <Card className="border-t-4 border-t-red-500 shadow-sm transition-all hover:shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
-            <div className="p-2 bg-red-500/10 rounded-full">
-              <ArrowDown className="w-4 h-4 text-red-500" />
+        <Card className="rounded-2xl border-slate-200 shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between p-6 pb-2 space-y-0">
+            <CardTitle className="text-sm font-semibold tracking-wide text-slate-500 uppercase">Total Expenses</CardTitle>
+            <div className="p-2.5 bg-teal-50 rounded-xl">
+              <Users className="w-5 h-5 text-teal-700" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">${totalExpenses.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">All recorded expenses</p>
+          <CardContent className="p-6 pt-2">
+            <div className="text-3xl font-black text-slate-900">
+               <span className="text-red-600 mr-1">-</span>${totalExpenses.toLocaleString()}
+            </div>
+            <p className="text-sm text-slate-400 mt-2 font-medium">All registered financial outgoings</p>
           </CardContent>
         </Card>
 
         {/* Current Balance */}
-        <Card className="border-t-4 border-t-blue-500 shadow-sm transition-all hover:shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Current Balance</CardTitle>
-            <div className="p-2 bg-blue-500/10 rounded-full">
-              <DollarSign className="w-4 h-4 text-blue-500" />
+        <Card className="rounded-2xl border-teal-600 shadow-sm hover:shadow-md transition-shadow bg-teal-700 text-white overflow-hidden relative">
+          <div className="absolute -right-4 -top-8 opacity-10">
+            <Wallet className="w-32 h-32" />
+          </div>
+          <CardHeader className="flex flex-row items-center justify-between p-6 pb-2 space-y-0 relative z-10">
+            <CardTitle className="text-sm font-semibold tracking-wide text-teal-100 uppercase">Net Balance</CardTitle>
+            <div className="p-2.5 bg-teal-600 rounded-xl">
+              <Wallet className="w-5 h-5 text-white" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">${currentBalance.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Available funds</p>
+          <CardContent className="p-6 pt-2 relative z-10">
+            <div className="text-4xl font-black text-white tracking-tight">
+              ${currentBalance.toLocaleString()}
+            </div>
+            <p className="text-sm text-teal-200 mt-2 font-medium">Available capital across all domains</p>
           </CardContent>
         </Card>
       </div>
