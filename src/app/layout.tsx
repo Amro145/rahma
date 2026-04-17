@@ -25,11 +25,11 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" dir="ltr">
+		<html lang="ar" dir="rtl">
 			<head>
 				<link rel="icon" href="/favicon.svg" type="image/svg+xml"></link>
 			</head>
-			<body className={`${inter.variable} ${cairo.variable} antialiased bg-slate-50`}>
+			<body className={`${inter.variable} ${cairo.variable} antialiased bg-slate-50 font-[family-name:--font-cairo]`}>
 				{children}
 			</body>
 		</html>

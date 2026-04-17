@@ -23,8 +23,8 @@ export default function DashboardLayout({
   }, [isPending, session, router]);
 
   useEffect(() => {
-    // Client-side mapping of the arabic date to avoid SSR hydration mismatches
-    setDateStr(new Intl.DateTimeFormat('ar-EG-u-nu-latn', { 
+    // Client-side mapping of the arabic date
+    setDateStr(new Intl.DateTimeFormat('ar-EG', { 
         weekday: 'long', 
         year: 'numeric', 
         month: 'long', 
@@ -34,62 +34,61 @@ export default function DashboardLayout({
 
   if (isPending) {
     return (
-      <div className="flex items-center justify-center h-screen w-full bg-slate-50">
+      <div className="flex items-center justify-center h-screen w-full bg-slate-50 font-[family-name:--font-cairo]">
         <div className="animate-pulse flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 text-sm font-medium">Loading Platform...</p>
+          <p className="text-slate-500 text-sm font-bold">جاري تحميل المنصة...</p>
         </div>
       </div>
     );
   }
 
   if (!session) {
-    return null; // Will redirect
+    return null;
   }
 
-  // Pathname formatting mapping
   const titleMapping: Record<string, string> = {
-    "/dashboard": "Dashboard Overview",
-    "/students": "Students Management",
-    "/finance": "Financial Logs"
+    "/dashboard": "نظرة عامة على الإحصائيات",
+    "/students": "إدارة شؤون الطلاب",
+    "/finance": "السجلات والتقارير المالية"
   };
-  const activeTitle = titleMapping[pathname] || "Dashboard";
+  const activeTitle = titleMapping[pathname] || "لوحة التحكم";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex text-slate-900 font-sans">
+    <div className="min-h-screen bg-slate-50 flex text-slate-900 font-[family-name:--font-cairo]" dir="rtl">
       <Sidebar />
-      <div className="ml-64 flex flex-col flex-1 min-h-screen">
+      <div className="mr-64 flex flex-col flex-1 min-h-screen transition-all duration-300">
         {/* Top Header */}
-        <header className="h-16 flex items-center justify-between px-8 bg-white border-b border-slate-200">
+        <header className="h-16 flex items-center justify-between px-8 bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-20">
           <div className="flex flex-col">
-            <h1 className="text-xl font-semibold text-slate-800">{activeTitle}</h1>
+            <h1 className="text-xl font-black text-slate-800">{activeTitle}</h1>
           </div>
           
           <div className="flex items-center gap-6">
-            <div className="text-sm font-medium text-slate-500 font-[family-name:--font-cairo]" dir="rtl">
+            <div className="text-sm font-bold text-slate-500 hidden md:block">
               {dateStr}
             </div>
             
-            <div className="h-8 w-px bg-slate-200"></div>
+            <div className="h-6 w-px bg-slate-200 hidden md:block"></div>
 
             <button 
               onClick={async () => {
                 await authClient.signOut();
                 router.push("/signin");
               }}
-              className="group flex items-center gap-3 px-2 py-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              className="group flex items-center gap-3 px-3 py-1.5 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
             >
-              <div className="h-8 w-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 group-hover:bg-teal-200 transition-colors">
+              <div className="h-8 w-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-700 group-hover:bg-teal-600 group-hover:text-white transition-all shadow-sm">
                 <User className="h-4 w-4" />
               </div>
-              <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900">Sign Out</span>
-              <LogOut className="h-4 w-4 text-slate-400 group-hover:text-red-500 transition-colors ml-1" />
+              <span className="text-sm font-black text-slate-600 group-hover:text-slate-900">تسجيل الخروج</span>
+              <LogOut className="h-4 w-4 text-slate-400 group-hover:text-red-500 transition-colors" />
             </button>
           </div>
         </header>
 
         {/* Page Content View */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-6 md:p-8">
           {children}
         </main>
       </div>

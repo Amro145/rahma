@@ -103,52 +103,52 @@ export default function FinancePage() {
   });
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-[family-name:--font-cairo]">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Financial Ledger</h2>
+        <h2 className="text-2xl font-black tracking-tight text-slate-900 border-r-4 border-teal-600 pr-3">سجل المعاملات المالية</h2>
         
-        <div className="flex items-center gap-3">
-          <div className="flex bg-slate-100 rounded-xl p-1 shadow-inner border border-slate-200">
+        <div className="flex items-center gap-4">
+          <div className="flex bg-slate-100/80 rounded-2xl p-1.5 shadow-inner border border-slate-200 backdrop-blur-sm">
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-1.5 text-sm font-semibold rounded-lg transition-colors ${
-                filter === "all" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              className={`px-5 py-2 text-sm font-black rounded-xl transition-all duration-300 ${
+                filter === "all" ? "bg-white text-slate-900 shadow-md scale-105" : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              All Data
+              الكل
             </button>
             <button
               onClick={() => setFilter("income")}
-              className={`px-4 py-1.5 text-sm font-semibold rounded-lg transition-colors ${
-                filter === "income" ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              className={`px-5 py-2 text-sm font-black rounded-xl transition-all duration-300 ${
+                filter === "income" ? "bg-white text-emerald-600 shadow-md scale-105" : "text-slate-500 hover:text-emerald-700"
               }`}
             >
-              Income
+              الإيرادات
             </button>
             <button
               onClick={() => setFilter("expense")}
-              className={`px-4 py-1.5 text-sm font-semibold rounded-lg transition-colors ${
-                filter === "expense" ? "bg-white text-red-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              className={`px-5 py-2 text-sm font-black rounded-xl transition-all duration-300 ${
+                filter === "expense" ? "bg-white text-red-600 shadow-md scale-105" : "text-slate-500 hover:text-red-700"
               }`}
             >
-              Expense
+              المصروفات
             </button>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger render={<Button className="bg-teal-600 text-white hover:bg-teal-700 shadow-sm rounded-xl px-4" />}>
-                <Plus className="w-4 h-4 mr-2 -ml-1" />
-                Add Record
+            <DialogTrigger render={<Button className="bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5" />}>
+                <Plus className="w-5 h-5 ml-2 -mr-1" />
+                إضافة سجل جديد
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md rounded-2xl p-6">
+            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[family-name:--font-cairo]">
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-slate-800">Add New Record</DialogTitle>
+                <DialogTitle className="text-2xl font-black text-slate-900 text-right">تسجيل حركة مالية</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreateRecord} className="space-y-5 mt-4">
+              <form onSubmit={handleCreateRecord} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
                 <div className="space-y-3">
-                  <Label className="text-slate-600 font-semibold text-xs uppercase tracking-wider">Transaction Type</Label>
-                  <div className="flex gap-3">
-                    <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl cursor-pointer transition-all ${formData.type === 'income' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-600'}`}>
+                  <Label className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">نوع المعاملة</Label>
+                  <div className="flex gap-4">
+                    <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${formData.type === 'income' ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
                       <input
                         type="radio"
                         value="income"
@@ -156,9 +156,9 @@ export default function FinancePage() {
                         checked={formData.type === "income"}
                         onChange={(e) => setFormData({ ...formData, type: "income" })}
                       />
-                      <span className="text-sm font-semibold">Income</span>
+                      <span className="text-sm font-black">إيراد جديد</span>
                     </label>
-                    <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border rounded-xl cursor-pointer transition-all ${formData.type === 'expense' ? 'border-red-500 bg-red-50 text-red-700' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-600'}`}>
+                    <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${formData.type === 'expense' ? 'border-red-500 bg-red-50 text-red-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
                       <input
                         type="radio"
                         value="expense"
@@ -166,32 +166,32 @@ export default function FinancePage() {
                         checked={formData.type === "expense"}
                         onChange={(e) => setFormData({ ...formData, type: "expense" })}
                       />
-                      <span className="text-sm font-semibold">Expense</span>
+                      <span className="text-sm font-black">مصروف هالك</span>
                     </label>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="category" className="text-slate-600 font-semibold text-xs uppercase tracking-wider">Category</Label>
+                  <Label htmlFor="category" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفئة أو التصنيف</Label>
                   <Input
                     id="category"
                     required
-                    className="rounded-xl border-slate-200 bg-slate-50 focus-visible:ring-teal-500"
-                    placeholder="e.g. Donation, Utility Bill..."
+                    className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold"
+                    placeholder="مثال: تبرع عام، أدوات مكتبية..."
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="amount" className="text-slate-600 font-semibold text-xs uppercase tracking-wider">Amount ($)</Label>
+                  <Label htmlFor="amount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (بالجنيه المصري)</Label>
                   <Input
                     id="amount"
                     type="number"
                     min="0"
                     step="0.01"
                     required
-                    className="rounded-xl border-slate-200 bg-slate-50 focus-visible:ring-teal-500 text-lg font-medium"
+                    className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 text-xl font-black"
                     placeholder="0.00"
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
@@ -199,19 +199,19 @@ export default function FinancePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-slate-600 font-semibold text-xs uppercase tracking-wider">Description (Optional)</Label>
+                  <Label htmlFor="description" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">ملاحظات إضافية</Label>
                   <Input
                     id="description"
-                    className="rounded-xl border-slate-200 bg-slate-50 focus-visible:ring-teal-500"
-                    placeholder="Additional context about this transaction..."
+                    className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold"
+                    placeholder="اكتب أي تفاصيل أخرى هنا..."
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                 </div>
 
-                <div className="pt-5 flex justify-end">
-                  <Button type="submit" disabled={submitting} className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm px-6">
-                    {submitting ? "Processing..." : "Save Record"}
+                <div className="pt-4">
+                  <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl shadow-xl shadow-teal-100 text-lg font-black transition-all active:scale-95">
+                    {submitting ? "جاري الحفظ..." : "حفظ السجل الآن"}
                   </Button>
                 </div>
               </form>
@@ -220,57 +220,59 @@ export default function FinancePage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-[2.5rem] border border-slate-100 bg-white shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50/80 border-b border-slate-200 hover:bg-slate-50/80">
-              <TableHead className="font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider">Classification</TableHead>
-              <TableHead className="font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider">Transaction Context</TableHead>
-              <TableHead className="font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider">Details</TableHead>
-              <TableHead className="font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider">Logged Date</TableHead>
-              <TableHead className="font-semibold text-slate-600 h-12 uppercase text-xs tracking-wider text-right pr-6">Value</TableHead>
+              <TableHead className="font-black text-slate-500 h-14 uppercase text-xs tracking-widest text-right pr-8">النوع</TableHead>
+              <TableHead className="font-black text-slate-500 h-14 uppercase text-xs tracking-widest text-right">التصنيف</TableHead>
+              <TableHead className="font-black text-slate-500 h-14 uppercase text-xs tracking-widest text-right">التفاصيل</TableHead>
+              <TableHead className="font-black text-slate-500 h-14 uppercase text-xs tracking-widest text-right">التاريخ</TableHead>
+              <TableHead className="font-black text-slate-500 h-14 uppercase text-xs tracking-widest text-left pl-8">المبلغ</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-slate-500">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="h-4 w-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
-                    Retrieving ledger...
+                <TableCell colSpan={5} className="h-40 text-center text-slate-500">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <div className="h-6 w-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="font-bold">جاري تحديث السجلات المالية...</span>
                   </div>
                 </TableCell>
               </TableRow>
             ) : filteredLogs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-slate-500">
-                  No transaction records matched your filter.
+                <TableCell colSpan={5} className="h-40 text-center text-slate-500 font-bold">
+                  لا توجد معاملات مسجلة في هذه الفئة.
                 </TableCell>
               </TableRow>
             ) : (
               filteredLogs.map((log) => (
-                <TableRow key={log.id} className="transition-colors hover:bg-slate-50/50 border-b border-slate-100 last:border-0 group">
-                  <TableCell className="py-4">
+                <TableRow key={log.id} className="transition-all hover:bg-slate-50/50 border-b border-slate-50 last:border-0 group">
+                  <TableCell className="py-5 pr-8">
                     <Badge
                       variant="outline"
                       className={
                         log.type === "income"
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-3 py-1 text-xs font-bold tracking-wide shadow-sm"
-                          : "bg-red-50 text-red-600 border border-red-200 rounded-full px-3 py-1 text-xs font-bold tracking-wide shadow-sm"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-100 rounded-full px-4 py-1 text-xs font-black shadow-sm"
+                          : "bg-red-50 text-red-600 border-red-100 rounded-full px-4 py-1 text-xs font-black shadow-sm"
                       }
                     >
-                      {log.type === "income" ? "INCOME" : "EXPENSE"}
+                      {log.type === "income" ? "إيراد" : "مصروف"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-4 font-semibold text-slate-900">{log.category}</TableCell>
-                  <TableCell className="py-4 text-slate-500 max-w-[200px] truncate group-hover:text-slate-700 transition-colors">
-                    {log.description || <span className="italic text-slate-300">Unspecified</span>}
+                  <TableCell className="py-5 font-black text-slate-800">{log.category}</TableCell>
+                  <TableCell className="py-5 text-slate-400 font-bold max-w-xs truncate group-hover:text-slate-600 transition-colors">
+                    {log.description || <span className="italic text-slate-200">لا يوجد وصف</span>}
                   </TableCell>
-                  <TableCell className="py-4 text-slate-400 font-medium text-sm whitespace-nowrap">
-                    {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(log.createdAt))}
+                  <TableCell className="py-5 text-slate-400 font-bold text-sm">
+                    {new Intl.DateTimeFormat('ar-EG', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(log.createdAt))}
                   </TableCell>
-                  <TableCell className={`py-4 text-right pr-6 text-base font-black tracking-tight ${log.type === "income" ? "text-emerald-500" : "text-red-500"}`}>
-                    {log.type === "income" ? "+" : "-"}${log.amount.toLocaleString()}
+                  <TableCell className={`py-5 text-left pl-8 text-lg font-black tracking-tighter ${log.type === "income" ? "text-emerald-500" : "text-red-500"}`}>
+                    <span>{log.type === "income" ? "+" : "-"}</span>
+                    <span>{log.amount.toLocaleString()}</span>
+                    <span className="text-xs mr-1 opacity-50 font-bold">ج.م</span>
                   </TableCell>
                 </TableRow>
               ))
