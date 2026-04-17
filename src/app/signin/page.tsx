@@ -1,9 +1,18 @@
 "use client";
 
-import { signIn } from "@/lib/auth.client";
-import { useState } from "react";
+import { signIn, useSession } from "@/lib/auth.client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
+
+  useEffect(() => {
+    if (!isPending && session) {
+      router.replace("/");
+    }
+  }, [session, isPending, router]);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
 
   const handleSignIn = async () => {
