@@ -21,7 +21,7 @@ export default function SignIn() {
     try {
       await signIn.social({
         provider: "google",
-        callbackURL: "/", // Redirect to home after login
+        callbackURL: window.location.origin, // Explicitly return to frontend instead of backend domain
       });
     } catch (error) {
       console.error(error);
