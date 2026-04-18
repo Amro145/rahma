@@ -21,7 +21,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
   }
 
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}) ) as any;
+    const errorData = await res.json().catch(() => ({})) as { error?: string };
     throw new Error(errorData.error || `API Error: ${res.statusText}`);
   }
 

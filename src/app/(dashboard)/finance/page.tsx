@@ -19,8 +19,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
 type Log = {
@@ -38,6 +45,9 @@ export default function FinancePage() {
   const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   const [submitting, setSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -83,6 +93,60 @@ export default function FinancePage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleEditRecord = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedLog) return;
+    setSubmitting(true);
+    try {
+      const json = await apiFetch<{ log: Log }>(`/api/finance/logs/${selectedLog.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          ...formData,
+          amount: Number(formData.amount),
+        }),
+      });
+
+      setLogs((prev) => prev.map(l => l.id === selectedLog.id ? json.log : l));
+      setIsEditDialogOpen(false);
+    } catch (err) {
+      console.error("Error updating record:", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteRecord = async () => {
+    if (!selectedLog) return;
+    setSubmitting(true);
+    try {
+      await apiFetch(`/api/finance/logs/${selectedLog.id}`, {
+        method: "DELETE",
+      });
+      setLogs((prev) => prev.filter(l => l.id !== selectedLog.id));
+      setIsDeleteDialogOpen(false);
+    } catch (err) {
+      console.error("Error deleting record:", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const openEditDialog = (log: Log) => {
+    setSelectedLog(log);
+    setFormData({
+      type: log.type,
+      amount: log.amount.toString(),
+      category: log.category,
+      description: log.description || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (log: Log) => {
+    setSelectedLog(log);
+    setIsDeleteDialogOpen(true);
   };
 
   const filteredLogs = logs.filter((log) => {
@@ -142,7 +206,7 @@ export default function FinancePage() {
                         value="income"
                         className="sr-only"
                         checked={formData.type === "income"}
-                        onChange={(e) => setFormData({ ...formData, type: "income" })}
+                        onChange={() => setFormData({ ...formData, type: "income" })}
                       />
                       <span className="text-sm font-black">إيراد جديد</span>
                     </label>
@@ -152,7 +216,7 @@ export default function FinancePage() {
                         value="expense"
                         className="sr-only"
                         checked={formData.type === "expense"}
-                        onChange={(e) => setFormData({ ...formData, type: "expense" })}
+                        onChange={() => setFormData({ ...formData, type: "expense" })}
                       />
                       <span className="text-sm font-black">مصروف هالك</span>
                     </label>
@@ -258,9 +322,31 @@ export default function FinancePage() {
                     {new Intl.DateTimeFormat('ar-EG', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(log.createdAt))}
                   </TableCell>
                   <TableCell className={`py-5 text-left pl-8 text-lg font-black tracking-tighter ${log.type === "income" ? "text-emerald-500" : "text-red-500"}`}>
-                    <span>{log.type === "income" ? "+" : "-"}</span>
-                    <span>{log.amount.toLocaleString()}</span>
-                    <span className="text-xs mr-1 opacity-50 font-bold">ج.م</span>
+                    <div className="flex items-center justify-end gap-3">
+                      <div className="flex items-center">
+                        <span>{log.type === "income" ? "+" : "-"}</span>
+                        <span>{log.amount.toLocaleString()}</span>
+                        <span className="text-xs mr-1 opacity-50 font-bold">ج.م</span>
+                      </div>
+                      
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
+                            <MoreVertical className="w-5 h-5 text-slate-400" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40 font-[--font-cairo]">
+                          <DropdownMenuItem onClick={() => openEditDialog(log)} className="flex items-center justify-between text-slate-600 font-bold cursor-pointer">
+                            <span>تعديل السجل</span>
+                            <Edit2 className="w-4 h-4 ml-2" />
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openDeleteDialog(log)} className="flex items-center justify-between text-red-600 font-bold focus:text-red-700 focus:bg-red-50 cursor-pointer">
+                            <span>حذف السجل</span>
+                            <Trash2 className="w-4 h-4 ml-2" />
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -268,6 +354,120 @@ export default function FinancePage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black text-slate-900 text-right">تعديل حركة مالية</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditRecord} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
+            <div className="space-y-3">
+              <Label className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">نوع المعاملة</Label>
+              <div className="flex gap-4">
+                <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${formData.type === 'income' ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
+                  <input
+                    type="radio"
+                    value="income"
+                    className="sr-only"
+                    checked={formData.type === "income"}
+                    onChange={() => setFormData({ ...formData, type: "income" })}
+                  />
+                  <span className="text-sm font-black">إيراد</span>
+                </label>
+                <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${formData.type === 'expense' ? 'border-red-500 bg-red-50 text-red-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
+                  <input
+                    type="radio"
+                    value="expense"
+                    className="sr-only"
+                    checked={formData.type === "expense"}
+                    onChange={() => setFormData({ ...formData, type: "expense" })}
+                  />
+                  <span className="text-sm font-black">مصروف</span>
+                </label>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-category" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفئة أو التصنيف</Label>
+              <Input
+                id="edit-category"
+                required
+                className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-amount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (بالجنيه المصري)</Label>
+              <Input
+                id="edit-amount"
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 text-xl font-black"
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-description" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">ملاحظات إضافية</Label>
+              <Input
+                id="edit-description"
+                className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+
+            <div className="pt-4">
+              <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl shadow-xl shadow-teal-100 text-lg font-black transition-all">
+                {submitting ? "جاري الحفظ..." : "حفظ التعديلات"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black text-slate-900 text-right">حذف السجل</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 text-right">
+            <p className="text-slate-600 font-bold text-lg">هل أنت متأكد من رغبتك في حذف هذا السجل؟</p>
+            <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+               <p className="text-slate-400 text-xs font-black uppercase tracking-widest">تفاصيل السجل</p>
+               <p className="text-slate-900 font-black mt-1">{selectedLog?.category}</p>
+               <p className={`font-black mt-1 ${selectedLog?.type === 'income' ? 'text-emerald-500' : 'text-red-500'}`}>
+                 {selectedLog?.type === 'income' ? '+' : '-'}{selectedLog?.amount.toLocaleString()} ج.م
+               </p>
+            </div>
+            <p className="text-slate-400 text-sm mt-4 font-medium italic">هذا الإجراء لا يمكن التراجع عنه.</p>
+          </div>
+          <DialogFooter className="mt-8 flex gap-4 sm:justify-start">
+            <Button
+              variant="ghost"
+              className="flex-1 h-12 rounded-2xl font-black hover:bg-slate-100"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              إلغاء
+            </Button>
+            <Button
+              className="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black shadow-lg shadow-red-200/50"
+              onClick={handleDeleteRecord}
+              disabled={submitting}
+            >
+              {submitting ? "جاري الحذف..." : "نعم، حذف السجل"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

@@ -53,7 +53,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto relative z-10 text-center space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-100 text-teal-700 font-bold text-sm animate-bounce-subtle">
             <Star className="w-4 h-4 fill-teal-700" />
-            <span>نظام "رحمة" لإدارة العمل الخيري</span>
+            <span>نظام &quot;رحمة&quot; لإدارة العمل الخيري</span>
           </div>
           
           <h1 className="text-5xl md:text-7xl font-black text-slate-900 leading-[1.2] max-w-4xl mx-auto">

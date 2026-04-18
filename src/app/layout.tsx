@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
-import { Inter, Cairo } from "next/font/google";
+import { Cairo, Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-	variable: "--font-sans", // Setting as --font-sans lets Tailwind inherit it by default for general elements
-	subsets: ["latin"],
-	display: "swap",
+const cairo = Cairo({
+	subsets: ["arabic"],
+	weight: ["200", "300", "400", "500", "600", "700", "800", "900", "1000"],
+	variable: "--font-cairo",
 });
 
-const cairo = Cairo({
-	variable: "--font-cairo",
-	subsets: ["arabic", "latin"],
-	display: "swap",
+const inter = Inter({
+	subsets: ["latin"],
+	variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -25,11 +24,11 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="ar" dir="rtl">
+		<html lang="ar" dir="rtl" className={`${cairo.variable} ${inter.variable}`}>
 			<head>
 				<link rel="icon" href="/favicon.svg" type="image/svg+xml"></link>
 			</head>
-			<body className={`${inter.variable} ${cairo.variable} antialiased bg-slate-50 font-[--font-cairo]`}>
+			<body className="antialiased bg-slate-50 font-sans">
 				{children}
 			</body>
 		</html>
