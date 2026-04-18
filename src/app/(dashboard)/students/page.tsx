@@ -27,8 +27,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, ExternalLink, CheckCircle, Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { Search, ExternalLink, CheckCircle, Plus, MoreVertical, Edit2, Trash2, CreditCard } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import Link from "next/link";
 
 type Student = {
   id: number;
@@ -328,6 +329,12 @@ export default function StudentsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-40 font-[--font-cairo]">
+                        <DropdownMenuItem asChild className="cursor-pointer">
+                          <Link href={`/students/${student.id}`} className="flex items-center justify-between text-teal-600 font-bold">
+                            <span>سجل المدفوعات</span>
+                            <CreditCard className="w-4 h-4 ml-2" />
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEditDialog(student)} className="flex items-center justify-between text-slate-600 font-bold cursor-pointer">
                           <span>تعديل التلميذ</span>
                           <Edit2 className="w-4 h-4 ml-2" />
