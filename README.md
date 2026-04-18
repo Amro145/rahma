@@ -1,47 +1,69 @@
-# OpenNext Starter
+# منصة رحمة - واجهة المستخدم (Client)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+هذا هو المستودع الخاص بواجهة المستخدم (Frontend) لمنصة **رحمة** الخيرية. هذه الواجهة توفر تجربة مستخدم عصرية وسريعة لإدارة المهام الخيرية، ومتابعة الطلاب، والسجلات المالية بشفافية واحترافية عالية.
 
-## Getting Started
+## 🛠 التقنيات المستخدمة
 
-Read the documentation at https://opennext.js.org/cloudflare.
+- **[Next.js 15](https://nextjs.org/)**: إطار العمل الأساسي (App Router) لبناء الويب وتوفير أداء مثالي.
+- **[React 19](https://react.dev/)**: لإنشاء واجهات تفاعلية مرنة.
+- **[Tailwind CSS v4](https://tailwindcss.com/)**: إطار عمل CSS يُستخدم لتصميم الواجهات بأسلوب سريع وفعال.
+- **[Shadcn UI](https://ui.shadcn.com/)** / **[Radix UI](https://www.radix-ui.com/)**: مكتبة من المكونات الجاهزة والتي توفر إمكانية الوصول العالية (Accessibility) وتصاميم حديثة.
+- **[Better-Auth (Client)](https://better-auth.com/)**: للتكامل مع نظام المصادقة في الخادم.
+- **[Lucide React](https://lucide.dev/)**: مجموعة جميلة وشاملة من الأيقونات الموجهة.
+- **الخطوط**: تعتمد المنصة على خطوط \`Cairo\` و \`Inter\` عبر خدمة تحسين الخطوط في Next.js.
+- **الاستضافة**: مدعومة عبر **[OpenNext](https://opennext.js.org/)** للنشر على Cloudflare Pages/Workers بسلاسة.
 
-## Develop
+## 📂 هيكلية المشروع
 
-Run the Next.js development server:
+\`\`\`text
+client/
+├── src/
+│   ├── app/            # صفحات التطبيق والمسارات (Routes) عبر App Router
+│   │   ├── (dashboard)/# المسارات المحمية للوحة التحكم (الطلاب، المالية، إلخ)
+│   │   ├── page.tsx    # الصفحة الرئيسية (Landing Page)
+│   │   ├── layout.tsx  # الهيكل الأساسي للتطبيق
+│   │   └── ...
+│   ├── components/     # المكونات القابلة لإعادة الاستخدام (مثل أجزاء الشاشة وعناصر واجهة UI)
+│   │   └── ui/         # مكونات التصميم الأساسية المبنية عبر Shadcn/Radix
+│   └── lib/            # الدوال المساعدة، وإعدادات الربط مع الخادم (API, Auth)
+├── tailwind.config.ts  # إعدادات TailwindCSS والألوان
+├── next.config.ts      # إعدادات Next.js
+└── package.json        # تفاصيل المشروع والاعتماديات
+\`\`\`
 
-```bash
+## 🚀 البدء السريع (التشغيل محلياً)
+
+للبدء في تطوير وتشغيل واجهة المنصة محلياً، اتبع الخطوات التالية:
+
+### 1. تثبيت الحزم
+يجب ألا يقل إصدار `Node.js` عن الإصدار 20 (حسب متطلبات مكتبات OpenNext والمشروع).
+قم بتشغيل الأمر التالي:
+\`\`\`bash
+npm install
+\`\`\`
+
+### 2. إعدادات البيئة
+تأكد من تزويد الواجهة بروابط الخادم للعمل بنجاح (API URL). أضف ملف \`.env.local\` أو \`.dev.vars\` في الجذر الرئيسي:
+\`\`\`env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8787 # رابط الـ Backend المحلي أو المنتج
+\`\`\`
+
+### 3. تشغيل بيئة التطوير
+لتشغيل الخادم المحلي للواجهة:
+\`\`\`bash
 npm run dev
-# or similar package manager command
-```
+\`\`\`
+افتح المتصفح على الرابط [http://localhost:3000](http://localhost:3000) واستمتع بالمشروع.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ☁️ النشر (Deployment)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+يتم نشر الواجهة مباشرة على **Cloudflare** عبر التوافق التام مع أداة \`OpenNext\`.
+للقيام بالنشر السحابي، تأكد من سلامة ملفاتك ثم قم بتشغيل:
 
-## Preview
-
-Preview the application locally on the Cloudflare runtime:
-
-```bash
-npm run preview
-# or similar package manager command
-```
-
-## Deploy
-
-Deploy the application to Cloudflare:
-
-```bash
+\`\`\`bash
 npm run deploy
-# or similar package manager command
-```
+\`\`\`
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+هذا الأمر سيقوم بـ:
+1. بناء (Build) وتجهيز تطبيق Next.js ليصبح مناسباً لبيئة خوادم Cloudflare.
+2. نشر (Deploy) الملفات الثابتة والدوال بصيغتها النهائية باستخدام \`wrangler\`.
