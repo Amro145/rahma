@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, ExternalLink, CheckCircle } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 type Student = {
   id: number;
@@ -35,13 +36,7 @@ export default function StudentsPage() {
 
   const fetchStudents = async () => {
     try {
-      const backendUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://backend.amroaltayeb14.workers.dev";
-      const res = await fetch(`${backendUrl}/api/students`, {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch students");
-      const json = (await res.json()) as any;
+      const json = await apiFetch<{ students: Student[] }>("/api/students");
       setStudents(json.students);
     } catch (err) {
       console.error("Error fetching students:", err);
@@ -53,14 +48,9 @@ export default function StudentsPage() {
   const handleConfirmPayment = async (id: number) => {
     setActionLoading(id);
     try {
-      const backendUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://backend.amroaltayeb14.workers.dev";
-      const res = await fetch(`${backendUrl}/api/students/${id}/pay`, {
+      await apiFetch(`/api/students/${id}/pay`, {
         method: "PATCH",
-        credentials: "include",
       });
-
-      if (!res.ok) throw new Error("Failed to confirm payment");
 
       setStudents((prev) =>
         prev.map((s) => (s.id === id ? { ...s, status: "paid" } : s))

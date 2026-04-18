@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Wallet, Banknote } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 type SummaryData = {
   summary: {
@@ -26,17 +27,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const backendUrl =
-          process.env.NEXT_PUBLIC_API_URL ||
-          "https://backend.amroaltayeb14.workers.dev";
-
-        const res = await fetch(`${backendUrl}/api/finance/summary`, {
-          credentials: "include",
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch");
-
-        const json = (await res.json()) as any;
+        const json = await apiFetch<SummaryData>("/api/finance/summary");
         setData(json);
       } catch (err) {
         console.error("Error fetching summary:", err);

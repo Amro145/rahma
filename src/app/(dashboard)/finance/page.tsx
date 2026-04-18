@@ -21,6 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 type Log = {
   id: number;
@@ -52,13 +53,7 @@ export default function FinancePage() {
 
   const fetchLogs = async () => {
     try {
-      const backendUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://backend.amroaltayeb14.workers.dev";
-      const res = await fetch(`${backendUrl}/api/finance/logs`, {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch logs");
-      const json = (await res.json()) as any;
+      const json = await apiFetch<{ logs: Log[] }>("/api/finance/logs");
       setLogs(json.logs);
     } catch (err) {
       console.error("Error fetching logs:", err);
@@ -71,21 +66,14 @@ export default function FinancePage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const backendUrl =
-        process.env.NEXT_PUBLIC_API_URL || "https://backend.amroaltayeb14.workers.dev";
-      const res = await fetch(`${backendUrl}/api/finance/logs`, {
+      const json = await apiFetch<{ log: Log }>("/api/finance/logs", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({
           ...formData,
           amount: Number(formData.amount),
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create log");
-
-      const json = (await res.json()) as any;
       setLogs((prev) => [json.log, ...prev]);
       
       setFormData({ type: "income", amount: "", category: "", description: "" });
