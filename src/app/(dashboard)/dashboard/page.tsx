@@ -186,34 +186,36 @@ export default function DashboardPage() {
               <span className="text-red-500 font-bold tracking-tighter text-2xl">-</span>
               <span>{(data?.finance.totalExpenses || 0).toLocaleString()}</span>
               <span className="text-lg font-bold text-slate-300 mr-2 uppercase">ج.م</span>
+              <span className="text-sm md:text-lg font-bold text-slate-400">ج.م</span>
             </div>
-            <p className="text-sm text-slate-400 mt-4 font-bold">كافة المصاريف التشغيلية المسجلة</p>
+            <div className="mt-4 flex items-center gap-2">
+              <span className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                <span className="h-full bg-emerald-500 block w-full"></span>
+              </span>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Current Balance */}
-        <Card className="rounded-[2rem] border-teal-600 shadow-2xl hover:shadow-teal-200/50 transition-all duration-300 bg-teal-700 text-white overflow-hidden relative group">
-          <div className="absolute -left-4 -top-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
-            <Wallet className="w-40 h-40" />
-          </div>
-          <CardHeader className="flex flex-row items-center justify-between p-8 pb-2 space-y-0 relative z-10">
-            <CardTitle className="text-sm font-black tracking-widest text-teal-100 uppercase">صافي الرصيد</CardTitle>
+        {/* Net Balance (Important for Mobile) */}
+        <Card className="rounded-[2rem] border-slate-200 overflow-hidden group hover:shadow-xl transition-all duration-500 border-none bg-slate-900 shadow-slate-400/20 relative md:col-span-2 lg:col-span-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/20 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+          <CardHeader className="flex flex-row items-center justify-between p-6 md:p-8 pb-2 space-y-0 relative z-10">
+            <CardTitle className="text-xs md:text-sm font-black tracking-widest text-teal-100 uppercase">صافي الرصيد</CardTitle>
             <div className="p-3 bg-teal-600/50 rounded-2xl backdrop-blur-md">
-              <Wallet className="w-6 h-6 text-white" />
+              <Wallet className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
           </CardHeader>
-          <CardContent className="p-8 pt-2 relative z-10">
-            <div className="text-5xl font-black text-white tracking-tighter gap-1 flex items-baseline">
+          <CardContent className="p-6 md:p-8 pt-2 relative z-10">
+            <div className="text-3xl md:text-5xl font-black text-white tracking-tighter gap-1 flex items-baseline">
               <span>{(data?.finance.netBalance || 0).toLocaleString()}</span>
-              <span className="text-xl font-bold text-teal-300 mr-2 uppercase">ج.م</span>
+              <span className="text-lg md:text-xl font-bold text-teal-300 mr-2 uppercase">ج.م</span>
             </div>
-            <p className="text-sm text-teal-100 mt-4 font-bold">الرصيد المتاح حالياً في الخزينة</p>
+            <p className="text-xs md:text-sm text-teal-100 mt-4 font-bold">الرصيد المتاح حالياً</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-xl font-black text-slate-800 border-r-4 border-teal-600 pr-3">إجراءات سريعة</h3>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           
           <Dialog open={isStudentDialogOpen} onOpenChange={setIsStudentDialogOpen}>

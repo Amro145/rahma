@@ -200,13 +200,13 @@ export default function StudentsPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-[--font-cairo]">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-black tracking-tight text-slate-900 border-r-4 border-teal-600 pr-3">دليل الطلاب</h2>
-        <div className="flex items-center gap-4 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-80">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 border-r-4 border-teal-600 pr-3">دليل الطلاب</h2>
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+          <div className="relative w-full sm:w-64 md:w-80">
             <Search className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
             <Input
-              placeholder="البحث عن اسم الطالب..."
+              placeholder="البحث عن جاسم الطالب..."
               className="pr-10 h-11 bg-white border-slate-200 rounded-2xl shadow-sm focus-visible:ring-teal-600 text-sm font-bold w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -214,7 +214,7 @@ export default function StudentsPage() {
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger render={<Button className="bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0" />}>
+            <DialogTrigger render={<Button className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0" />}>
                 <Plus className="w-5 h-5 ml-2 -mr-1" />
                 إضافة طالب
             </DialogTrigger>
@@ -275,7 +275,8 @@ export default function StudentsPage() {
       </div>
 
       <div className="rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <Table>
+        <div className="overflow-x-auto">
+          <Table>
           <TableHeader>
             <TableRow className="bg-slate-50/80 border-b border-slate-200 hover:bg-slate-50/80">
               <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right pr-6">اسم الطالب</TableHead>
@@ -379,6 +380,7 @@ export default function StudentsPage() {
           </TableBody>
         </Table>
       </div>
+    </div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

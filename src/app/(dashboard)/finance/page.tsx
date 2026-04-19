@@ -172,11 +172,11 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-[--font-cairo]">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-black tracking-tight text-slate-900 border-r-4 border-teal-600 pr-3">سجل المعاملات المالية</h2>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 border-r-4 border-teal-600 pr-3">سجل المعاملات المالية</h2>
         
-        <div className="flex items-center gap-4">
-          <div className="flex bg-slate-100/80 rounded-2xl p-1.5 shadow-inner border border-slate-200 backdrop-blur-sm">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+          <div className="flex bg-slate-100/80 rounded-2xl p-1 shadow-inner border border-slate-200 backdrop-blur-sm w-full sm:w-auto overflow-x-auto no-scrollbar">
             <button
               onClick={() => setFilter("all")}
               className={`px-5 py-2 text-sm font-black rounded-xl transition-all duration-300 ${
@@ -205,9 +205,9 @@ export default function FinancePage() {
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger render={
-                <Button className="bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0">
+                <Button className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0">
                     <Plus className="w-5 h-5 ml-2 -mr-1" />
-                    إضافة سجل مالي
+                    إضافة سجل
                 </Button>
             } />
             <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
@@ -291,7 +291,8 @@ export default function FinancePage() {
       </div>
 
       <div className="rounded-[2.5rem] border border-slate-100 bg-white shadow-sm overflow-hidden">
-        <Table>
+        <div className="overflow-x-auto">
+          <Table>
           <TableHeader>
             <TableRow className="bg-slate-50/80 border-b border-slate-200 hover:bg-slate-50/80">
               <TableHead className="font-black text-slate-500 h-14 uppercase text-xs tracking-widest text-right pr-8">النوع</TableHead>
@@ -372,6 +373,7 @@ export default function FinancePage() {
           </TableBody>
         </Table>
       </div>
+    </div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
