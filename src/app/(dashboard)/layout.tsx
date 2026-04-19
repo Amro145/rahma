@@ -6,6 +6,8 @@ import { authClient } from "@/lib/auth.client";
 import { Sidebar } from "@/components/Sidebar";
 import { LogOut, User } from "lucide-react";
 
+import { Toaster } from "sonner";
+
 export default function DashboardLayout({
   children,
 }: {
@@ -58,6 +60,7 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-slate-50 flex text-slate-900 font-[--font-cairo]" dir="rtl">
       <Sidebar />
       <div className="mr-64 flex flex-col flex-1 min-h-screen transition-all duration-300">
+        <Toaster position="top-center" richColors />
         {/* Top Header */}
         <header className="h-16 flex items-center justify-between px-8 bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-20">
           <div className="flex flex-col">

@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { toast } from "sonner";
 
 type Log = {
   id: number;
@@ -88,8 +89,9 @@ export default function FinancePage() {
       
       setFormData({ type: "income", amount: "", category: "", description: "" });
       setIsDialogOpen(false);
-    } catch (err) {
-      console.error("Error creating record:", err);
+      toast.success("تم تسجيل العملية بنجاح");
+    } catch {
+      toast.error("فشل تسجيل العملية");
     } finally {
       setSubmitting(false);
     }
@@ -110,8 +112,9 @@ export default function FinancePage() {
 
       setLogs((prev) => prev.map(l => l.id === selectedLog.id ? json.log : l));
       setIsEditDialogOpen(false);
-    } catch (err) {
-      console.error("Error updating record:", err);
+      toast.success("تم تحديث السجل بنجاح");
+    } catch {
+      toast.error("فشل تحديث السجل");
     } finally {
       setSubmitting(false);
     }
@@ -126,8 +129,9 @@ export default function FinancePage() {
       });
       setLogs((prev) => prev.filter(l => l.id !== selectedLog.id));
       setIsDeleteDialogOpen(false);
-    } catch (err) {
-      console.error("Error deleting record:", err);
+      toast.success("تم حذف السجل بنجاح");
+    } catch {
+      toast.error("فشل حذف السجل");
     } finally {
       setSubmitting(false);
     }
@@ -188,10 +192,12 @@ export default function FinancePage() {
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger render={<Button className="bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5" />}>
-                <Plus className="w-5 h-5 ml-2 -mr-1" />
-                إضافة سجل جديد
-            </DialogTrigger>
+            <DialogTrigger render={
+                <Button className="bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0">
+                    <Plus className="w-5 h-5 ml-2 -mr-1" />
+                    إضافة سجل مالي
+                </Button>
+            } />
             <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-black text-slate-900 text-right">تسجيل حركة مالية</DialogTitle>

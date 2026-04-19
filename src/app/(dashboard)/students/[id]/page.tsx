@@ -6,6 +6,7 @@ import { PaymentCalendar } from "@/components/payment-calendar";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Printer, Download } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface PaymentMonth {
   monthIndex: number;
@@ -64,6 +65,7 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
     fetchData();
   }, [fetchData]);
 
+
   const handlePayMonth = async (monthIndex: number) => {
     if (!data) return;
     try {
@@ -75,13 +77,14 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
           amount: data.monthlyAmount
         })
       });
+      toast.success("تم تسجيل الدفع بنجاح");
       // Refresh data
       await fetchData();
     } catch (err: unknown) {
       if (err instanceof Error) {
-        alert(err.message);
+        toast.error(err.message);
       } else {
-        alert("An error occurred while processing payment");
+        toast.error("حدث خطأ أثناء معالجة الدفع");
       }
     }
   };

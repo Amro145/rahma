@@ -30,6 +30,7 @@ import {
 import { Search, ExternalLink, CheckCircle, Plus, MoreVertical, Edit2, Trash2, CreditCard } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import Link from "next/link";
+import { toast } from "sonner";
 
 type Student = {
   id: number;
@@ -82,8 +83,9 @@ export default function StudentsPage() {
       setStudents((prev) =>
         prev.map((s) => (s.id === id ? { ...s, status: "paid" } : s))
       );
-    } catch (err) {
-      console.error("Error confirming payment:", err);
+      toast.success("تم تأكيد السداد بنجاح");
+    } catch {
+      toast.error("فشل تأكيد السداد");
     } finally {
       setActionLoading(null);
     }
@@ -106,8 +108,9 @@ export default function StudentsPage() {
       
       setFormData({ name: "", whatsapp: "", requiredAmount: "" });
       setIsDialogOpen(false);
-    } catch (err) {
-      console.error("Error creating student:", err);
+      toast.success("تمت إضافة الطالب بنجاح");
+    } catch {
+      toast.error("فشل إضافة الطالب");
     } finally {
       setSubmitting(false);
     }
@@ -129,8 +132,9 @@ export default function StudentsPage() {
 
       setStudents((prev) => prev.map(s => s.id === selectedStudent.id ? json.student : s));
       setIsEditDialogOpen(false);
-    } catch (err) {
-      console.error("Error updating student:", err);
+      toast.success("تم تحديث بيانات الطالب");
+    } catch {
+      toast.error("فشل تحديث البيانات");
     } finally {
       setSubmitting(false);
     }
@@ -145,8 +149,9 @@ export default function StudentsPage() {
       });
       setStudents((prev) => prev.filter(s => s.id !== selectedStudent.id));
       setIsDeleteDialogOpen(false);
-    } catch (err) {
-      console.error("Error deleting student:", err);
+      toast.success("تم حذف الطالب بنجاح");
+    } catch {
+      toast.error("فشل حذف الطالب");
     } finally {
       setSubmitting(false);
     }

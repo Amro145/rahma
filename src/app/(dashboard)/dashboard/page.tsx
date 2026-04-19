@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Wallet, Banknote, UserPlus, FilePlus } from "lucide-react";
+import { Users, Wallet, Banknote, UserPlus, FilePlus, Building2, ArrowLeft } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { organization } from "@/lib/auth.client";
 
 type SummaryData = {
   summary: {
@@ -33,19 +35,26 @@ type SummaryData = {
 export default function DashboardPage() {
   const [data, setData] = useState<SummaryData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [noOrg, setNoOrg] = useState(false);
 
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [isFinanceDialogOpen, setIsFinanceDialogOpen] = useState(false);
+  const [isCreateOrgOpen, setIsCreateOrgOpen] = useState(false);
+  
   const [submitting, setSubmitting] = useState(false);
-
   const [studentForm, setStudentForm] = useState({ name: "", whatsapp: "", requiredAmount: "" });
   const [financeForm, setFinanceForm] = useState({ type: "income", amount: "", category: "", description: "" });
+  const [orgName, setOrgName] = useState("");
 
   const fetchSummary = async () => {
     try {
       const json = await apiFetch<SummaryData>("/api/finance/summary");
       setData(json);
-    } catch (err) {
+      setNoOrg(false);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.includes("مؤسسة")) {
+        setNoOrg(true);
+      }
       console.error("Error fetching summary:", err);
     } finally {
       setLoading(false);
@@ -55,6 +64,28 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchSummary();
   }, []);
+
+  const handleCreateOrg = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const { data: newOrg, error } = await organization.create({
+        name: orgName,
+        slug: orgName.toLowerCase().replace(/\s+/g, '-'),
+      });
+      if (error) throw error;
+      
+      toast.success("تم إنشاء المؤسسة بنجاح");
+      if (newOrg?.id) {
+        await organization.setActive({ organizationId: newOrg.id });
+        window.location.reload();
+      }
+    } catch {
+      toast.error("فشل إنشاء المؤسسة");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,9 +100,10 @@ export default function DashboardPage() {
       });
       setIsStudentDialogOpen(false);
       setStudentForm({ name: "", whatsapp: "", requiredAmount: "" });
-      fetchSummary(); // Refresh stats
-    } catch (err) {
-      console.error("Error creating student:", err);
+      toast.success("تمت إضافة الطالب بنجاح");
+      fetchSummary();
+    } catch {
+      toast.error("فشل إضافة الطالب");
     } finally {
       setSubmitting(false);
     }
@@ -90,9 +122,10 @@ export default function DashboardPage() {
       });
       setIsFinanceDialogOpen(false);
       setFinanceForm({ type: "income", amount: "", category: "", description: "" });
-      fetchSummary(); // Refresh stats
-    } catch (err) {
-      console.error("Error creating record:", err);
+      toast.success("تم تسجيل العملية بنجاح");
+      fetchSummary();
+    } catch {
+      toast.error("فشل تسجيل العملية");
     } finally {
       setSubmitting(false);
     }
@@ -100,12 +133,50 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 h-full flex flex-col">
         <div className="grid gap-6 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-40 rounded-3xl bg-white border border-slate-100 shadow-sm animate-pulse"></div>
           ))}
         </div>
+        <div className="mt-8 h-64 rounded-3xl bg-white border border-slate-100 shadow-sm animate-pulse"></div>
+      </div>
+    );
+  }
+
+  if (noOrg) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] bg-white rounded-[3rem] border border-slate-100 shadow-xl shadow-teal-50/50 p-12 text-center animate-in fade-in zoom-in duration-500">
+        <div className="w-24 h-24 bg-teal-50 rounded-[2rem] flex items-center justify-center mb-6">
+          <Building2 className="w-12 h-12 text-teal-600" />
+        </div>
+        <h2 className="text-3xl font-black text-slate-900 mb-4">أهلاً بك في منصة رحمة</h2>
+        <p className="text-slate-500 font-bold max-w-md mx-auto mb-10 leading-relaxed">
+          للبدء في إدارة شؤون الطلاب والعمليات المالية، يرجى إنشاء مؤسستك الأولى أو اختيار واحدة من القائمة الجانبية.
+        </p>
+        
+        <Dialog open={isCreateOrgOpen} onOpenChange={setIsCreateOrgOpen}>
+          <DialogTrigger render={
+            <Button className="h-16 px-10 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl text-lg font-black shadow-xl shadow-teal-200 transition-all hover:-translate-y-1 active:scale-95">
+              إنشاء مؤسستي الأولى الآن
+              <ArrowLeft className="mr-3 w-5 h-5" />
+            </Button>
+          } />
+          <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]" dir="rtl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black text-slate-900 text-right">مؤسسة جديدة</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCreateOrg} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
+              <div className="space-y-2">
+                <Label className="text-slate-400 font-black text-xs uppercase text-right block">اسم المؤسسة</Label>
+                <Input required className="rounded-2xl h-12" placeholder="جمعية رحمة..." value={orgName} onChange={e => setOrgName(e.target.value)} />
+              </div>
+              <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 rounded-2xl font-black truncate">
+                {submitting ? "جاري الإنشاء..." : "إنشاء المؤسسة والبدء"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -182,11 +253,13 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           
           <Dialog open={isStudentDialogOpen} onOpenChange={setIsStudentDialogOpen}>
-            <DialogTrigger render={<Button className="h-20 bg-white border-2 border-slate-100 hover:border-teal-500 hover:bg-teal-50 text-slate-700 hover:text-teal-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group" />}>
-                <UserPlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform" />
+            <DialogTrigger render={
+                <Button className="h-20 bg-white border-2 border-slate-100 hover:border-teal-500 hover:bg-teal-50 text-slate-700 hover:text-teal-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group" />
+            }>
+                <UserPlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform text-teal-600" />
                 <span className="font-black text-sm">إضافة طالب جديد</span>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
+            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]" dir="rtl">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-black text-slate-900 text-right">طالب جديد</DialogTitle>
               </DialogHeader>
@@ -211,11 +284,13 @@ export default function DashboardPage() {
           </Dialog>
 
           <Dialog open={isFinanceDialogOpen} onOpenChange={setIsFinanceDialogOpen}>
-            <DialogTrigger render={<Button className="h-20 bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group" />}>
-                <FilePlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform" />
+            <DialogTrigger render={
+                <Button className="h-20 bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group" />
+            }>
+                <FilePlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform text-emerald-600" />
                 <span className="font-black text-sm">تسجيل حركة مالية</span>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
+            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]" dir="rtl">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-black text-slate-900 text-right">تسجيل حركة مالية</DialogTitle>
               </DialogHeader>
@@ -250,3 +325,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
