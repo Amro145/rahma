@@ -26,9 +26,6 @@ export function OrganizationSwitcher() {
   const { data: session } = useSession();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [orgs, setOrgs] = useState<any[]>([]);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [newOrgName, setNewOrgName] = useState("");
-  const [creating, setCreating] = useState(false);
 
   const fetchOrgs = async () => {
     try {
@@ -57,37 +54,6 @@ export function OrganizationSwitcher() {
     } catch (error) {
       console.error("Failed to set active organization:", error);
       toast.error("فشل في تبديل المؤسسة");
-    }
-  };
-
-  const handleCreateOrg = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newOrgName.trim()) return;
-    setCreating(true);
-    try {
-      const { data, error } = await organization.create({
-        name: newOrgName,
-        slug: newOrgName.toLowerCase().replace(/\s+/g, '-'),
-      });
-
-      if (error) throw error;
-      
-      toast.success("تم إنشاء المؤسسة بنجاح");
-      setIsCreateOpen(false);
-      setNewOrgName("");
-      
-      // Select the new org immediately
-      if (data?.id) {
-        await organization.setActive({ organizationId: data.id });
-        window.location.reload();
-      } else {
-        fetchOrgs();
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("حدث خطأ أثناء إنشاء المؤسسة");
-    } finally {
-      setCreating(false);
     }
   };
 
@@ -131,59 +97,8 @@ export function OrganizationSwitcher() {
                 لم تقم بإنشاء أي مؤسسة بعد
              </div>
           )}
-          
-          <DropdownMenuSeparator className="my-2" />
-          
-          <DropdownMenuItem 
-            onSelect={(e) => {
-              e.preventDefault();
-              setIsCreateOpen(true);
-            }}
-            className="flex items-center gap-2 cursor-pointer py-2.5 px-3 rounded-lg text-teal-600 hover:bg-teal-50 font-black text-sm"
-          >
-            <Plus className="h-4 w-4" />
-            <span>إضافة مؤسسة جديدة</span>
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]" dir="rtl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-black text-slate-900 text-right">مؤسسة جديدة</DialogTitle>
-            <DialogDescription className="text-right font-bold text-slate-500 mt-2">
-              ابدأ بتنظيم أعمالك الخيرية من خلال إنشاء مؤسسة مخصصة.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleCreateOrg} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
-            <div className="space-y-2">
-              <Label htmlFor="org-name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم المؤسسة</Label>
-              <Input
-                id="org-name"
-                required
-                className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold"
-                placeholder="مثال: جمعية رحمة بالخرطوم"
-                value={newOrgName}
-                onChange={(e) => setNewOrgName(e.target.value)}
-              />
-            </div>
-            
-            <Button 
-                type="submit" 
-                disabled={creating} 
-                className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl shadow-xl shadow-teal-100 text-lg font-black transition-all"
-            >
-              {creating ? (
-                <>
-                  <Loader2 className="ml-2 h-5 w-5 animate-spin" />
-                  جاري الإنشاء...
-                </>
-              ) : "إنشاء المؤسسة الآن"}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
-

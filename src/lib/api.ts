@@ -31,15 +31,28 @@ export async function apiFetch<T>(
       throw new Error("Unauthorized");
     }
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({})) as { error?: string };
-      console.error(`API Error [${res.status}] at ${endpoint}:`, errorData.error);
-      throw new Error(errorData.error || `API Error: ${res.statusText}`);
+    // Read the response as text first to handle empty bodies
+    const text = await res.text();
+    let data;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = { error: text || "Malformed response" };
     }
 
-    return res.json() as Promise<T>;
+    if (!res.ok) {
+      const errorMessage = (data as { error?: string })?.error || `API Error: ${res.status} ${res.statusText}`;
+      console.error(`API Error [${res.status}] at ${endpoint}:`, errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    return data as T;
   } catch (err) {
-    console.error(`Fetch failure at ${endpoint}:`, err);
+    if (err instanceof Error && err.name === "SyntaxError") {
+      console.error(`JSON Parse error at ${endpoint}:`, err);
+    } else {
+      console.error(`Fetch failure at ${endpoint}:`, err);
+    }
     throw err;
   }
 }

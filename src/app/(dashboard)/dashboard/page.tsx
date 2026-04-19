@@ -36,12 +36,10 @@ export default function DashboardPage() {
 
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [isFinanceDialogOpen, setIsFinanceDialogOpen] = useState(false);
-  const [isCreateOrgOpen, setIsCreateOrgOpen] = useState(false);
   
   const [submitting, setSubmitting] = useState(false);
   const [studentForm, setStudentForm] = useState({ name: "", whatsapp: "", requiredAmount: "" });
   const [financeForm, setFinanceForm] = useState({ type: "income" as "income" | "expense", amount: "", category: "", description: "" });
-  const [orgName, setOrgName] = useState("");
 
   const fetchSummary = useCallback(async () => {
     if (!activeOrgId) {
@@ -70,28 +68,6 @@ export default function DashboardPage() {
       fetchSummary();
     }
   }, [fetchSummary, session]);
-
-  const handleCreateOrg = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const { data: newOrg, error } = await organization.create({
-        name: orgName,
-        slug: orgName.toLowerCase().replace(/\s+/g, '-'),
-      });
-      if (error) throw error;
-      
-      toast.success("تم إنشاء المؤسسة بنجاح");
-      if (newOrg?.id) {
-        await organization.setActive({ organizationId: newOrg.id });
-        window.location.reload();
-      }
-    } catch {
-      toast.error("فشل إنشاء المؤسسة");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,31 +141,13 @@ export default function DashboardPage() {
         </div>
         <h2 className="text-3xl font-black text-slate-900 mb-4">أهلاً بك في منصة رحمة</h2>
         <p className="text-slate-500 font-bold max-w-md mx-auto mb-10 leading-relaxed">
-          للبدء في إدارة شؤون الطلاب والعمليات المالية، يرجى إنشاء مؤسستك الأولى أو اختيار واحدة من القائمة الجانبية.
+          يرجى اختيار المؤسسة المطلوبة من القائمة الجانبية للبدء في إدارة شؤون الطلاب والعمليات المالية.
         </p>
         
-        <Dialog open={isCreateOrgOpen} onOpenChange={setIsCreateOrgOpen}>
-          <DialogTrigger render={
-            <Button className="h-16 px-10 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl text-lg font-black shadow-xl shadow-teal-200 transition-all hover:-translate-y-1 active:scale-95">
-              إنشاء مؤسستي الأولى الآن
-              <ArrowLeft className="mr-3 w-5 h-5" />
-            </Button>
-          } />
-          <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]" dir="rtl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-black text-slate-900 text-right">مؤسسة جديدة</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleCreateOrg} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
-              <div className="space-y-2">
-                <Label className="text-slate-400 font-black text-xs uppercase text-right block">اسم المؤسسة</Label>
-                <Input required className="rounded-2xl h-12 border-slate-200" placeholder="جمعية رحمة..." value={orgName} onChange={e => setOrgName(e.target.value)} />
-              </div>
-              <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 rounded-2xl font-black text-white">
-                {submitting ? "جاري الإنشاء..." : "إنشاء المؤسسة والبدء"}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2 px-6 py-3 bg-slate-50 rounded-2xl text-slate-600 font-black text-sm">
+          <ArrowLeft className="w-4 h-4 ml-2 animate-bounce-horizontal" />
+          استخدم القائمة الجانبية لاختيار المؤسسة
+        </div>
       </div>
     );
   }
