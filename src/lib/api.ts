@@ -15,6 +15,12 @@ export async function apiFetch<T>(
   // Only inject the header if a valid orgId is provided
   if (orgId) {
     headers["x-organization-id"] = orgId;
+  } else if (endpoint.startsWith("/api/") && !endpoint.includes("/auth") && !endpoint.includes("/organization")) {
+    // If we're calling a tenant-specific API without an orgId, we should handle it.
+    // However, instead of throwing immediately here, we allow the fetch 
+    // so the backend can return the 400, which the caller can then handle.
+    // BUT to satisfy the "graceful" requirement, let's log a warning.
+    console.warn(`[apiFetch] Calling tenant API ${endpoint} without orgId.`);
   }
 
   try {
@@ -29,6 +35,10 @@ export async function apiFetch<T>(
         window.location.href = "/signin";
       }
       throw new Error("Unauthorized");
+    }
+
+    if (res.status === 400 && !orgId) {
+      throw new Error("يرجى اختيار مؤسسة للمتابعة");
     }
 
     // Read the response as text first to handle empty bodies
@@ -51,6 +61,7 @@ export async function apiFetch<T>(
     if (err instanceof Error && err.name === "SyntaxError") {
       console.error(`JSON Parse error at ${endpoint}:`, err);
     } else {
+      // Re-throw so the caller (e.g. SWR) knows about the error
       console.error(`Fetch failure at ${endpoint}:`, err);
     }
     throw err;
