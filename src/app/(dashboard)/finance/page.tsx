@@ -30,6 +30,8 @@ import {
 import { Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { toast } from "sonner";
+import { useSession } from "@/lib/auth.client";
+import { useCallback } from "react";
 
 type Log = {
   id: number;
@@ -41,6 +43,9 @@ type Log = {
 };
 
 export default function FinancePage() {
+  const { data: session } = useSession();
+  const activeOrgId = session?.session?.activeOrganizationId;
+
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
@@ -58,27 +63,32 @@ export default function FinancePage() {
     description: "",
   });
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
+    if (!activeOrgId) return;
     try {
-      const json = await apiFetch<{ logs: Log[] }>("/api/finance/logs");
+      const json = await apiFetch<{ logs: Log[] }>("/api/finance/logs", {
+        headers: { "x-organization-id": activeOrgId }
+      });
       setLogs(json.logs);
     } catch (err) {
       console.error("Error fetching logs:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeOrgId]);
+
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   const handleCreateRecord = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activeOrgId) return;
     setSubmitting(true);
     try {
       const json = await apiFetch<{ log: Log }>("/api/finance/logs", {
         method: "POST",
+        headers: { "x-organization-id": activeOrgId },
         body: JSON.stringify({
           ...formData,
           amount: Number(formData.amount),
@@ -99,11 +109,12 @@ export default function FinancePage() {
 
   const handleEditRecord = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedLog) return;
+    if (!selectedLog || !activeOrgId) return;
     setSubmitting(true);
     try {
       const json = await apiFetch<{ log: Log }>(`/api/finance/logs/${selectedLog.id}`, {
         method: "PATCH",
+        headers: { "x-organization-id": activeOrgId },
         body: JSON.stringify({
           ...formData,
           amount: Number(formData.amount),
@@ -121,11 +132,12 @@ export default function FinancePage() {
   };
 
   const handleDeleteRecord = async () => {
-    if (!selectedLog) return;
+    if (!selectedLog || !activeOrgId) return;
     setSubmitting(true);
     try {
       await apiFetch(`/api/finance/logs/${selectedLog.id}`, {
         method: "DELETE",
+        headers: { "x-organization-id": activeOrgId },
       });
       setLogs((prev) => prev.filter(l => l.id !== selectedLog.id));
       setIsDeleteDialogOpen(false);

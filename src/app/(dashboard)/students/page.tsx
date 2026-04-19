@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -27,10 +27,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, ExternalLink, CheckCircle, Plus, MoreVertical, Edit2, Trash2, CreditCard } from "lucide-react";
+import { 
+  Users, 
+  Search, 
+  Plus, 
+  MoreVertical, 
+  Edit2, 
+  Trash2, 
+  CheckCircle, 
+  Loader2,
+  CalendarDays,
+  ExternalLink,
+  CreditCard
+} from "lucide-react";
 import { apiFetch } from "@/lib/api";
-import Link from "next/link";
 import { toast } from "sonner";
+import { useSession } from "@/lib/auth.client";
+import Link from "next/link";
 
 type Student = {
   id: number;
@@ -42,6 +55,9 @@ type Student = {
 };
 
 export default function StudentsPage() {
+  const { data: session } = useSession();
+  const activeOrgId = session?.session?.activeOrganizationId;
+
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,26 +74,31 @@ export default function StudentsPage() {
     requiredAmount: "",
   });
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
+    if (!activeOrgId) return;
     try {
-      const json = await apiFetch<{ students: Student[] }>("/api/students");
+      const json = await apiFetch<{ students: Student[] }>("/api/students", {
+        headers: { "x-organization-id": activeOrgId }
+      });
       setStudents(json.students);
     } catch (err) {
       console.error("Error fetching students:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeOrgId]);
+
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
 
   const handleConfirmPayment = async (id: number) => {
+    if (!activeOrgId) return;
     setActionLoading(id);
     try {
       await apiFetch(`/api/students/${id}/pay`, {
         method: "PATCH",
+        headers: { "x-organization-id": activeOrgId },
       });
 
       setStudents((prev) =>
@@ -93,10 +114,12 @@ export default function StudentsPage() {
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activeOrgId) return;
     setSubmitting(true);
     try {
       const json = await apiFetch<{ student: Student }>("/api/students", {
         method: "POST",
+        headers: { "x-organization-id": activeOrgId },
         body: JSON.stringify({
           name: formData.name,
           whatsapp: formData.whatsapp,
@@ -118,11 +141,12 @@ export default function StudentsPage() {
 
   const handleEditStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedStudent) return;
+    if (!selectedStudent || !activeOrgId) return;
     setSubmitting(true);
     try {
       const json = await apiFetch<{ student: Student }>(`/api/students/${selectedStudent.id}`, {
         method: "PATCH",
+        headers: { "x-organization-id": activeOrgId },
         body: JSON.stringify({
           name: formData.name,
           whatsapp: formData.whatsapp,
@@ -141,11 +165,12 @@ export default function StudentsPage() {
   };
 
   const handleDeleteStudent = async () => {
-    if (!selectedStudent) return;
+    if (!selectedStudent || !activeOrgId) return;
     setSubmitting(true);
     try {
       await apiFetch(`/api/students/${selectedStudent.id}`, {
         method: "DELETE",
+        headers: { "x-organization-id": activeOrgId },
       });
       setStudents((prev) => prev.filter(s => s.id !== selectedStudent.id));
       setIsDeleteDialogOpen(false);

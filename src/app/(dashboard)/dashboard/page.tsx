@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Wallet, Banknote, UserPlus, FilePlus, Building2, ArrowLeft } from "lucide-react";
 import { apiFetch } from "@/lib/api";
@@ -15,24 +15,21 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { organization } from "@/lib/auth.client";
+import { organization, useSession } from "@/lib/auth.client";
 
 type SummaryData = {
-  summary: {
-    students: {
-      totalRequired: number;
-      totalCollected: number;
-      pending: number;
-    };
-    finances: {
-      totalIncome: number;
-      totalExpenses: number;
-      netBalance: number;
-    };
+  totalStudents: number;
+  finance: {
+    totalIncome: number;
+    totalExpenses: number;
+    netBalance: number;
   };
 };
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
+  const activeOrgId = session?.session?.activeOrganizationId;
+
   const [data, setData] = useState<SummaryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [noOrg, setNoOrg] = useState(false);
@@ -43,27 +40,36 @@ export default function DashboardPage() {
   
   const [submitting, setSubmitting] = useState(false);
   const [studentForm, setStudentForm] = useState({ name: "", whatsapp: "", requiredAmount: "" });
-  const [financeForm, setFinanceForm] = useState({ type: "income", amount: "", category: "", description: "" });
+  const [financeForm, setFinanceForm] = useState({ type: "income" as "income" | "expense", amount: "", category: "", description: "" });
   const [orgName, setOrgName] = useState("");
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
+    if (!activeOrgId) {
+       setNoOrg(true);
+       setLoading(false);
+       return;
+    }
     try {
-      const json = await apiFetch<SummaryData>("/api/finance/summary");
+      const json = await apiFetch<SummaryData>("/api/finance/summary", {
+        headers: { "x-organization-id": activeOrgId }
+      });
       setData(json);
       setNoOrg(false);
-    } catch (err: unknown) {
-      if (err instanceof Error && err.message.includes("مؤسسة")) {
+    } catch (err: any) {
+      if (err.message?.includes("مؤسسة")) {
         setNoOrg(true);
       }
       console.error("Error fetching summary:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeOrgId]);
 
   useEffect(() => {
-    fetchSummary();
-  }, []);
+    if (session) {
+      fetchSummary();
+    }
+  }, [fetchSummary, session]);
 
   const handleCreateOrg = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,12 +95,15 @@ export default function DashboardPage() {
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activeOrgId) return;
     setSubmitting(true);
     try {
       await apiFetch("/api/students", {
         method: "POST",
+        headers: { "x-organization-id": activeOrgId },
         body: JSON.stringify({
-          ...studentForm,
+          name: studentForm.name,
+          whatsapp: studentForm.whatsapp,
           requiredAmount: Number(studentForm.requiredAmount),
         }),
       });
@@ -111,13 +120,17 @@ export default function DashboardPage() {
 
   const handleCreateFinance = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activeOrgId) return;
     setSubmitting(true);
     try {
       await apiFetch("/api/finance/logs", {
         method: "POST",
+        headers: { "x-organization-id": activeOrgId },
         body: JSON.stringify({
-          ...financeForm,
+          type: financeForm.type,
           amount: Number(financeForm.amount),
+          category: financeForm.category,
+          description: financeForm.description || "",
         }),
       });
       setIsFinanceDialogOpen(false);
@@ -169,9 +182,9 @@ export default function DashboardPage() {
             <form onSubmit={handleCreateOrg} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
               <div className="space-y-2">
                 <Label className="text-slate-400 font-black text-xs uppercase text-right block">اسم المؤسسة</Label>
-                <Input required className="rounded-2xl h-12" placeholder="جمعية رحمة..." value={orgName} onChange={e => setOrgName(e.target.value)} />
+                <Input required className="rounded-2xl h-12 border-slate-200" placeholder="جمعية رحمة..." value={orgName} onChange={e => setOrgName(e.target.value)} />
               </div>
-              <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 rounded-2xl font-black truncate">
+              <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 rounded-2xl font-black text-white">
                 {submitting ? "جاري الإنشاء..." : "إنشاء المؤسسة والبدء"}
               </Button>
             </form>
@@ -180,12 +193,6 @@ export default function DashboardPage() {
       </div>
     );
   }
-
-  const totalIncome =
-    (data?.summary.students.totalCollected || 0) +
-    (data?.summary.finances.totalIncome || 0);
-  const totalExpenses = data?.summary.finances.totalExpenses || 0;
-  const currentBalance = data?.summary.finances.netBalance || 0;
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -200,9 +207,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="p-8 pt-2">
             <div className="text-4xl font-black text-slate-900 flex items-center gap-1">
-              <span className="text-emerald-500 font-bold tracking-tighter text-2xl truncate">+</span>
-              <span>{totalIncome.toLocaleString()}</span>
-              <span className="text-lg font-bold text-slate-300 mr-2">ج.م</span>
+              <span className="text-emerald-500 font-bold tracking-tighter text-2xl">+</span>
+              <span>{(data?.finance.totalIncome || 0).toLocaleString()}</span>
+              <span className="text-lg font-bold text-slate-300 mr-2 uppercase">ج.م</span>
             </div>
             <p className="text-sm text-slate-400 mt-4 font-bold">تشمل رسوم الطلاب والتبرعات</p>
           </CardContent>
@@ -219,8 +226,8 @@ export default function DashboardPage() {
           <CardContent className="p-8 pt-2">
             <div className="text-4xl font-black text-slate-900 flex items-center gap-1">
               <span className="text-red-500 font-bold tracking-tighter text-2xl">-</span>
-              <span>{totalExpenses.toLocaleString()}</span>
-              <span className="text-lg font-bold text-slate-300 mr-2">ج.م</span>
+              <span>{(data?.finance.totalExpenses || 0).toLocaleString()}</span>
+              <span className="text-lg font-bold text-slate-300 mr-2 uppercase">ج.م</span>
             </div>
             <p className="text-sm text-slate-400 mt-4 font-bold">كافة المصاريف التشغيلية المسجلة</p>
           </CardContent>
@@ -239,7 +246,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="p-8 pt-2 relative z-10">
             <div className="text-5xl font-black text-white tracking-tighter gap-1 flex items-baseline">
-              <span>{currentBalance.toLocaleString()}</span>
+              <span>{(data?.finance.netBalance || 0).toLocaleString()}</span>
               <span className="text-xl font-bold text-teal-300 mr-2 uppercase">ج.م</span>
             </div>
             <p className="text-sm text-teal-100 mt-4 font-bold">الرصيد المتاح حالياً في الخزينة</p>
@@ -247,18 +254,17 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
       <div className="space-y-4">
         <h3 className="text-xl font-black text-slate-800 border-r-4 border-teal-600 pr-3">إجراءات سريعة</h3>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           
           <Dialog open={isStudentDialogOpen} onOpenChange={setIsStudentDialogOpen}>
             <DialogTrigger render={
-                <Button className="h-20 bg-white border-2 border-slate-100 hover:border-teal-500 hover:bg-teal-50 text-slate-700 hover:text-teal-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group" />
-            }>
-                <UserPlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform text-teal-600" />
-                <span className="font-black text-sm">إضافة طالب جديد</span>
-            </DialogTrigger>
+                <Button className="h-20 w-full bg-white border-2 border-slate-100 hover:border-teal-500 hover:bg-teal-50 text-slate-700 hover:text-teal-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
+                    <UserPlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform text-teal-600" />
+                    <span className="font-black text-sm">إضافة طالب جديد</span>
+                </Button>
+            } />
             <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]" dir="rtl">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-black text-slate-900 text-right">طالب جديد</DialogTitle>
@@ -266,17 +272,17 @@ export default function DashboardPage() {
               <form onSubmit={handleCreateStudent} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
                 <div className="space-y-2">
                   <Label className="text-slate-400 font-black text-xs uppercase text-right block">اسم الطالب</Label>
-                  <Input required className="rounded-2xl h-12" placeholder="الاسم الكامل..." value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} />
+                  <Input required className="rounded-2xl h-12 border-slate-200" placeholder="الاسم الكامل..." value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-400 font-black text-xs uppercase text-right block">رقم الواتساب</Label>
-                  <Input required className="rounded-2xl h-12" placeholder="2012..." value={studentForm.whatsapp} onChange={e => setStudentForm({...studentForm, whatsapp: e.target.value})} />
+                  <Input required className="rounded-2xl h-12 border-slate-200" placeholder="2012..." value={studentForm.whatsapp} onChange={e => setStudentForm({...studentForm, whatsapp: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ المطلوب</Label>
-                  <Input required type="number" className="rounded-2xl h-12" placeholder="500..." value={studentForm.requiredAmount} onChange={e => setStudentForm({...studentForm, requiredAmount: e.target.value})} />
+                  <Input required type="number" className="rounded-2xl h-12 border-slate-200" placeholder="500..." value={studentForm.requiredAmount} onChange={e => setStudentForm({...studentForm, requiredAmount: e.target.value})} />
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 rounded-2xl font-black">
+                <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 rounded-2xl font-black text-white">
                   {submitting ? "جاري الحفظ..." : "حفظ بيانات الطالب"}
                 </Button>
               </form>
@@ -285,11 +291,11 @@ export default function DashboardPage() {
 
           <Dialog open={isFinanceDialogOpen} onOpenChange={setIsFinanceDialogOpen}>
             <DialogTrigger render={
-                <Button className="h-20 bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group" />
-            }>
-                <FilePlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform text-emerald-600" />
-                <span className="font-black text-sm">تسجيل حركة مالية</span>
-            </DialogTrigger>
+                <Button className="h-20 w-full bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
+                    <FilePlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform text-emerald-600" />
+                    <span className="font-black text-sm">تسجيل حركة مالية</span>
+                </Button>
+            } />
             <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]" dir="rtl">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-black text-slate-900 text-right">تسجيل حركة مالية</DialogTitle>
@@ -307,13 +313,13 @@ export default function DashboardPage() {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-400 font-black text-xs uppercase text-right block">التصنيف</Label>
-                  <Input required className="rounded-2xl h-12" placeholder="تبرع، إيجار..." value={financeForm.category} onChange={e => setFinanceForm({...financeForm, category: e.target.value})} />
+                  <Input required className="rounded-2xl h-12 border-slate-200" placeholder="تبرع، إيجار..." value={financeForm.category} onChange={e => setFinanceForm({...financeForm, category: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ</Label>
-                  <Input required type="number" className="rounded-2xl h-12" placeholder="0.00" value={financeForm.amount} onChange={e => setFinanceForm({...financeForm, amount: e.target.value})} />
+                  <Input required type="number" className="rounded-2xl h-12 border-slate-200" placeholder="0.00" value={financeForm.amount} onChange={e => setFinanceForm({...financeForm, amount: e.target.value})} />
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 rounded-2xl font-black">
+                <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 rounded-2xl font-black text-white">
                   {submitting ? "جاري الحفظ..." : "حفظ السجل المالي"}
                 </Button>
               </form>
@@ -325,4 +331,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

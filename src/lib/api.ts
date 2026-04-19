@@ -3,13 +3,15 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.amroaltayeb
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
   
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  } as Record<string, string>;
+
   const res = await fetch(url, {
     ...options,
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    headers,
   });
 
   if (res.status === 401) {
