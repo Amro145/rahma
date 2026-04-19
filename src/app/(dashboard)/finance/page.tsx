@@ -32,7 +32,6 @@ import { Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth.client";
-import { useCallback } from "react";
 
 type Log = {
   id: number;

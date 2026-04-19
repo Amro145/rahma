@@ -16,7 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { organization, useSession } from "@/lib/auth.client";
+import { useSession } from "@/lib/auth.client";
 
 type SummaryData = {
   totalStudents: number;

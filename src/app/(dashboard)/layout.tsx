@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth.client";
 import { Sidebar } from "@/components/Sidebar";
-import { LogOut, User, Menu } from "lucide-react";
+import { User, Menu } from "lucide-react";
 
 import { Toaster } from "sonner";
 

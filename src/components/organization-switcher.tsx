@@ -2,24 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { organization, useSession } from "@/lib/auth.client";
-import { Building2, Check, ChevronsUpDown, Plus, Loader2 } from "lucide-react";
+import { Building2, Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export function OrganizationSwitcher() {
