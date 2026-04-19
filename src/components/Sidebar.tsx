@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, FileText } from "lucide-react";
+import { OrganizationSwitcher } from "./organization-switcher";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -23,7 +24,8 @@ export function Sidebar() {
           <h2 className="text-xl font-bold tracking-tight">رحمة</h2>
         </div>
       </div>
-      <nav className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto">
+      <OrganizationSwitcher />
+      <nav className="flex-1 py-4 px-4 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
