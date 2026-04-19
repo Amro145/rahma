@@ -79,11 +79,19 @@ export default function StudentsPage() {
 
   const handleConfirmPayment = async (id: number) => {
     if (!activeOrgId) return;
+    const student = students.find((s) => s.id === id);
+    if (!student) return;
     setActionLoading(id);
     try {
+      const now = new Date();
       await apiFetch(`/api/students/${id}/pay`, {
         method: "PATCH",
         orgId: activeOrgId,
+        body: JSON.stringify({
+          monthIndex: now.getMonth() + 1,
+          academicYear: now.getFullYear(),
+          amount: student.requiredAmount,
+        }),
       });
 
       mutate(
@@ -91,8 +99,9 @@ export default function StudentsPage() {
         { revalidate: false }
       );
       toast.success("تم تأكيد السداد بنجاح");
-    } catch {
-      toast.error("فشل تأكيد السداد");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "فشل تأكيد السداد";
+      toast.error(message);
     } finally {
       setActionLoading(null);
     }
@@ -118,8 +127,9 @@ export default function StudentsPage() {
       setFormData({ name: "", whatsapp: "", requiredAmount: "" });
       setIsDialogOpen(false);
       toast.success("تمت إضافة الطالب بنجاح");
-    } catch {
-      toast.error("فشل إضافة الطالب");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "فشل إضافة الطالب";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
