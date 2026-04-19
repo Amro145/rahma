@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useSWR from "swr";
 import {
   Table,
   TableBody,
@@ -46,8 +47,6 @@ export default function FinancePage() {
   const { data: session } = useSession();
   const activeOrgId = session?.session?.activeOrganizationId;
 
-  const [logs, setLogs] = useState<Log[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -63,23 +62,12 @@ export default function FinancePage() {
     description: "",
   });
 
-  const fetchLogs = useCallback(async () => {
-    if (!activeOrgId) return;
-    try {
-      const json = await apiFetch<{ logs: Log[] }>("/api/finance/logs", {
-        orgId: activeOrgId
-      });
-      setLogs(json.logs);
-    } catch (err) {
-      console.error("Error fetching logs:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeOrgId]);
-
-  useEffect(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+  const { data, isLoading: loading, mutate } = useSWR<{ logs: Log[] }>(
+    activeOrgId ? `/api/finance/logs?orgId=${activeOrgId}` : null,
+    () => apiFetch<{ logs: Log[] }>("/api/finance/logs", { orgId: activeOrgId as string })
+  );
+  
+  const logs = data?.logs || [];
 
   const handleCreateRecord = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +83,7 @@ export default function FinancePage() {
         }),
       });
 
-      setLogs((prev) => [json.log, ...prev]);
+      mutate({ logs: [json.log, ...logs] }, { revalidate: false });
       
       setFormData({ type: "income", amount: "", category: "", description: "" });
       setIsDialogOpen(false);
@@ -121,7 +109,7 @@ export default function FinancePage() {
         }),
       });
 
-      setLogs((prev) => prev.map(l => l.id === selectedLog.id ? json.log : l));
+      mutate({ logs: logs.map(l => l.id === selectedLog.id ? json.log : l) }, { revalidate: false });
       setIsEditDialogOpen(false);
       toast.success("تم تحديث السجل بنجاح");
     } catch {
@@ -139,7 +127,7 @@ export default function FinancePage() {
         method: "DELETE",
         orgId: activeOrgId,
       });
-      setLogs((prev) => prev.filter(l => l.id !== selectedLog.id));
+      mutate({ logs: logs.filter(l => l.id !== selectedLog.id) }, { revalidate: false });
       setIsDeleteDialogOpen(false);
       toast.success("تم حذف السجل بنجاح");
     } catch {

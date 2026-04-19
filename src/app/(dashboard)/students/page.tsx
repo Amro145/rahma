@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
+import useSWR from "swr";
 import {
   Table,
   TableBody,
@@ -55,8 +56,6 @@ export default function StudentsPage() {
   const { data: session } = useSession();
   const activeOrgId = session?.session?.activeOrganizationId;
 
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [actionLoading, setActionLoading] = useState<number | null>(null);
 
@@ -71,23 +70,12 @@ export default function StudentsPage() {
     requiredAmount: "",
   });
 
-  const fetchStudents = useCallback(async () => {
-    if (!activeOrgId) return;
-    try {
-      const json = await apiFetch<{ students: Student[] }>("/api/students", {
-        orgId: activeOrgId
-      });
-      setStudents(json.students);
-    } catch (err) {
-      console.error("Error fetching students:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeOrgId]);
-
-  useEffect(() => {
-    fetchStudents();
-  }, [fetchStudents]);
+  const { data, isLoading: loading, mutate } = useSWR<{ students: Student[] }>(
+    activeOrgId ? `/api/students?orgId=${activeOrgId}` : null,
+    () => apiFetch<{ students: Student[] }>("/api/students", { orgId: activeOrgId as string })
+  );
+  
+  const students = data?.students || [];
 
   const handleConfirmPayment = async (id: number) => {
     if (!activeOrgId) return;
@@ -98,8 +86,9 @@ export default function StudentsPage() {
         orgId: activeOrgId,
       });
 
-      setStudents((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, status: "paid" } : s))
+      mutate(
+        { students: students.map((s) => (s.id === id ? { ...s, status: "paid" as const } : s)) },
+        { revalidate: false }
       );
       toast.success("تم تأكيد السداد بنجاح");
     } catch {
@@ -124,7 +113,7 @@ export default function StudentsPage() {
         }),
       });
 
-      setStudents((prev) => [json.student, ...prev]);
+      mutate({ students: [json.student, ...students] }, { revalidate: false });
       
       setFormData({ name: "", whatsapp: "", requiredAmount: "" });
       setIsDialogOpen(false);
@@ -151,7 +140,7 @@ export default function StudentsPage() {
         }),
       });
 
-      setStudents((prev) => prev.map(s => s.id === selectedStudent.id ? json.student : s));
+      mutate({ students: students.map(s => s.id === selectedStudent.id ? json.student : s) }, { revalidate: false });
       setIsEditDialogOpen(false);
       toast.success("تم تحديث بيانات الطالب");
     } catch {
@@ -169,7 +158,7 @@ export default function StudentsPage() {
         method: "DELETE",
         orgId: activeOrgId,
       });
-      setStudents((prev) => prev.filter(s => s.id !== selectedStudent.id));
+      mutate({ students: students.filter(s => s.id !== selectedStudent.id) }, { revalidate: false });
       setIsDeleteDialogOpen(false);
       toast.success("تم حذف الطالب بنجاح");
     } catch {

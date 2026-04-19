@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.amroaltayeb14.workers.dev";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export async function apiFetch<T>(
   endpoint: string, 

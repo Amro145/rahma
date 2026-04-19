@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Wallet, Banknote, UserPlus, FilePlus, Building2, ArrowLeft } from "lucide-react";
 import { apiFetch } from "@/lib/api";
@@ -30,8 +31,6 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const activeOrgId = session?.session?.activeOrganizationId;
 
-  const [data, setData] = useState<SummaryData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [noOrg, setNoOrg] = useState(false);
 
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
@@ -41,33 +40,31 @@ export default function DashboardPage() {
   const [studentForm, setStudentForm] = useState({ name: "", whatsapp: "", requiredAmount: "" });
   const [financeForm, setFinanceForm] = useState({ type: "income" as "income" | "expense", amount: "", category: "", description: "" });
 
-  const fetchSummary = useCallback(async () => {
-    if (!activeOrgId) {
-       setNoOrg(true);
-       setLoading(false);
-       return;
-    }
-    try {
-      const json = await apiFetch<SummaryData>("/api/finance/summary", {
-        orgId: activeOrgId
-      });
-      setData(json);
-      setNoOrg(false);
-    } catch (err: unknown) {
-      if (err instanceof Error && err.message?.includes("مؤسسة")) {
-        setNoOrg(true);
+  const { data, isLoading, mutate: fetchSummary } = useSWR<SummaryData>(
+    activeOrgId ? `/api/finance/summary?orgId=${activeOrgId}` : null,
+    async () => {
+      try {
+        const json = await apiFetch<SummaryData>("/api/finance/summary", { orgId: activeOrgId as string });
+        setNoOrg(false);
+        return json;
+      } catch (err: unknown) {
+        if (err instanceof Error && err.message?.includes("مؤسسة")) {
+          setNoOrg(true);
+        }
+        throw err;
       }
-      console.error("Error fetching summary:", err);
-    } finally {
-      setLoading(false);
     }
-  }, [activeOrgId]);
+  );
 
   useEffect(() => {
-    if (session) {
-      fetchSummary();
+    if (session && !activeOrgId) {
+       setNoOrg(true);
+    } else if (activeOrgId) {
+       setNoOrg(false);
     }
-  }, [fetchSummary, session]);
+  }, [session, activeOrgId]);
+
+  const loading = isLoading && !noOrg;
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
