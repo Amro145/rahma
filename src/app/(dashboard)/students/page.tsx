@@ -28,15 +28,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { 
-  Users, 
   Search, 
   Plus, 
   MoreVertical, 
   Edit2, 
   Trash2, 
   CheckCircle, 
-  Loader2,
-  CalendarDays,
   ExternalLink,
   CreditCard
 } from "lucide-react";
@@ -78,7 +75,7 @@ export default function StudentsPage() {
     if (!activeOrgId) return;
     try {
       const json = await apiFetch<{ students: Student[] }>("/api/students", {
-        headers: { "x-organization-id": activeOrgId }
+        orgId: activeOrgId
       });
       setStudents(json.students);
     } catch (err) {
@@ -98,7 +95,7 @@ export default function StudentsPage() {
     try {
       await apiFetch(`/api/students/${id}/pay`, {
         method: "PATCH",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
       });
 
       setStudents((prev) =>
@@ -119,7 +116,7 @@ export default function StudentsPage() {
     try {
       const json = await apiFetch<{ student: Student }>("/api/students", {
         method: "POST",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
         body: JSON.stringify({
           name: formData.name,
           whatsapp: formData.whatsapp,
@@ -146,7 +143,7 @@ export default function StudentsPage() {
     try {
       const json = await apiFetch<{ student: Student }>(`/api/students/${selectedStudent.id}`, {
         method: "PATCH",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
         body: JSON.stringify({
           name: formData.name,
           whatsapp: formData.whatsapp,
@@ -170,7 +167,7 @@ export default function StudentsPage() {
     try {
       await apiFetch(`/api/students/${selectedStudent.id}`, {
         method: "DELETE",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
       });
       setStudents((prev) => prev.filter(s => s.id !== selectedStudent.id));
       setIsDeleteDialogOpen(false);

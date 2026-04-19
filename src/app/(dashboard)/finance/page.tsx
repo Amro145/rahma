@@ -67,7 +67,7 @@ export default function FinancePage() {
     if (!activeOrgId) return;
     try {
       const json = await apiFetch<{ logs: Log[] }>("/api/finance/logs", {
-        headers: { "x-organization-id": activeOrgId }
+        orgId: activeOrgId
       });
       setLogs(json.logs);
     } catch (err) {
@@ -88,7 +88,7 @@ export default function FinancePage() {
     try {
       const json = await apiFetch<{ log: Log }>("/api/finance/logs", {
         method: "POST",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
         body: JSON.stringify({
           ...formData,
           amount: Number(formData.amount),
@@ -114,7 +114,7 @@ export default function FinancePage() {
     try {
       const json = await apiFetch<{ log: Log }>(`/api/finance/logs/${selectedLog.id}`, {
         method: "PATCH",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
         body: JSON.stringify({
           ...formData,
           amount: Number(formData.amount),
@@ -137,7 +137,7 @@ export default function FinancePage() {
     try {
       await apiFetch(`/api/finance/logs/${selectedLog.id}`, {
         method: "DELETE",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
       });
       setLogs((prev) => prev.filter(l => l.id !== selectedLog.id));
       setIsDeleteDialogOpen(false);

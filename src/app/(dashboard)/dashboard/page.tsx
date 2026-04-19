@@ -51,12 +51,12 @@ export default function DashboardPage() {
     }
     try {
       const json = await apiFetch<SummaryData>("/api/finance/summary", {
-        headers: { "x-organization-id": activeOrgId }
+        orgId: activeOrgId
       });
       setData(json);
       setNoOrg(false);
-    } catch (err: any) {
-      if (err.message?.includes("مؤسسة")) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message?.includes("مؤسسة")) {
         setNoOrg(true);
       }
       console.error("Error fetching summary:", err);
@@ -100,7 +100,7 @@ export default function DashboardPage() {
     try {
       await apiFetch("/api/students", {
         method: "POST",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
         body: JSON.stringify({
           name: studentForm.name,
           whatsapp: studentForm.whatsapp,
@@ -125,7 +125,7 @@ export default function DashboardPage() {
     try {
       await apiFetch("/api/finance/logs", {
         method: "POST",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
         body: JSON.stringify({
           type: financeForm.type,
           amount: Number(financeForm.amount),

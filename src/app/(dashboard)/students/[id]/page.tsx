@@ -48,10 +48,10 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
       // Fetch payment status
       const [statusRes, studentRes] = await Promise.all([
         apiFetch<PaymentStatus>(`/api/students/${studentId}/payment-status`, {
-          headers: { "x-organization-id": activeOrgId }
+          orgId: activeOrgId
         }),
         apiFetch<{ students: Student[] }>(`/api/students`, {
-          headers: { "x-organization-id": activeOrgId }
+          orgId: activeOrgId
         })
       ]);
       
@@ -81,7 +81,7 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
     try {
       await apiFetch(`/api/students/${studentId}/pay`, {
         method: "PATCH",
-        headers: { "x-organization-id": activeOrgId },
+        orgId: activeOrgId,
         body: JSON.stringify({
           monthIndex,
           academicYear: data.academicYear,
