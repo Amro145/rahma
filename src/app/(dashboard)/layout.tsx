@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth.client";
 import { Sidebar } from "@/components/Sidebar";
-import { User, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 
 import { Toaster } from "sonner";
 import Link from "next/link";
@@ -51,7 +51,6 @@ export default function DashboardLayout({
     return null;
   }
 
-  const activeOrgId = session?.session?.activeOrganizationId;
 
   const titleMapping: Record<string, string> = {
     "/dashboard": "نظرة عامة على الإحصائيات",

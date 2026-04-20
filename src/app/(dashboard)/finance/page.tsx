@@ -68,9 +68,26 @@ export default function FinancePage() {
   
   const logs = data?.logs || [];
 
+  const validateForm = () => {
+    const amount = Number(formData.amount.replace(/,/g, '').trim());
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("يرجى إدخال مبلغ صحيح أكبر من صفر");
+      return null;
+    }
+    if (!formData.category.trim()) {
+      toast.error("يرجى إدخال التصنيف");
+      return null;
+    }
+    return amount;
+  };
+
   const handleCreateRecord = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeOrgId) return;
+
+    const amount = validateForm();
+    if (amount === null) return;
+
     setSubmitting(true);
     try {
       const json = await apiFetch<{ log: Log }>("/api/finance/logs", {
@@ -78,7 +95,7 @@ export default function FinancePage() {
         orgId: activeOrgId,
         body: JSON.stringify({
           ...formData,
-          amount: Number(formData.amount),
+          amount,
         }),
       });
 
@@ -87,8 +104,9 @@ export default function FinancePage() {
       setFormData({ type: "income", amount: "", category: "", description: "" });
       setIsDialogOpen(false);
       toast.success("تم تسجيل العملية بنجاح");
-    } catch {
-      toast.error("فشل تسجيل العملية");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "فشل تسجيل العملية";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -97,6 +115,10 @@ export default function FinancePage() {
   const handleEditRecord = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedLog || !activeOrgId) return;
+
+    const amount = validateForm();
+    if (amount === null) return;
+
     setSubmitting(true);
     try {
       const json = await apiFetch<{ log: Log }>(`/api/finance/logs/${selectedLog.id}`, {
@@ -104,15 +126,16 @@ export default function FinancePage() {
         orgId: activeOrgId,
         body: JSON.stringify({
           ...formData,
-          amount: Number(formData.amount),
+          amount,
         }),
       });
 
       mutate({ logs: logs.map(l => l.id === selectedLog.id ? json.log : l) }, { revalidate: false });
       setIsEditDialogOpen(false);
       toast.success("تم تحديث السجل بنجاح");
-    } catch {
-      toast.error("فشل تحديث السجل");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "فشل تحديث السجل";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -195,7 +218,10 @@ export default function FinancePage() {
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger render={
-                <Button className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0" />
+                <Button 
+                    onClick={() => setFormData({ type: "income", amount: "", category: "", description: "" })}
+                    className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0" 
+                />
             }>
                 <Plus className="w-5 h-5 ml-2 -mr-1" />
                 إضافة سجل
