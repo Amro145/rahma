@@ -69,23 +69,35 @@ export default function DashboardPage() {
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeOrgId) return;
+
+    const amount = Number(studentForm.requiredAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("يرجى إدخال مبلغ صحيح أكبر من صفر");
+      return;
+    }
+    if (studentForm.name.trim().length < 2) {
+      toast.error("يرجى إدخال اسم الطالب (حرفين على الأقل)");
+      return;
+    }
+
     setSubmitting(true);
     try {
       await apiFetch("/api/students", {
         method: "POST",
         orgId: activeOrgId,
         body: JSON.stringify({
-          name: studentForm.name,
-          whatsapp: studentForm.whatsapp,
-          requiredAmount: Number(studentForm.requiredAmount),
+          name: studentForm.name.trim(),
+          whatsapp: studentForm.whatsapp.trim(),
+          requiredAmount: amount,
         }),
       });
       setIsStudentDialogOpen(false);
       setStudentForm({ name: "", whatsapp: "", requiredAmount: "" });
       toast.success("تمت إضافة الطالب بنجاح");
       fetchSummary();
-    } catch {
-      toast.error("فشل إضافة الطالب");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "فشل إضافة الطالب";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -94,6 +106,17 @@ export default function DashboardPage() {
   const handleCreateFinance = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeOrgId) return;
+
+    const amount = Number(financeForm.amount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("يرجى إدخال مبلغ صحيح أكبر من صفر");
+      return;
+    }
+    if (!financeForm.category.trim()) {
+      toast.error("يرجى إدخال التصنيف");
+      return;
+    }
+
     setSubmitting(true);
     try {
       await apiFetch("/api/finance/logs", {
@@ -101,17 +124,18 @@ export default function DashboardPage() {
         orgId: activeOrgId,
         body: JSON.stringify({
           type: financeForm.type,
-          amount: Number(financeForm.amount),
-          category: financeForm.category,
-          description: financeForm.description || "",
+          amount,
+          category: financeForm.category.trim(),
+          description: financeForm.description.trim() || "",
         }),
       });
       setIsFinanceDialogOpen(false);
       setFinanceForm({ type: "income", amount: "", category: "", description: "" });
       toast.success("تم تسجيل العملية بنجاح");
       fetchSummary();
-    } catch {
-      toast.error("فشل تسجيل العملية");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "فشل تسجيل العملية";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

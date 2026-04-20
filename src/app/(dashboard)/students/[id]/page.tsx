@@ -62,7 +62,7 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("An unknown error occurred");
+        setError("حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى");
       }
     } finally {
       setLoading(false);

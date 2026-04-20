@@ -153,8 +153,9 @@ export default function StudentsPage() {
       mutate({ students: students.map(s => s.id === selectedStudent.id ? json.student : s) }, { revalidate: false });
       setIsEditDialogOpen(false);
       toast.success("تم تحديث بيانات الطالب");
-    } catch {
-      toast.error("فشل تحديث البيانات");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "فشل تحديث البيانات";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -171,8 +172,9 @@ export default function StudentsPage() {
       mutate({ students: students.filter(s => s.id !== selectedStudent.id) }, { revalidate: false });
       setIsDeleteDialogOpen(false);
       toast.success("تم حذف الطالب بنجاح");
-    } catch {
-      toast.error("فشل حذف الطالب");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "فشل حذف الطالب";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
