@@ -269,39 +269,90 @@ export default function DashboardPage() {
             </DialogContent>
           </Dialog>
 
-          <Dialog open={isFinanceDialogOpen} onOpenChange={setIsFinanceDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger render={
-                <Button className="h-20 w-full bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
-                    <FilePlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform text-emerald-600" />
-                    <span className="font-black text-sm">تسجيل حركة مالية</span>
-                </Button>
-            } />
-            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]" dir="rtl">
+                <Button 
+                    onClick={() => setFormData({ type: "income", amount: "", category: "", description: "" })}
+                    className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0" 
+                />
+            }>
+                <Plus className="w-5 h-5 ml-2 -mr-1" />
+                إضافة سجل
+            </DialogTrigger>
+            <DialogContent className="w-[95vw] max-w-md rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 font-[--font-cairo] overflow-y-auto max-h-[90vh]">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-black text-slate-900 text-right">تسجيل حركة مالية</DialogTitle>
+                <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">تسجيل حركة مالية</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreateFinance} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
-                <div className="flex gap-4">
-                  <label className={`flex-1 flex items-center justify-center p-3 border-2 rounded-2xl cursor-pointer ${financeForm.type === 'income' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'border-slate-100'}`}>
-                    <input type="radio" className="sr-only" checked={financeForm.type === 'income'} onChange={() => setFinanceForm({...financeForm, type: 'income'})} />
-                    <span className="font-black text-sm">إيراد</span>
-                  </label>
-                  <label className={`flex-1 flex items-center justify-center p-3 border-2 rounded-2xl cursor-pointer ${financeForm.type === 'expense' ? 'bg-red-50 border-red-500 text-red-700' : 'border-slate-100'}`}>
-                    <input type="radio" className="sr-only" checked={financeForm.type === 'expense'} onChange={() => setFinanceForm({...financeForm, type: 'expense'})} />
-                    <span className="font-black text-sm">مصروف</span>
-                  </label>
+              <form onSubmit={handleCreateRecord} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
+                <div className="space-y-3">
+                  <Label className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">نوع المعاملة</Label>
+                  <div className="flex gap-3">
+                    <label className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 md:py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${formData.type === 'income' ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
+                      <input
+                        type="radio"
+                        value="income"
+                        className="sr-only"
+                        checked={formData.type === "income"}
+                        onChange={() => setFormData({ ...formData, type: "income" })}
+                      />
+                      <span className="text-xs md:text-sm font-black">إيراد جديد</span>
+                    </label>
+                    <label className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 md:py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${formData.type === 'expense' ? 'border-red-500 bg-red-50 text-red-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
+                      <input
+                        type="radio"
+                        value="expense"
+                        className="sr-only"
+                        checked={formData.type === "expense"}
+                        onChange={() => setFormData({ ...formData, type: "expense" })}
+                      />
+                      <span className="text-xs md:text-sm font-black">مصروف هالك</span>
+                    </label>
+                  </div>
                 </div>
+                
                 <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">التصنيف</Label>
-                  <Input required className="rounded-2xl h-12 border-slate-200" placeholder="تبرع، إيجار..." value={financeForm.category} onChange={e => setFinanceForm({...financeForm, category: e.target.value})} />
+                  <Label htmlFor="category" className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">الفئة أو التصنيف</Label>
+                  <Input
+                    id="category"
+                    required
+                    className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold text-sm"
+                    placeholder="تبرع عام، أدوات مكتبية..."
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  />
                 </div>
+
                 <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ</Label>
-                  <Input required type="number" className="rounded-2xl h-12 border-slate-200" placeholder="0.00" value={financeForm.amount} onChange={e => setFinanceForm({...financeForm, amount: e.target.value})} />
+                  <Label htmlFor="amount" className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">المبلغ (بالجنيه المصري)</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    required
+                    className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 text-lg md:text-xl font-black"
+                    placeholder="0.00"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  />
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 rounded-2xl font-black text-white">
-                  {submitting ? "جاري الحفظ..." : "حفظ السجل المالي"}
-                </Button>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description" className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">ملاحظات إضافية</Label>
+                  <Input
+                    id="description"
+                    className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold text-sm"
+                    placeholder="اكتب أي تفاصيل أخرى هنا..."
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="pt-2 md:pt-4">
+                  <Button type="submit" disabled={submitting} className="w-full h-12 md:h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-xl md:rounded-2xl shadow-xl shadow-teal-100 text-base md:text-lg font-black transition-all active:scale-95">
+                    {submitting ? "جاري الحفظ..." : "حفظ السجل الآن"}
+                  </Button>
+                </div>
               </form>
             </DialogContent>
           </Dialog>

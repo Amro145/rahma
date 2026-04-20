@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, X } from "lucide-react";
+import { LayoutDashboard, Users, FileText, HelpCircle, X } from "lucide-react";
 import { OrganizationSwitcher } from "./organization-switcher";
 
 interface SidebarProps {
@@ -17,6 +17,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
     { name: "قائمة الطلاب", href: "/students", icon: Users },
     { name: "السجلات المالية", href: "/finance", icon: FileText },
+    { name: "التعليمات", href: "/help", icon: HelpCircle },
   ];
 
   return (
