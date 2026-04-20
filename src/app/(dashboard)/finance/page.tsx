@@ -61,7 +61,7 @@ export default function FinancePage() {
     description: "",
   });
 
-  const { data, isLoading: loading, mutate } = useSWR<{ logs: Log[] }>(
+  const { data, isLoading: loading, error: fetchError, mutate } = useSWR<{ logs: Log[] }>(
     activeOrgId ? `/api/finance/logs?orgId=${activeOrgId}` : null,
     () => apiFetch<{ logs: Log[] }>("/api/finance/logs", { orgId: activeOrgId as string })
   );
@@ -310,6 +310,15 @@ export default function FinancePage() {
         <div className="flex flex-col items-center justify-center p-20 bg-white rounded-[2.5rem] border border-slate-100">
            <div className="h-10 w-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mb-4"></div>
            <p className="text-slate-500 font-black">جاري تحميل السجلات المالية...</p>
+        </div>
+      ) : fetchError ? (
+        <div className="flex flex-col items-center justify-center p-20 bg-white rounded-[2.5rem] border border-red-100">
+          <p className="text-red-500 font-black text-lg mb-4">
+            {fetchError instanceof Error ? fetchError.message : "فشل تحميل السجلات المالية"}
+          </p>
+          <button onClick={() => mutate()} className="text-sm text-teal-600 font-black underline">
+            إعادة المحاولة
+          </button>
         </div>
       ) : filteredLogs.length === 0 ? (
         <div className="text-center p-20 bg-white rounded-[2.5rem] border border-slate-100">

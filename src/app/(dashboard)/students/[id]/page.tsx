@@ -45,18 +45,16 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
     if (!activeOrgId) return;
     setLoading(true);
     try {
-      // Fetch payment status
       const [statusRes, studentRes] = await Promise.all([
         apiFetch<PaymentStatus>(`/api/students/${studentId}/payment-status`, {
           orgId: activeOrgId
         }),
-        apiFetch<{ students: Student[] }>(`/api/students`, {
+        apiFetch<{ student: Student }>(`/api/students/${studentId}`, {
           orgId: activeOrgId
         })
       ]);
       
-      const foundStudent = studentRes.students.find(s => s.id === Number(studentId));
-      setStudent(foundStudent || null);
+      setStudent(studentRes.student || null);
       setData(statusRes);
     } catch (err: unknown) {
       if (err instanceof Error) {

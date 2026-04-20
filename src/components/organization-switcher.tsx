@@ -12,27 +12,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
+type Org = {
+  id: string;
+  name: string;
+  slug?: string | null;
+};
+
 export function OrganizationSwitcher() {
   const { data: session } = useSession();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [orgs, setOrgs] = useState<any[]>([]);
+  const [orgs, setOrgs] = useState<Org[]>([]);
 
   const fetchOrgs = async () => {
     try {
       const result = await organization.list();
       if (result && result.data) {
-        setOrgs(result.data);
+        setOrgs(result.data as Org[]);
       } else if (result && Array.isArray(result)) {
-         setOrgs(result);
+         setOrgs(result as Org[]);
       }
     } catch (err) {
       console.error("Failed to fetch orgs:", err);
     }
   };
 
+  // Re-fetch orgs whenever the session changes (e.g. after login)
   useEffect(() => {
-    fetchOrgs();
-  }, []);
+    if (session) fetchOrgs();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id]);
 
   const activeOrgId = session?.session?.activeOrganizationId;
   const activeOrg = orgs.find((o) => o.id === activeOrgId);

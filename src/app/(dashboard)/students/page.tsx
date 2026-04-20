@@ -70,7 +70,7 @@ export default function StudentsPage() {
     requiredAmount: "",
   });
 
-  const { data, isLoading: loading, mutate } = useSWR<{ students: Student[] }>(
+  const { data, isLoading: loading, error: fetchError, mutate } = useSWR<{ students: Student[] }>(
     activeOrgId ? `/api/students?orgId=${activeOrgId}` : null,
     () => apiFetch<{ students: Student[] }>("/api/students", { orgId: activeOrgId as string })
   );
@@ -295,6 +295,15 @@ export default function StudentsPage() {
                     <div className="flex flex-col items-center justify-center gap-3">
                       <div className="h-6 w-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
                       <span className="font-bold">جاري جلب بيانات الطلاب...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : fetchError ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-40 text-center">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <p className="text-red-500 font-bold">{fetchError instanceof Error ? fetchError.message : "فشل تحميل بيانات الطلاب"}</p>
+                      <button onClick={() => mutate()} className="text-sm text-teal-600 font-black underline">إعادة المحاولة</button>
                     </div>
                   </TableCell>
                 </TableRow>
