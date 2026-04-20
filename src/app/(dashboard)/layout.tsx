@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { User, Menu } from "lucide-react";
 
 import { Toaster } from "sonner";
+import Link from "next/link";
 
 export default function DashboardLayout({
   children,
@@ -59,39 +60,39 @@ export default function DashboardLayout({
   };
   const activeTitle = titleMapping[pathname] || "لوحة التحكم";
 
-  if (!activeOrgId) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-[--font-cairo]" dir="rtl">
-        <div className="w-full max-w-md bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 text-center animate-in fade-in zoom-in duration-500">
-          <div className="w-20 h-20 bg-teal-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
-            <User className="h-10 w-10 text-teal-600" />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900 mb-2">أهلاً بك في رحمة</h2>
-          <p className="text-slate-500 font-bold mb-8 leading-relaxed">يرجى اختيار مؤسسة للمتابعة، أو إنشاء مؤسسة جديدة إذا لم تكن تمتلك واحدة.</p>
+  // if (!activeOrgId) {
+  //   return (
+  //     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-[--font-cairo]" dir="rtl">
+  //       <div className="w-full max-w-md bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 text-center animate-in fade-in zoom-in duration-500">
+  //         <div className="w-20 h-20 bg-teal-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+  //           <User className="h-10 w-10 text-teal-600" />
+  //         </div>
+  //         <h2 className="text-2xl font-black text-slate-900 mb-2">أهلاً بك في رحمة</h2>
+  //         <p className="text-slate-500 font-bold mb-8 leading-relaxed">يرجى اختيار مؤسسة للمتابعة، أو إنشاء مؤسسة جديدة إذا لم تكن تمتلك واحدة.</p>
           
-          <div className="space-y-4">
-             {/* We can't use OrganizationSwitcher directly here because it might behave differently as a standalone */}
-             <button 
-              onClick={() => window.location.reload()}
-              className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl shadow-lg shadow-teal-100 font-black transition-all active:scale-95"
-             >
-                تحديث الصفحة للمحاولة مرة أخرى
-             </button>
+  //         <div className="space-y-4">
+  //            {/* We can't use OrganizationSwitcher directly here because it might behave differently as a standalone */}
+  //            <button 
+  //             onClick={() => window.location.reload()}
+  //             className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl shadow-lg shadow-teal-100 font-black transition-all active:scale-95"
+  //            >
+  //               تحديث الصفحة للمحاولة مرة أخرى
+  //            </button>
              
-             <button 
-              onClick={async () => {
-                await authClient.signOut();
-                router.push("/signin");
-              }}
-              className="w-full h-14 bg-white border-2 border-slate-100 text-slate-500 hover:bg-slate-50 rounded-2xl font-black transition-all"
-             >
-                تسجيل الخروج
-             </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  //            <button 
+  //             onClick={async () => {
+  //               await authClient.signOut();
+  //               router.push("/signin");
+  //             }}
+  //             className="w-full h-14 bg-white border-2 border-slate-100 text-slate-500 hover:bg-slate-50 rounded-2xl font-black transition-all"
+  //            >
+  //               تسجيل الخروج
+  //            </button>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-slate-50 flex text-slate-900 font-[--font-cairo]" dir="rtl">
@@ -103,7 +104,9 @@ export default function DashboardLayout({
           <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
             <span className="text-white font-bold text-lg leading-none">ر</span>
           </div>
-          <h2 className="text-xl font-bold tracking-tight">رحمة</h2>
+          <Link href="/">
+            <h2 className="text-xl font-bold tracking-tight">رحمة</h2>
+          </Link>
         </div>
         <button 
           onClick={() => setIsSidebarOpen(true)}
@@ -113,7 +116,7 @@ export default function DashboardLayout({
         </button>
       </div>
 
-      <div className="lg:mr-64 mr-0 flex flex-col flex-1 min-h-screen transition-all duration-300">
+      <div className="lg:mr-64 mr-0 flex flex-col flex-1 min-h-screen transition-all duration-300 pt-16 lg:pt-0">
         <Toaster position="top-center" richColors />
         
         {/* Desktop Header / Page Title - Adapted for Mobile */}
@@ -145,7 +148,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content View */}
-        <main className="flex-1 p-4 md:p-8 mt-16 lg:mt-0">
+        <main className="flex-1 p-4 md:p-8">
           {children}
         </main>
       </div>

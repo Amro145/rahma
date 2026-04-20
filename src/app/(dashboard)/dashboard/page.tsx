@@ -160,13 +160,13 @@ export default function DashboardPage() {
               <Banknote className="w-6 h-6 text-emerald-600" />
             </div>
           </CardHeader>
-          <CardContent className="p-8 pt-2">
-            <div className="text-4xl font-black text-slate-900 flex items-center gap-1">
-              <span className="text-emerald-500 font-bold tracking-tighter text-2xl">+</span>
-              <span>{(data?.finance.totalIncome || 0).toLocaleString()}</span>
-              <span className="text-lg font-bold text-slate-300 mr-2 uppercase">ج.م</span>
+          <CardContent className="p-6 md:p-8 pt-2">
+            <div className="text-3xl md:text-4xl font-black text-slate-900 flex items-center gap-1 overflow-hidden">
+              <span className="text-emerald-500 font-bold tracking-tighter text-xl md:text-2xl">+</span>
+              <span className="truncate">{(data?.finance.totalIncome || 0).toLocaleString()}</span>
+              <span className="text-sm md:text-lg font-bold text-slate-300 mr-1 uppercase shrink-0">ج.م</span>
             </div>
-            <p className="text-sm text-slate-400 mt-4 font-bold">تشمل رسوم الطلاب والتبرعات</p>
+            <p className="text-xs md:text-sm text-slate-400 mt-4 font-bold">تشمل رسوم الطلاب والتبرعات</p>
           </CardContent>
         </Card>
 
@@ -178,12 +178,11 @@ export default function DashboardPage() {
               <Users className="w-6 h-6 text-red-600" />
             </div>
           </CardHeader>
-          <CardContent className="p-8 pt-2">
-            <div className="text-4xl font-black text-slate-900 flex items-center gap-1">
-              <span className="text-red-500 font-bold tracking-tighter text-2xl">-</span>
-              <span>{(data?.finance.totalExpenses || 0).toLocaleString()}</span>
-              <span className="text-lg font-bold text-slate-300 mr-2 uppercase">ج.م</span>
-              <span className="text-sm md:text-lg font-bold text-slate-400">ج.م</span>
+          <CardContent className="p-6 md:p-8 pt-2">
+            <div className="text-3xl md:text-4xl font-black text-slate-900 flex items-center gap-1 overflow-hidden">
+              <span className="text-red-500 font-bold tracking-tighter text-xl md:text-2xl">-</span>
+              <span className="truncate">{(data?.finance.totalExpenses || 0).toLocaleString()}</span>
+              <span className="text-sm md:text-lg font-bold text-slate-400 mr-1 uppercase shrink-0">ج.م</span>
             </div>
             <div className="mt-4 flex items-center gap-2">
               <span className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">

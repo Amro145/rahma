@@ -274,112 +274,197 @@ export default function StudentsPage() {
       </div>
 
       <div className="rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden lg:block overflow-x-auto">
           <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-50/80 border-b border-slate-200 hover:bg-slate-50/80">
-              <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right pr-6">اسم الطالب</TableHead>
-              <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right">رقم التواصل</TableHead>
-              <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right">المبلغ المطلوب</TableHead>
-              <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right">حالة الدفع</TableHead>
-              <TableHead className="text-left font-black text-slate-600 h-14 uppercase text-xs tracking-wider pl-6">الإجراءات</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-40 text-center text-slate-500">
-                  <div className="flex flex-col items-center justify-center gap-3">
-                    <div className="h-6 w-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="font-bold">جاري جلب بيانات الطلاب...</span>
-                  </div>
-                </TableCell>
+            <TableHeader>
+              <TableRow className="bg-slate-50/80 border-b border-slate-200 hover:bg-slate-50/80">
+                <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right pr-6">اسم الطالب</TableHead>
+                <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right">رقم التواصل</TableHead>
+                <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right">المبلغ المطلوب</TableHead>
+                <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right">حالة الدفع</TableHead>
+                <TableHead className="text-left font-black text-slate-600 h-14 uppercase text-xs tracking-wider pl-6">الإجراءات</TableHead>
               </TableRow>
-            ) : filteredStudents.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-40 text-center text-slate-500 font-bold">
-                  لا يوجد طلاب مطابقون لعملية البحث.
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredStudents.map((student) => (
-                <TableRow key={student.id} className="transition-colors hover:bg-slate-50/50 border-b border-slate-100 last:border-0 group">
-                  <TableCell className="font-black text-slate-900 py-5 pr-6 text-base">{student.name}</TableCell>
-                  <TableCell className="py-5">
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-40 text-center text-slate-500">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="h-6 w-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="font-bold">جاري جلب بيانات الطلاب...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : filteredStudents.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-40 text-center text-slate-500 font-bold">
+                    لا يوجد طلاب مطابقون لعملية البحث.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredStudents.map((student) => (
+                  <TableRow key={student.id} className="transition-colors hover:bg-slate-50/50 border-b border-slate-100 last:border-0 group">
+                    <TableCell className="font-black text-slate-900 py-5 pr-6 text-base">{student.name}</TableCell>
+                    <TableCell className="py-5">
+                      <a
+                        href={`https://wa.me/${student.whatsapp}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-teal-600 hover:text-teal-800 font-bold transition-all hover:scale-105"
+                      >
+                        <span>{student.whatsapp}</span>
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </TableCell>
+                    <TableCell className="font-black text-slate-700 py-5">
+                      <span>{student.requiredAmount.toLocaleString()}</span>
+                      <span className="text-xs mr-1 text-slate-400">ج.م</span>
+                    </TableCell>
+                    <TableCell className="py-5">
+                      <Badge
+                        variant="outline"
+                        className={
+                          student.status === "paid"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200 rounded-full px-4 py-1.5 text-xs font-black"
+                            : "bg-amber-50 text-amber-700 border-amber-200 rounded-full px-4 py-1.5 text-xs font-black"
+                        }
+                      >
+                        {student.status === "paid" ? "تم السداد" : "قيد الانتظار"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-left py-5 pl-6">
+                      {student.status === "pending" ? (
+                        <Button
+                          size="sm"
+                          className="bg-teal-600 text-white hover:bg-teal-700 rounded-xl shadow-md font-black px-5 ml-2"
+                          onClick={() => handleConfirmPayment(student.id)}
+                          disabled={actionLoading === student.id}
+                        >
+                          {actionLoading === student.id ? "جاري..." : "تأكيد السداد"}
+                        </Button>
+                      ) : (
+                        <div className="inline-flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl font-black text-sm ml-2">
+                          <CheckCircle className="w-5 h-5" />
+                          مدفوع
+                        </div>
+                      )}
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
+                            <MoreVertical className="w-5 h-5 text-slate-400" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40 font-[--font-cairo]">
+                          <DropdownMenuItem asChild className="cursor-pointer">
+                            <Link href={`/students/${student.id}`} className="flex items-center justify-between text-teal-600 font-bold">
+                              <span>سجل المدفوعات</span>
+                              <CreditCard className="w-4 h-4 ml-2" />
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openEditDialog(student)} className="flex items-center justify-between text-slate-600 font-bold cursor-pointer">
+                            <span>تعديل البيانات</span>
+                            <Edit2 className="w-4 h-4 ml-2" />
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openDeleteDialog(student)} className="flex items-center justify-between text-red-600 font-bold focus:text-red-700 focus:bg-red-50 cursor-pointer">
+                            <span>حذف الطالب</span>
+                            <Trash2 className="w-4 h-4 ml-2" />
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="lg:hidden p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+          {loading ? (
+             <div className="flex flex-col items-center justify-center py-10 gap-3 text-slate-500">
+                <div className="h-6 w-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="font-bold text-sm">جاري التحميل...</span>
+             </div>
+          ) : filteredStudents.length === 0 ? (
+            <div className="py-10 text-center text-slate-400 font-bold text-sm">لا يوجد نتائج</div>
+          ) : (
+            filteredStudents.map((student) => (
+              <div key={student.id} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-black text-slate-900 text-lg">{student.name}</h3>
                     <a
                       href={`https://wa.me/${student.whatsapp}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-teal-600 hover:text-teal-800 font-bold transition-all hover:scale-105"
+                      className="text-teal-600 font-bold text-sm flex items-center gap-1 mt-1"
                     >
-                      <span>{student.whatsapp}</span>
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-3 h-3" />
+                      {student.whatsapp}
                     </a>
-                  </TableCell>
-                  <TableCell className="font-black text-slate-700 py-5">
-                    <span>{student.requiredAmount.toLocaleString()}</span>
-                    <span className="text-xs mr-1 text-slate-400">ج.م</span>
-                  </TableCell>
-                  <TableCell className="py-5">
-                    <Badge
-                      variant="outline"
-                      className={
-                        student.status === "paid"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 rounded-full px-4 py-1.5 text-xs font-black"
-                          : "bg-amber-50 text-amber-700 border-amber-200 rounded-full px-4 py-1.5 text-xs font-black"
-                      }
-                    >
-                      {student.status === "paid" ? "تم السداد" : "قيد الانتظار"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-left py-5 pl-6">
-                    {student.status === "pending" ? (
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={
+                      student.status === "paid"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 rounded-full px-3 py-1 text-[10px] font-black"
+                        : "bg-amber-50 text-amber-700 border-amber-200 rounded-full px-3 py-1 text-[10px] font-black"
+                    }
+                  >
+                    {student.status === "paid" ? "تم السداد" : "قيد الانتظار"}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">المبلغ المطلوب</span>
+                    <span className="font-black text-slate-700">{student.requiredAmount.toLocaleString()} ج.م</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    {student.status === "pending" && (
                       <Button
                         size="sm"
-                        className="bg-teal-600 text-white hover:bg-teal-700 rounded-xl shadow-md font-black px-5 ml-2"
+                        className="bg-teal-600 text-white rounded-lg h-9 px-3 text-xs font-black"
                         onClick={() => handleConfirmPayment(student.id)}
                         disabled={actionLoading === student.id}
                       >
-                        {actionLoading === student.id ? "جاري..." : "تأكيد السداد"}
+                        {actionLoading === student.id ? "..." : "سداد"}
                       </Button>
-                    ) : (
-                      <div className="inline-flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl font-black text-sm ml-2">
-                        <CheckCircle className="w-5 h-5" />
-                        مدفوع
-                      </div>
                     )}
-
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
-                          <MoreVertical className="w-5 h-5 text-slate-400" />
+                        <Button variant="outline" size="icon" className="rounded-lg h-9 w-9 border-slate-200">
+                          <MoreVertical className="w-4 h-4 text-slate-400" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-40 font-[--font-cairo]">
-                        <DropdownMenuItem asChild className="cursor-pointer">
+                        <DropdownMenuItem asChild>
                           <Link href={`/students/${student.id}`} className="flex items-center justify-between text-teal-600 font-bold">
                             <span>سجل المدفوعات</span>
-                            <CreditCard className="w-4 h-4 ml-2" />
+                            <CreditCard className="w-4 h-4" />
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openEditDialog(student)} className="flex items-center justify-between text-slate-600 font-bold cursor-pointer">
-                          <span>تعديل التلميذ</span>
-                          <Edit2 className="w-4 h-4 ml-2" />
+                        <DropdownMenuItem onClick={() => openEditDialog(student)} className="flex items-center justify-between text-slate-600 font-bold">
+                          <span>تعديل</span>
+                          <Edit2 className="w-4 h-4" />
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openDeleteDialog(student)} className="flex items-center justify-between text-red-600 font-bold focus:text-red-700 focus:bg-red-50 cursor-pointer">
-                          <span>حذف التلميذ</span>
-                          <Trash2 className="w-4 h-4 ml-2" />
+                        <DropdownMenuItem onClick={() => openDeleteDialog(student)} className="flex items-center justify-between text-red-600 font-bold">
+                          <span>حذف</span>
+                          <Trash2 className="w-4 h-4" />
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
-    </div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
