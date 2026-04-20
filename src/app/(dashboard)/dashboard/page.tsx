@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Wallet, Banknote, UserPlus, FilePlus, Building2, ArrowLeft } from "lucide-react";
+import { Users, Wallet, Banknote, UserPlus, FilePlus, Building2, ArrowLeft, Plus } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -269,82 +269,82 @@ export default function DashboardPage() {
             </DialogContent>
           </Dialog>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isFinanceDialogOpen} onOpenChange={setIsFinanceDialogOpen}>
             <DialogTrigger render={
                 <Button 
-                    onClick={() => setFormData({ type: "income", amount: "", category: "", description: "" })}
-                    className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0" 
+                    onClick={() => setFinanceForm({ type: "income", amount: "", category: "", description: "" })}
+                    className="h-20 w-full bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group"
                 />
             }>
-                <Plus className="w-5 h-5 ml-2 -mr-1" />
-                إضافة سجل
+                <FilePlus className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform text-emerald-600" />
+                <span className="font-black text-sm">تسجيل حركة مالية</span>
             </DialogTrigger>
             <DialogContent className="w-[95vw] max-w-md rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 font-[--font-cairo] overflow-y-auto max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">تسجيل حركة مالية</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreateRecord} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
+              <form onSubmit={handleCreateFinance} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
                 <div className="space-y-3">
                   <Label className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">نوع المعاملة</Label>
                   <div className="flex gap-3">
-                    <label className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 md:py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${formData.type === 'income' ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
+                    <label className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 md:py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${financeForm.type === 'income' ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
                       <input
                         type="radio"
                         value="income"
                         className="sr-only"
-                        checked={formData.type === "income"}
-                        onChange={() => setFormData({ ...formData, type: "income" })}
+                        checked={financeForm.type === "income"}
+                        onChange={() => setFinanceForm({ ...financeForm, type: "income" })}
                       />
                       <span className="text-xs md:text-sm font-black">إيراد جديد</span>
                     </label>
-                    <label className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 md:py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${formData.type === 'expense' ? 'border-red-500 bg-red-50 text-red-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
+                    <label className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 md:py-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${financeForm.type === 'expense' ? 'border-red-500 bg-red-50 text-red-700 shadow-inner' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 text-slate-500'}`}>
                       <input
                         type="radio"
                         value="expense"
                         className="sr-only"
-                        checked={formData.type === "expense"}
-                        onChange={() => setFormData({ ...formData, type: "expense" })}
+                        checked={financeForm.type === "expense"}
+                        onChange={() => setFinanceForm({ ...financeForm, type: "expense" })}
                       />
-                      <span className="text-xs md:text-sm font-black">مصروف هالك</span>
+                      <span className="text-xs md:text-sm font-black">مصروف</span>
                     </label>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="category" className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">الفئة أو التصنيف</Label>
+                  <Label htmlFor="dash-category" className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">الفئة أو التصنيف</Label>
                   <Input
-                    id="category"
+                    id="dash-category"
                     required
                     className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold text-sm"
                     placeholder="تبرع عام، أدوات مكتبية..."
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    value={financeForm.category}
+                    onChange={(e) => setFinanceForm({ ...financeForm, category: e.target.value })}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="amount" className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">المبلغ (بالجنيه المصري)</Label>
+                  <Label htmlFor="dash-amount" className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">المبلغ (بالجنيه المصري)</Label>
                   <Input
-                    id="amount"
+                    id="dash-amount"
                     type="number"
                     min="0"
                     step="0.01"
                     required
                     className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 text-lg md:text-xl font-black"
                     placeholder="0.00"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    value={financeForm.amount}
+                    onChange={(e) => setFinanceForm({ ...financeForm, amount: e.target.value })}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">ملاحظات إضافية</Label>
+                  <Label htmlFor="dash-description" className="text-slate-400 font-black text-[10px] uppercase tracking-widest block text-right">ملاحظات إضافية</Label>
                   <Input
-                    id="description"
+                    id="dash-description"
                     className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold text-sm"
                     placeholder="اكتب أي تفاصيل أخرى هنا..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    value={financeForm.description}
+                    onChange={(e) => setFinanceForm({ ...financeForm, description: e.target.value })}
                   />
                 </div>
 

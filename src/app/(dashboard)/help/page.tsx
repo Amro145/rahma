@@ -441,7 +441,7 @@ export default function HelpPage() {
         </div>
         <div className="flex items-center gap-2 bg-teal-600/20 px-4 py-2.5 rounded-xl border border-teal-700/30 shrink-0">
           <ArrowLeft className="w-4 h-4 text-teal-400" />
-          <span className="text-teal-300 font-black text-sm">abcdef@gmail.com</span>
+          <span className="text-teal-300 font-black text-sm">amroaltayeb14@gmail.com</span>
         </div>
       </div>
     </div>
