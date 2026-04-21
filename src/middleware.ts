@@ -49,6 +49,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/signin", request.url));
     }
 
+    // Admins trying to access the student profile → redirect to admin dashboard
+    if (pathname.startsWith("/profile") && role === "admin") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
     // Students trying to access admin-only pages → redirect to their profile
     const isAdminRoute =
       pathname.startsWith("/dashboard") ||
@@ -58,11 +63,6 @@ export async function middleware(request: NextRequest) {
 
     if (isAdminRoute && role !== "admin") {
       return NextResponse.redirect(new URL("/profile", request.url));
-    }
-
-    // Admins trying to access the student profile → redirect to admin dashboard
-    if (pathname.startsWith("/profile") && role === "admin") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   } catch (err) {
     console.error("Middleware auth check failed:", err);
