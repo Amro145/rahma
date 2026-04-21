@@ -19,7 +19,7 @@ export default function SignIn() {
       if (role === "admin") {
         router.replace("/dashboard");
       } else {
-        router.replace("/student/profile");
+        router.replace("/profile");
       }
     }
   }, [session, isPending, router]);
@@ -53,7 +53,7 @@ export default function SignIn() {
       if (role === "admin") {
         router.push("/dashboard");
       } else {
-        router.push("/student/profile");
+        router.push("/profile");
       }
     } catch {
       setError("حدث خطأ غير متوقع");

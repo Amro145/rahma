@@ -29,7 +29,7 @@ export default function DashboardLayout({
     if (!isPending && session) {
       const role = (session.user as UserWithRole).role;
       if (role === "student") {
-        router.replace("/student/profile");
+        router.replace("/profile");
       }
     }
   }, [isPending, session, router]);

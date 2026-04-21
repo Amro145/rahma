@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, HelpCircle, X } from "lucide-react";
+import { authClient, UserWithRole } from "@/lib/auth.client";
+import { LayoutDashboard, Users, FileText, HelpCircle, X, UserCircle } from "lucide-react";
 import { OrganizationSwitcher } from "./organization-switcher";
 
 interface SidebarProps {
@@ -12,13 +13,22 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { data: session } = authClient.useSession();
+  const role = (session?.user as UserWithRole)?.role;
 
-  const navItems = [
-    { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
-    { name: "قائمة الطلاب", href: "/students", icon: Users },
-    { name: "السجلات المالية", href: "/finance", icon: FileText },
-    { name: "التعليمات", href: "/help", icon: HelpCircle },
-  ];
+  const isAdmin = role === "admin";
+
+  const navItems = isAdmin 
+    ? [
+        { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
+        { name: "قائمة الطلاب", href: "/students", icon: Users },
+        { name: "السجلات المالية", href: "/finance", icon: FileText },
+        { name: "التعليمات", href: "/help", icon: HelpCircle },
+      ]
+    : [
+        { name: "الملف الشخصي", href: "/profile", icon: UserCircle },
+        { name: "التعليمات", href: "/help", icon: HelpCircle },
+      ];
 
   return (
     <>
@@ -45,7 +55,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <X className="h-6 w-6" />
           </button>
         </div>
-        <OrganizationSwitcher />
+        {isAdmin && <OrganizationSwitcher />}
         <nav className="flex-1 py-4 px-4 space-y-1.5 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href;

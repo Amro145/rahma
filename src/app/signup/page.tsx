@@ -1,6 +1,6 @@
 "use client";
 
-import { authClient, useSession } from "@/lib/auth.client";
+import { authClient, useSession, UserWithRole } from "@/lib/auth.client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -15,7 +15,12 @@ export default function SignUp() {
 
   useEffect(() => {
     if (!isPending && session) {
-      router.replace("/dashboard");
+      const role = (session.user as UserWithRole).role;
+      if (role === "admin") {
+        router.replace("/dashboard");
+      } else {
+        router.replace("/profile");
+      }
     }
   }, [session, isPending, router]);
 
@@ -50,11 +55,13 @@ export default function SignUp() {
       }
 
       // Step 2: Create student record in backend
+      // credentials: 'include' forwards the session cookie set in Step 1
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend.amroaltayeb14.workers.dev'}/api/students/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           name,
           whatsapp,
@@ -69,7 +76,7 @@ export default function SignUp() {
         return;
       }
 
-      router.push("/dashboard");
+      router.push("/profile");
     } catch {
       setError("حدث خطأ غير متوقع");
     } finally {
