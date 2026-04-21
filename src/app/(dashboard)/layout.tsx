@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { authClient } from "@/lib/auth.client";
+import { authClient, UserWithRole } from "@/lib/auth.client";
 import { Sidebar } from "@/components/Sidebar";
 import { Menu } from "lucide-react";
 
@@ -24,6 +24,13 @@ export default function DashboardLayout({
   useEffect(() => {
     if (!isPending && !session) {
       router.push("/signin");
+    }
+    // Students don't belong in the admin dashboard
+    if (!isPending && session) {
+      const role = (session.user as UserWithRole).role;
+      if (role === "student") {
+        router.replace("/student/profile");
+      }
     }
   }, [isPending, session, router]);
 

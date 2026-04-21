@@ -1,6 +1,6 @@
 "use client";
 
-import { authClient, useSession } from "@/lib/auth.client";
+import { authClient, useSession, UserWithRole } from "@/lib/auth.client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -15,7 +15,12 @@ export default function SignIn() {
 
   useEffect(() => {
     if (!isPending && session) {
-      router.replace("/dashboard");
+      const role = (session.user as UserWithRole).role;
+      if (role === "admin") {
+        router.replace("/dashboard");
+      } else {
+        router.replace("/student/profile");
+      }
     }
   }, [session, isPending, router]);
 
@@ -33,18 +38,23 @@ export default function SignIn() {
     const password = formData.get("password") as string;
 
     try {
-      const { error: authError } = await authClient.signIn.email({
+      const result = await authClient.signIn.email({
         email,
         password,
-        callbackURL: "/dashboard",
       });
 
-      if (authError) {
-        setError(authError.message || "فشل تسجيل الدخول. يرجى التأكد من البيانات.");
+      if (result.error) {
+        setError(result.error.message || "فشل تسجيل الدخول. يرجى التأكد من البيانات.");
         return;
       }
 
-      router.push("/dashboard");
+      // Role-based redirect after successful login
+      const role = (result.data?.user as UserWithRole)?.role ?? "student";
+      if (role === "admin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/student/profile");
+      }
     } catch {
       setError("حدث خطأ غير متوقع");
     } finally {
