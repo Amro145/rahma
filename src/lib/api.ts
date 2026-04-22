@@ -2,24 +2,26 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export async function apiFetch<T>(
   endpoint: string, 
-  options: RequestInit & { orgId?: string | null } = {}
+  options: RequestInit = {}
 ): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
-  const { orgId, ...requestOptions } = options;
   
   const headers = {
     "Content-Type": "application/json",
-    ...(requestOptions.headers || {}),
+    ...(options.headers || {}),
   } as Record<string, string>;
 
-  // Only inject the header if a valid orgId is provided
-  if (orgId) {
-    headers["x-organization-id"] = orgId;
+  const cookies = typeof document !== 'undefined' ? document.cookie : '';
+  const jwtMatch = cookies.match(/jwt=([^;]+)/);
+  const token = jwtMatch ? jwtMatch[1] : null;
+  
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   try {
     const res = await fetch(url, {
-      ...requestOptions,
+      ...options,
       credentials: "include",
       headers,
     });
@@ -31,7 +33,6 @@ export async function apiFetch<T>(
       throw new Error("Unauthorized");
     }
 
-    // Read the response as text first to handle empty bodies
     const text = await res.text();
     let data;
     try {

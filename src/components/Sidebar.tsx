@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, FileText, X } from "lucide-react";
-import { OrganizationSwitcher } from "./organization-switcher";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -21,7 +20,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      {/* Backdrop for mobile */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
@@ -39,12 +37,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
             <h2 className="text-xl font-bold tracking-tight">رحمة</h2>
           </div>
-          {/* Close button for mobile */}
           <button onClick={onClose} className="lg:hidden p-2 text-slate-400 hover:text-slate-600 transition-colors">
             <X className="h-6 w-6" />
           </button>
         </div>
-        <OrganizationSwitcher />
         <nav className="flex-1 py-4 px-4 space-y-1.5 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href;

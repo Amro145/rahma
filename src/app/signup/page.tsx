@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
-import { signIn, useSession } from "@/lib/auth.client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { signupAction } from '@/app/actions/auth';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function SignUp() {
   const router = useRouter();
-  const { data: session, isPending } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    if (!isPending && session) {
-      router.replace("/dashboard");
+    const token = document.cookie.includes('jwt');
+    if (token) {
+      router.replace('/dashboard');
     }
-  }, [session, isPending, router]);
+  }, [router]);
 
-  const [loadingGoogle, setLoadingGoogle] = useState(false);
-
-  const handleSignUp = async () => {
-    setLoadingGoogle(true);
-    try {
-      await signIn.social({
-        provider: "google",
-        callbackURL: `${window.location.origin}/dashboard`,
-      });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoadingGoogle(false);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage('');
+    
+    const formData = new FormData(e.currentTarget);
+    const result = await signupAction(formData);
+    
+    if (result && 'error' in result) {
+      setMessage(result.error as string);
+      setIsLoading(false);
     }
   };
 
@@ -46,46 +46,118 @@ export default function SignUp() {
           </p>
         </div>
 
-        <div className="mt-8">
+        {message && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 font-bold text-sm text-center">
+            {message}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <div className="space-y-2">
+            <label htmlFor="name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</label>
+            <input
+              id="name"
+              name="name"
+              required
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              placeholder="الاسم الرباعي..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">البريد الإلكتروني</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              placeholder="email@example.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">كلمة المرور</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              minLength={6}
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</label>
+            <input
+              id="whatsapp"
+              name="whatsapp"
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              placeholder="201234567890"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="requiredAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ المطلوب (ج.م)</label>
+            <input
+              id="requiredAmount"
+              name="requiredAmount"
+              type="number"
+              required
+              min="1"
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              placeholder="500"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</label>
+            <select
+              id="faculty"
+              name="faculty"
+              required
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+            >
+              <option value="">اختر الكلية...</option>
+              <option value="medicine">طب</option>
+              <option value="dentistry">طب أسنان</option>
+              <option value="engineering">هندسة</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="semester" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفرقة الدراسية</label>
+            <select
+              id="semester"
+              name="semester"
+              required
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+            >
+              <option value="">اختر الفرقة...</option>
+              <option value="1">الفرقة الأولى</option>
+              <option value="2">الفرقة الثانية</option>
+              <option value="3">الفرقة الثالثة</option>
+              <option value="4">الفرقة الرابعة</option>
+              <option value="5">الفرقة الخامسة</option>
+              <option value="6">الفرقة السادسة</option>
+            </select>
+          </div>
+
           <button
-            onClick={() => handleSignUp()}
-            disabled={loadingGoogle}
-            className="group relative flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-slate-100 bg-white px-4 py-4 text-slate-700 font-black transition-all hover:bg-slate-50 hover:border-teal-200 focus:outline-none focus:ring-4 focus:ring-teal-100 disabled:cursor-not-allowed disabled:opacity-50"
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl shadow-xl shadow-teal-100 text-lg font-black transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loadingGoogle ? (
-              <span className="h-6 w-6 animate-spin rounded-full border-3 border-slate-200 border-t-teal-600"></span>
-            ) : (
-              <svg className="h-6 w-6" viewBox="0 0 24 24">
-                <path
-                  fill="#EA4335"
-                  d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M16.04 18.013c-1.09.703-2.474 1.078-4.04 1.078-2.866 0-5.29-1.916-6.155-4.498L1.82 17.749C3.78 21.658 7.605 24 12 24c3.11 0 5.924-1.011 8.04-2.721l-4-3.266z"
-                />
-                <path
-                  fill="#4285F4"
-                  d="M19.834 24c3.11 0 5.924-1.011 8.04-2.721l-4-3.266C22.614 18.89 21.398 19.091 20 19.091c-3.11 0-5.924-1.011-8.04-2.721l4 3.266C17.8 20.91 20.218 22 23 22c2.97 0 5.464-.984 7.284-2.664l-3.573-2.766c-.982.664-2.232 1.066-3.713 1.066-2.866 0-5.29-1.916-6.155-4.498L1.82 17.75C3.78 21.658 7.605 24 12 24z"
-                  display="none"
-                />
-                <path
-                  fill="#4285F4"
-                  d="M23.49 12.273c0-.827-.074-1.623-.21-2.386H12v4.514h6.446c-.278 1.498-1.124 2.767-2.406 3.614l3.815 3.118C22.085 19.043 23.49 15.934 23.49 12.273z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.845 14.12c-.225-.667-.353-1.378-.353-2.12s.128-1.453.353-2.12L1.82 6.765A11.93 11.93 0 0 0 0 12c0 1.884.43 3.66 1.18 5.235l4.665-3.115z"
-                />
-              </svg>
-            )}
-            <span className="group-hover:text-teal-700 transition-colors">التسجيل باستخدام Google</span>
+            {isLoading ? 'جاري إنشاء الحساب...' : 'إنشاء حساب جديد'}
           </button>
-        </div>
+        </form>
 
         <div className="pt-4 text-center">
           <p className="text-slate-500 font-bold text-sm">
-            لديك حساب بالفعل؟{" "}
+            لديك حساب بالفعل؟{' '}
             <Link
               href="/signin"
               className="text-teal-600 hover:text-teal-700 hover:underline transition-all"

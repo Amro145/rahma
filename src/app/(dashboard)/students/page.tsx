@@ -40,7 +40,6 @@ import {
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { toast } from "sonner";
-import { useSession } from "@/lib/auth.client";
 import Link from "next/link";
 
 type Student = {
@@ -49,13 +48,12 @@ type Student = {
   whatsapp: string;
   requiredAmount: number;
   status: "pending" | "paid";
+  faculty: string;
+  semester: string;
   createdAt: string;
 };
 
 export default function StudentsPage() {
-  const { data: session } = useSession();
-  const activeOrgId = session?.session?.activeOrganizationId;
-
   const [searchQuery, setSearchQuery] = useState("");
   const [actionLoading, setActionLoading] = useState<number | null>(null);
 
@@ -68,17 +66,18 @@ export default function StudentsPage() {
     name: "",
     whatsapp: "",
     requiredAmount: "",
+    faculty: "medicine",
+    semester: "1",
   });
 
   const { data, isLoading: loading, mutate } = useSWR<{ students: Student[] }>(
-    activeOrgId ? `/api/students?orgId=${activeOrgId}` : null,
-    () => apiFetch<{ students: Student[] }>("/api/students", { orgId: activeOrgId as string })
+    "/api/students",
+    () => apiFetch<{ students: Student[] }>("/api/students")
   );
   
   const students = data?.students || [];
 
   const handleConfirmPayment = async (id: number) => {
-    if (!activeOrgId) return;
     const student = students.find((s) => s.id === id);
     if (!student) return;
     setActionLoading(id);
@@ -86,7 +85,6 @@ export default function StudentsPage() {
       const now = new Date();
       await apiFetch(`/api/students/${id}/pay`, {
         method: "PATCH",
-        orgId: activeOrgId,
         body: JSON.stringify({
           monthIndex: now.getMonth() + 1,
           academicYear: now.getFullYear(),
@@ -109,22 +107,22 @@ export default function StudentsPage() {
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeOrgId) return;
     setSubmitting(true);
     try {
       const json = await apiFetch<{ student: Student }>("/api/students", {
         method: "POST",
-        orgId: activeOrgId,
         body: JSON.stringify({
           name: formData.name,
           whatsapp: formData.whatsapp,
           requiredAmount: Number(formData.requiredAmount),
+          faculty: formData.faculty,
+          semester: formData.semester,
         }),
       });
 
       mutate({ students: [json.student, ...students] }, { revalidate: false });
       
-      setFormData({ name: "", whatsapp: "", requiredAmount: "" });
+      setFormData({ name: "", whatsapp: "", requiredAmount: "", faculty: "medicine", semester: "1" });
       setIsDialogOpen(false);
       toast.success("تمت إضافة الطالب بنجاح");
     } catch (err) {
@@ -137,16 +135,17 @@ export default function StudentsPage() {
 
   const handleEditStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedStudent || !activeOrgId) return;
+    if (!selectedStudent) return;
     setSubmitting(true);
     try {
       const json = await apiFetch<{ student: Student }>(`/api/students/${selectedStudent.id}`, {
         method: "PATCH",
-        orgId: activeOrgId,
         body: JSON.stringify({
           name: formData.name,
           whatsapp: formData.whatsapp,
           requiredAmount: Number(formData.requiredAmount),
+          faculty: formData.faculty,
+          semester: formData.semester,
         }),
       });
 
@@ -161,12 +160,11 @@ export default function StudentsPage() {
   };
 
   const handleDeleteStudent = async () => {
-    if (!selectedStudent || !activeOrgId) return;
+    if (!selectedStudent) return;
     setSubmitting(true);
     try {
       await apiFetch(`/api/students/${selectedStudent.id}`, {
         method: "DELETE",
-        orgId: activeOrgId,
       });
       mutate({ students: students.filter(s => s.id !== selectedStudent.id) }, { revalidate: false });
       setIsDeleteDialogOpen(false);
@@ -184,6 +182,8 @@ export default function StudentsPage() {
       name: student.name,
       whatsapp: student.whatsapp,
       requiredAmount: student.requiredAmount.toString(),
+      faculty: student.faculty,
+      semester: student.semester,
     });
     setIsEditDialogOpen(true);
   };
@@ -205,7 +205,7 @@ export default function StudentsPage() {
           <div className="relative w-full sm:w-64 md:w-80">
             <Search className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
             <Input
-              placeholder="البحث عن جاسم الطالب..."
+              placeholder="البحث عن طالب..."
               className="pr-10 h-11 bg-white border-slate-200 rounded-2xl shadow-sm focus-visible:ring-teal-600 text-sm font-bold w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -222,51 +222,41 @@ export default function StudentsPage() {
                 <DialogTitle className="text-2xl font-black text-slate-900 text-right">طالب جديد</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleCreateStudent} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
-                
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
-                  <Input
-                    id="name"
-                    required
-                    className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold"
-                    placeholder="الاسم الرباعي..."
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
+                  <Input id="name" required className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
-                  <Input
-                    id="whatsapp"
-                    required
-                    className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold"
-                    placeholder="مثال: 201234567890"
-                    value={formData.whatsapp}
-                    onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                  />
+                  <Input id="whatsapp" required className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold" placeholder="2012..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ المطلوب (ج.م)</Label>
-                  <Input
-                    id="reqAmount"
-                    type="number"
-                    min="1"
-                    step="0.01"
-                    required
-                    className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 text-xl font-black"
-                    placeholder="مثال: 500"
-                    value={formData.requiredAmount}
-                    onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })}
-                  />
+                  <Label htmlFor="reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
+                  <Input id="reqAmount" type="number" required className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
                 </div>
-
-                <div className="pt-4">
-                  <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl shadow-xl shadow-teal-100 text-lg font-black transition-all active:scale-95">
-                    {submitting ? "جاري الإضافة..." : "حفظ بيانات الطالب"}
-                  </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</Label>
+                  <select id="faculty" required className="w-full rounded-2xl border-slate-200 bg-white h-12 px-4 font-bold" value={formData.faculty} onChange={(e) => setFormData({ ...formData, faculty: e.target.value })}>
+                    <option value="medicine">طب</option>
+                    <option value="dentistry">طب أسنان</option>
+                    <option value="engineering">هندسة</option>
+                    <option value="other">أخرى</option>
+                  </select>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="semester" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفرقة</Label>
+                  <select id="semester" required className="w-full rounded-2xl border-slate-200 bg-white h-12 px-4 font-bold" value={formData.semester} onChange={(e) => setFormData({ ...formData, semester: e.target.value })}>
+                    <option value="1">الأولى</option>
+                    <option value="2">الثانية</option>
+                    <option value="3">الثالثة</option>
+                    <option value="4">الرابعة</option>
+                    <option value="5">الخامسة</option>
+                    <option value="6">السادسة</option>
+                  </select>
+                </div>
+                <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-black">
+                  {submitting ? "جاري..." : "حفظ"}
+                </Button>
               </form>
             </DialogContent>
           </Dialog>
@@ -274,102 +264,54 @@ export default function StudentsPage() {
       </div>
 
       <div className="rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
+        <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50/80 border-b border-slate-200 hover:bg-slate-50/80">
-              <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right pr-6">اسم الطالب</TableHead>
-              <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right">رقم التواصل</TableHead>
-              <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right">المبلغ المطلوب</TableHead>
-              <TableHead className="font-black text-slate-600 h-14 uppercase text-xs tracking-wider text-right">حالة الدفع</TableHead>
-              <TableHead className="text-left font-black text-slate-600 h-14 uppercase text-xs tracking-wider pl-6">الإجراءات</TableHead>
+            <TableRow className="bg-slate-50/80">
+              <TableHead className="text-right font-black">الاسم</TableHead>
+              <TableHead className="text-right font-black">الكلية</TableHead>
+              <TableHead className="text-right font-black">الفرقة</TableHead>
+              <TableHead className="text-right font-black">المبلغ</TableHead>
+              <TableHead className="text-right font-black">الحالة</TableHead>
+              <TableHead className="text-left font-black">الإجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-40 text-center text-slate-500">
-                  <div className="flex flex-col items-center justify-center gap-3">
-                    <div className="h-6 w-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="font-bold">جاري جلب بيانات الطلاب...</span>
-                  </div>
-                </TableCell>
+                <TableCell colSpan={6} className="h-40 text-center">جاري...</TableCell>
               </TableRow>
             ) : filteredStudents.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-40 text-center text-slate-500 font-bold">
-                  لا يوجد طلاب مطابقون لعملية البحث.
-                </TableCell>
+                <TableCell colSpan={6} className="h-40 text-center">لا يوجد طلاب</TableCell>
               </TableRow>
             ) : (
               filteredStudents.map((student) => (
-                <TableRow key={student.id} className="transition-colors hover:bg-slate-50/50 border-b border-slate-100 last:border-0 group">
-                  <TableCell className="font-black text-slate-900 py-5 pr-6 text-base">{student.name}</TableCell>
-                  <TableCell className="py-5">
-                    <a
-                      href={`https://wa.me/${student.whatsapp}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-teal-600 hover:text-teal-800 font-bold transition-all hover:scale-105"
-                    >
-                      <span>{student.whatsapp}</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </TableCell>
-                  <TableCell className="font-black text-slate-700 py-5">
-                    <span>{student.requiredAmount.toLocaleString()}</span>
-                    <span className="text-xs mr-1 text-slate-400">ج.م</span>
-                  </TableCell>
-                  <TableCell className="py-5">
-                    <Badge
-                      variant="outline"
-                      className={
-                        student.status === "paid"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 rounded-full px-4 py-1.5 text-xs font-black"
-                          : "bg-amber-50 text-amber-700 border-amber-200 rounded-full px-4 py-1.5 text-xs font-black"
-                      }
-                    >
-                      {student.status === "paid" ? "تم السداد" : "قيد الانتظار"}
+                <TableRow key={student.id}>
+                  <TableCell className="font-black">{student.name}</TableCell>
+                  <TableCell className="font-bold">{student.faculty}</TableCell>
+                  <TableCell className="font-bold">{student.semester}</TableCell>
+                  <TableCell className="font-black">{student.requiredAmount.toLocaleString()} ج.م</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={student.status === "paid" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}>
+                      {student.status === "paid" ? "مدفوع" : "معلق"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-left py-5 pl-6">
+                  <TableCell className="text-left">
                     {student.status === "pending" ? (
-                      <Button
-                        size="sm"
-                        className="bg-teal-600 text-white hover:bg-teal-700 rounded-xl shadow-md font-black px-5 ml-2"
-                        onClick={() => handleConfirmPayment(student.id)}
-                        disabled={actionLoading === student.id}
-                      >
-                        {actionLoading === student.id ? "جاري..." : "تأكيد السداد"}
+                      <Button size="sm" className="bg-teal-600" onClick={() => handleConfirmPayment(student.id)} disabled={actionLoading === student.id}>
+                        {actionLoading === student.id ? "..." : "دفع"}
                       </Button>
                     ) : (
-                      <div className="inline-flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl font-black text-sm ml-2">
-                        <CheckCircle className="w-5 h-5" />
-                        مدفوع
-                      </div>
+                      <span className="text-emerald-600 font-bold">مدفوع</span>
                     )}
-
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
-                          <MoreVertical className="w-5 h-5 text-slate-400" />
-                        </Button>
+                        <Button variant="ghost" size="icon" className="ml-2"><MoreVertical className="w-4 h-4" /></Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40 font-[--font-cairo]">
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link href={`/students/${student.id}`} className="flex items-center justify-between text-teal-600 font-bold">
-                            <span>سجل المدفوعات</span>
-                            <CreditCard className="w-4 h-4 ml-2" />
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openEditDialog(student)} className="flex items-center justify-between text-slate-600 font-bold cursor-pointer">
-                          <span>تعديل التلميذ</span>
-                          <Edit2 className="w-4 h-4 ml-2" />
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openDeleteDialog(student)} className="flex items-center justify-between text-red-600 font-bold focus:text-red-700 focus:bg-red-50 cursor-pointer">
-                          <span>حذف التلميذ</span>
-                          <Trash2 className="w-4 h-4 ml-2" />
-                        </DropdownMenuItem>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild><Link href={`/students/${student.id}`}>سجل الدفع</Link></DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEditDialog(student)}>تعديل</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openDeleteDialog(student)} className="text-red-600">حذف</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -379,85 +321,35 @@ export default function StudentsPage() {
           </TableBody>
         </Table>
       </div>
-    </div>
 
-      {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black text-slate-900 text-right">تعديل بيانات الطالب</DialogTitle>
+            <DialogTitle className="text-2xl font-black text-right">تعديل الطالب</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleEditStudent} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
-              <Input
-                id="edit-name"
-                required
-                className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
-              <Input
-                id="edit-whatsapp"
-                required
-                className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold"
-                value={formData.whatsapp}
-                onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ المطلوب (ج.م)</Label>
-              <Input
-                id="edit-reqAmount"
-                type="number"
-                min="1"
-                required
-                className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 text-xl font-black"
-                value={formData.requiredAmount}
-                onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })}
-              />
-            </div>
-            <div className="pt-4">
-              <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl shadow-xl shadow-teal-100 text-lg font-black transition-all">
-                {submitting ? "جاري الحفظ..." : "حفظ التعديلات"}
-              </Button>
-            </div>
+          <form onSubmit={handleEditStudent} className="space-y-4">
+            <div><Label>الاسم</Label><Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div>
+            <div><Label>الواتساب</Label><Input value={formData.whatsapp} onChange={e => setFormData({...formData, whatsapp: e.target.value})} /></div>
+            <div><Label>المبلغ</Label><Input type="number" value={formData.requiredAmount} onChange={e => setFormData({...formData, requiredAmount: e.target.value})} /></div>
+            <div><Label>الكلية</Label><select className="w-full border rounded p-2" value={formData.faculty} onChange={e => setFormData({...formData, faculty: e.target.value})}><option value="medicine">طب</option><option value="dentistry">طب أسنان</option><option value="engineering">هندسة</option><option value="other">أخرى</option></select></div>
+            <div><Label>الفرقة</Label><select className="w-full border rounded p-2" value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})}><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+            <Button type="submit" disabled={submitting} className="w-full bg-teal-600 text-white">{submitting ? "..." : "حفظ"}</Button>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black text-slate-900 text-right">حذف الطالب</DialogTitle>
+            <DialogTitle className="text-right">حذف الطالب</DialogTitle>
           </DialogHeader>
-          <div className="mt-4 text-right">
-            <p className="text-slate-600 font-bold text-lg">هل أنت متأكد من رغبتك في حذف الطالب <span className="text-red-600">{selectedStudent?.name}</span>؟</p>
-            <p className="text-slate-400 text-sm mt-2 font-medium italic">هذا الإجراء لا يمكن التراجع عنه وسيتم حذف كافة السجلات المرتبطة به.</p>
-          </div>
-          <DialogFooter className="mt-8 flex gap-4 sm:justify-start">
-            <Button
-              variant="ghost"
-              className="flex-1 h-12 rounded-2xl font-black hover:bg-slate-100"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
-              إلغاء
-            </Button>
-            <Button
-              className="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black shadow-lg shadow-red-200/50"
-              onClick={handleDeleteStudent}
-              disabled={submitting}
-            >
-              {submitting ? "جاري الحذف..." : "نعم، حذف الطالب"}
-            </Button>
+          <p className="text-right">هل أنت متأكد من حذف {selectedStudent?.name}؟</p>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)}>إلغاء</Button>
+            <Button className="bg-red-600 text-white" onClick={handleDeleteStudent} disabled={submitting}>حذف</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }

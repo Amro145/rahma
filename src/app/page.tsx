@@ -1,11 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "@/lib/auth.client";
 import { Heart, Users, LayoutDashboard, ArrowLeft, ShieldCheck, PieChart, Star } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { data: session } = useSession();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = document.cookie.includes('jwt');
+    setIsAuthenticated(token);
+  }, []);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-[--font-cairo]">
@@ -20,7 +25,7 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-4">
-            {session ? (
+            {isAuthenticated ? (
               <Link
                 href="/dashboard"
                 className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-teal-600 text-white font-bold hover:bg-teal-700 transition-all shadow-md hover:shadow-lg active:scale-95"
@@ -66,7 +71,7 @@ export default function Home() {
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
-              href={session ? "/dashboard" : "/signup"}
+              href={isAuthenticated ? "/dashboard" : "/signup"}
               className="w-full sm:w-auto px-10 py-4 rounded-2xl bg-teal-600 text-white text-lg font-black shadow-xl shadow-teal-200 hover:bg-teal-700 hover:-translate-y-1 transition-all active:scale-95"
             >
               ابدأ الاستخدام الأن

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, Printer, Download } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useSession } from "@/lib/auth.client";
 
 interface PaymentMonth {
   monthIndex: number;
@@ -33,8 +32,6 @@ interface Student {
 export default function StudentPaymentPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const studentId = resolvedParams.id;
-  const { data: session } = useSession();
-  const activeOrgId = session?.session?.activeOrganizationId;
   
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<PaymentStatus | null>(null);
@@ -42,17 +39,11 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
-    if (!activeOrgId) return;
     setLoading(true);
     try {
-      // Fetch payment status
       const [statusRes, studentRes] = await Promise.all([
-        apiFetch<PaymentStatus>(`/api/students/${studentId}/payment-status`, {
-          orgId: activeOrgId
-        }),
-        apiFetch<{ students: Student[] }>(`/api/students`, {
-          orgId: activeOrgId
-        })
+        apiFetch<PaymentStatus>(`/api/students/${studentId}/payment-status`),
+        apiFetch<{ students: Student[] }>(`/api/students`)
       ]);
       
       const foundStudent = studentRes.students.find(s => s.id === Number(studentId));
@@ -67,21 +58,18 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
     } finally {
       setLoading(false);
     }
-  }, [studentId, activeOrgId]);
+  }, [studentId]);
 
   useEffect(() => {
-    if (activeOrgId) {
-      fetchData();
-    }
-  }, [fetchData, activeOrgId]);
+    fetchData();
+  }, [fetchData]);
 
 
   const handlePayMonth = async (monthIndex: number) => {
-    if (!data || !activeOrgId) return;
+    if (!data) return;
     try {
       await apiFetch(`/api/students/${studentId}/pay`, {
         method: "PATCH",
-        orgId: activeOrgId,
         body: JSON.stringify({
           monthIndex,
           academicYear: data.academicYear,
@@ -89,7 +77,6 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
         })
       });
       toast.success("تم تسجيل الدفع بنجاح");
-      // Refresh data
       await fetchData();
     } catch (err: unknown) {
       if (err instanceof Error) {
