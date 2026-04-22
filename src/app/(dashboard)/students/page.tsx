@@ -198,45 +198,45 @@ export default function StudentsPage() {
   );
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-[--font-cairo]">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 border-r-4 border-teal-600 pr-3">دليل الطلاب</h2>
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-          <div className="relative w-full sm:w-64 md:w-80">
-            <Search className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
+    <div className="space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-[--font-cairo]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4">
+        <h2 className="text-lg md:text-2xl font-black tracking-tight text-slate-900 border-r-4 border-teal-600 pr-3">دليل الطلاب</h2>
+        <div className="flex flex-col sm:flex-row items-center gap-2 md:gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-48 md:w-64 lg:w-80">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
-              placeholder="البحث عن طالب..."
-              className="pr-10 h-11 bg-white border-slate-200 rounded-2xl shadow-sm focus-visible:ring-teal-600 text-sm font-bold w-full"
+              placeholder="البحث..."
+              className="pr-10 h-10 md:h-11 bg-white border-slate-200 rounded-xl md:rounded-2xl shadow-sm focus-visible:ring-teal-600 text-sm font-bold w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger render={<Button className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-2xl px-6 h-11 font-black transition-all hover:-translate-y-0.5 shrink-0" />}>
-                <Plus className="w-5 h-5 ml-2 -mr-1" />
-                إضافة طالب
+<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger render={<Button className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-xl md:rounded-2xl px-4 md:px-6 h-10 md:h-11 font-black text-sm transition-all hover:-translate-y-0.5 shrink-0" />}>
+                <Plus className="w-4 h-4 ml-1 md:ml-2 -mr-1" />
+                <span>إضافة</span>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
+            <DialogContent className="sm:max-w-md rounded-2xl md:rounded-[2.5rem] p-4 md:p-8 font-[--font-cairo] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-black text-slate-900 text-right">طالب جديد</DialogTitle>
+                <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">طالب جديد</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreateStudent} className="space-y-6 mt-6 border-t border-slate-100 pt-6">
+              <form onSubmit={handleCreateStudent} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
-                  <Input id="name" required className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                  <Input id="name" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
-                  <Input id="whatsapp" required className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold" placeholder="2012..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} />
+                  <Input id="whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="2012..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
-                  <Input id="reqAmount" type="number" required className="rounded-2xl border-slate-200 bg-white h-12 focus-visible:ring-teal-500 font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
+                  <Input id="reqAmount" type="number" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</Label>
-                  <select id="faculty" required className="w-full rounded-2xl border-slate-200 bg-white h-12 px-4 font-bold" value={formData.faculty} onChange={(e) => setFormData({ ...formData, faculty: e.target.value })}>
+                  <select id="faculty" required className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base" value={formData.faculty} onChange={(e) => setFormData({ ...formData, faculty: e.target.value })}>
                     <option value="medicine">طب</option>
                     <option value="dentistry">طب أسنان</option>
                     <option value="engineering">هندسة</option>
@@ -245,7 +245,7 @@ export default function StudentsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="semester" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفرقة</Label>
-                  <select id="semester" required className="w-full rounded-2xl border-slate-200 bg-white h-12 px-4 font-bold" value={formData.semester} onChange={(e) => setFormData({ ...formData, semester: e.target.value })}>
+                  <select id="semester" required className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base" value={formData.semester} onChange={(e) => setFormData({ ...formData, semester: e.target.value })}>
                     <option value="1">الأولى</option>
                     <option value="2">الثانية</option>
                     <option value="3">الثالثة</option>
@@ -254,7 +254,7 @@ export default function StudentsPage() {
                     <option value="6">السادسة</option>
                   </select>
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-black">
+                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-xl md:rounded-2xl font-black text-sm md:text-base">
                   {submitting ? "جاري..." : "حفظ"}
                 </Button>
               </form>
@@ -263,50 +263,50 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      <div className="rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl md:rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50/80">
-              <TableHead className="text-right font-black">الاسم</TableHead>
-              <TableHead className="text-right font-black">الكلية</TableHead>
-              <TableHead className="text-right font-black">الفرقة</TableHead>
-              <TableHead className="text-right font-black">المبلغ</TableHead>
-              <TableHead className="text-right font-black">الحالة</TableHead>
-              <TableHead className="text-left font-black">الإجراءات</TableHead>
+              <TableHead className="text-right font-black text-sm">الاسم</TableHead>
+              <TableHead className="text-right font-black text-sm hidden sm:table-cell">الكلية</TableHead>
+              <TableHead className="text-right font-black text-sm hidden sm:table-cell">الفرقة</TableHead>
+              <TableHead className="text-right font-black text-sm hidden md:table-cell">المبلغ</TableHead>
+              <TableHead className="text-right font-black text-sm">الحالة</TableHead>
+              <TableHead className="text-left font-black text-sm">الإجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-40 text-center">جاري...</TableCell>
+                <TableCell colSpan={6} className="h-24 md:h-40 text-center">جاري...</TableCell>
               </TableRow>
             ) : filteredStudents.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-40 text-center">لا يوجد طلاب</TableCell>
+                <TableCell colSpan={6} className="h-24 md:h-40 text-center">لا يوجد طلاب</TableCell>
               </TableRow>
             ) : (
               filteredStudents.map((student) => (
                 <TableRow key={student.id}>
-                  <TableCell className="font-black">{student.name}</TableCell>
-                  <TableCell className="font-bold">{student.faculty}</TableCell>
-                  <TableCell className="font-bold">{student.semester}</TableCell>
-                  <TableCell className="font-black">{student.requiredAmount.toLocaleString()} ج.م</TableCell>
+                  <TableCell className="font-black text-sm">{student.name}</TableCell>
+                  <TableCell className="font-bold text-sm hidden sm:table-cell">{student.faculty}</TableCell>
+                  <TableCell className="font-bold text-sm hidden sm:table-cell">{student.semester}</TableCell>
+                  <TableCell className="font-black text-sm hidden md:table-cell">{student.requiredAmount.toLocaleString()} ج.م</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={student.status === "paid" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}>
+                    <Badge variant="outline" className={`text-xs md:text-sm ${student.status === "paid" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
                       {student.status === "paid" ? "مدفوع" : "معلق"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-left">
                     {student.status === "pending" ? (
-                      <Button size="sm" className="bg-teal-600" onClick={() => handleConfirmPayment(student.id)} disabled={actionLoading === student.id}>
+                      <Button size="sm" className="bg-teal-600 text-xs h-8" onClick={() => handleConfirmPayment(student.id)} disabled={actionLoading === student.id}>
                         {actionLoading === student.id ? "..." : "دفع"}
                       </Button>
                     ) : (
-                      <span className="text-emerald-600 font-bold">مدفوع</span>
+                      <span className="text-emerald-600 font-bold text-xs">مدفوع</span>
                     )}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="ml-2"><MoreVertical className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="ml-1 h-8 w-8"><MoreVertical className="w-3 h-3 md:w-4 md:h-4" /></Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild><Link href={`/students/${student.id}`}>سجل الدفع</Link></DropdownMenuItem>
@@ -322,31 +322,15 @@ export default function StudentsPage() {
         </Table>
       </div>
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 font-[--font-cairo]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-black text-right">تعديل الطالب</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleEditStudent} className="space-y-4">
-            <div><Label>الاسم</Label><Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div>
-            <div><Label>الواتساب</Label><Input value={formData.whatsapp} onChange={e => setFormData({...formData, whatsapp: e.target.value})} /></div>
-            <div><Label>المبلغ</Label><Input type="number" value={formData.requiredAmount} onChange={e => setFormData({...formData, requiredAmount: e.target.value})} /></div>
-            <div><Label>الكلية</Label><select className="w-full border rounded p-2" value={formData.faculty} onChange={e => setFormData({...formData, faculty: e.target.value})}><option value="medicine">طب</option><option value="dentistry">طب أسنان</option><option value="engineering">هندسة</option><option value="other">أخرى</option></select></div>
-            <div><Label>الفرقة</Label><select className="w-full border rounded p-2" value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})}><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
-            <Button type="submit" disabled={submitting} className="w-full bg-teal-600 text-white">{submitting ? "..." : "حفظ"}</Button>
-          </form>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8">
+        <DialogContent className="sm:max-w-md rounded-2xl p-4 md:p-6">
           <DialogHeader>
-            <DialogTitle className="text-right">حذف الطالب</DialogTitle>
+            <DialogTitle className="text-lg md:text-xl font-black text-right">حذف الطالب</DialogTitle>
           </DialogHeader>
-          <p className="text-right">هل أنت متأكد من حذف {selectedStudent?.name}؟</p>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)}>إلغاء</Button>
-            <Button className="bg-red-600 text-white" onClick={handleDeleteStudent} disabled={submitting}>حذف</Button>
+          <p className="text-right text-sm md:text-base">هل أنت متأكد من حذف <span className="font-bold">{selectedStudent?.name}</span>؟</p>
+          <DialogFooter className="flex-row gap-2 sm:justify-end">
+            <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1 sm:flex-none rounded-xl h-10">إلغاء</Button>
+            <Button className="flex-1 sm:flex-none bg-red-600 text-white rounded-xl h-10" onClick={handleDeleteStudent} disabled={submitting}>حذف</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

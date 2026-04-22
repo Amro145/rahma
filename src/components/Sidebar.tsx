@@ -30,15 +30,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <aside className={`w-64 h-screen border-l border-slate-200 bg-white flex flex-col fixed right-0 top-0 z-50 font-[--font-cairo] transition-transform duration-300 transform ${
         isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
       }`}>
-        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200">
+        <div className="h-14 lg:h-16 flex items-center justify-between px-4 lg:px-6 border-b border-slate-200">
           <div className="flex items-center gap-2 text-teal-700">
-            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
-              <span className="text-white font-bold text-lg leading-none">ر</span>
+            <div className="w-7 lg:w-8 h-7 lg:h-8 rounded-lg bg-teal-600 flex items-center justify-center">
+              <span className="text-white font-bold text-base leading-none">ر</span>
             </div>
-            <h2 className="text-xl font-bold tracking-tight">رحمة</h2>
+            <h2 className="text-lg lg:text-xl font-bold tracking-tight">رحمة</h2>
           </div>
           <button onClick={onClose} className="lg:hidden p-2 text-slate-400 hover:text-slate-600 transition-colors">
-            <X className="h-6 w-6" />
+            <X className="h-5 lg:h-6 w-5 lg:w-6" />
           </button>
         </div>
         <nav className="flex-1 py-4 px-4 space-y-1.5 overflow-y-auto">
