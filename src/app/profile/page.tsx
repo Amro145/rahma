@@ -78,6 +78,7 @@ export default function ProfilePage() {
     other: "أخرى",
   };
 
+  
   return (
     <div className="min-h-screen bg-slate-50 font-[--font-cairo] pb-12" dir="rtl">
       {/* Header */}
