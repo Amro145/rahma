@@ -2,20 +2,11 @@
 
 import { signupAction } from '@/app/actions/auth';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function SignUp() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    const token = document.cookie.includes('jwt');
-    if (token) {
-      router.replace('/dashboard');
-    }
-  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

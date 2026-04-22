@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
 import { Sidebar } from "@/components/Sidebar";
 import { User, Menu } from "lucide-react";
-
 import { Toaster } from "sonner";
 
 export default function DashboardLayout({
@@ -13,40 +12,20 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
   const [dateStr, setDateStr] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const token = document.cookie.includes('jwt');
-    if (!token) {
-      router.push("/signin");
-    } else {
-      setIsChecking(false);
-    }
-  }, [router]);
-
-  useEffect(() => {
-    setDateStr(new Intl.DateTimeFormat('ar-EG', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-    }).format(new Date()));
-  }, []);
-
-  if (isChecking) {
-    return (
-      <div className="flex items-center justify-center h-screen w-full bg-slate-50 font-[--font-cairo]">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 text-sm font-bold">جاري تحميل المنصة...</p>
-        </div>
-      </div>
+    setDateStr(
+      new Intl.DateTimeFormat("ar-EG", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(new Date())
     );
-  }
+  }, []);
 
   const titleMapping: Record<string, string> = {
     "/dashboard": "نظرة عامة على الإحصائيات",
