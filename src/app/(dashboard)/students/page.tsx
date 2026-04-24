@@ -228,7 +228,7 @@ export default function StudentsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
-                  <Input id="whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="2012..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} />
+                  <Input id="whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="+249..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value.replace(/[^\d+]/g, "") })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
@@ -321,6 +321,51 @@ export default function StudentsPage() {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl md:rounded-[2.5rem] p-4 md:p-8 font-[--font-cairo] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">تعديل بيانات الطالب</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditStudent} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
+              <Input id="edit-name" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
+              <Input id="edit-whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="+249..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value.replace(/[^\d+]/g, "") })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
+              <Input id="edit-reqAmount" type="number" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</Label>
+              <select id="edit-faculty" required className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base" value={formData.faculty} onChange={(e) => setFormData({ ...formData, faculty: e.target.value })}>
+                <option value="medicine">طب</option>
+                <option value="dentistry">طب أسنان</option>
+                <option value="engineering">هندسة</option>
+                <option value="other">أخرى</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-semester" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفرقة</Label>
+              <select id="edit-semester" required className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base" value={formData.semester} onChange={(e) => setFormData({ ...formData, semester: e.target.value })}>
+                <option value="1">الأولى</option>
+                <option value="2">الثانية</option>
+                <option value="3">الثالثة</option>
+                <option value="4">الرابعة</option>
+                <option value="5">الخامسة</option>
+                <option value="6">السادسة</option>
+              </select>
+            </div>
+            <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-xl md:rounded-2xl font-black text-sm md:text-base">
+              {submitting ? "جاري..." : "حفظ التعديلات"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-2xl p-4 md:p-6">

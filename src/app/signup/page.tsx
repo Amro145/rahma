@@ -86,7 +86,8 @@ export default function SignUp() {
               id="whatsapp"
               name="whatsapp"
               className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
-              placeholder="201234567890"
+              placeholder="+249..."
+              onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/[^\d+]/g, '')}
             />
           </div>
 
