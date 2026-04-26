@@ -61,7 +61,7 @@ export default function UsersPage() {
   const handleRoleChange = async (userId: string, newRole: string) => {
     setUpdatingId(userId);
     try {
-      await apiFetch(`/api/users/users/${userId}/role`, {
+      await apiFetch(`/api/users/${userId}/role`, {
         method: "PATCH",
         body: JSON.stringify({ role: newRole }),
       });
