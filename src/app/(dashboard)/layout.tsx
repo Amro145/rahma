@@ -30,7 +30,9 @@ export default function DashboardLayout({
   const titleMapping: Record<string, string> = {
     "/dashboard": "نظرة عامة على الإحصائيات",
     "/students": "إدارة شؤون الطلاب",
-    "/finance": "السجلات والتقارير المالية"
+    "/finance": "السجلات والتقارير المالية",
+    "/users": "إدارة المستخدمين",
+    "/special-donations": "التبرعات الخاصة",
   };
   const activeTitle = titleMapping[pathname] || "لوحة التحكم";
 

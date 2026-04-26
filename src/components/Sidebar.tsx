@@ -2,21 +2,35 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, Heart, X } from "lucide-react";
+import useSWR from "swr";
+import { LayoutDashboard, Users, FileText, Heart, X, UserCog } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
 
+type MeResponse = {
+  user: {
+    role: string;
+  };
+};
+
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  
+  const { data: meData } = useSWR<MeResponse>("/api/me", () => apiFetch<MeResponse>("/api/me"));
+  const userRole = meData?.user?.role;
+  
+  const isManagement = userRole === "admin" || userRole === "management";
 
   const navItems = [
     { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
     { name: "قائمة الطلاب", href: "/students", icon: Users },
     { name: "السجلات المالية", href: "/finance", icon: FileText },
     { name: "التبرعات الخاصة", href: "/special-donations", icon: Heart },
+    { name: "إدارة المستخدمين", href: "/users", icon: UserCog, requiresRole: "management" },
   ];
 
   return (
@@ -43,7 +57,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </button>
         </div>
         <nav className="flex-1 py-4 px-4 space-y-1.5 overflow-y-auto">
-          {navItems.map((item) => {
+          {navItems
+            .filter(item => !item.requiresRole || isManagement)
+            .map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link

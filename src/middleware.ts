@@ -19,7 +19,9 @@ export function middleware(request: NextRequest) {
   const isAdminRoute = 
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/students') ||
-    pathname.startsWith('/finance');
+    pathname.startsWith('/finance') ||
+    pathname.startsWith('/users') ||
+    pathname.startsWith('/special-donations');
 
   const isStudentRoute = pathname.startsWith('/profile');
   const isAuthRoute = pathname === '/signin' || pathname === '/signup';
