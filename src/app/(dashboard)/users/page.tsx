@@ -168,6 +168,13 @@ export default function UsersPage() {
                               <span>طالب</span>
                             </div>
                           </SelectItem>
+                            <SelectItem value="admin" className="font-bold">
+                            <div className="flex items-center gap-2">
+                              <GraduationCap className="w-4 h-4 text-teal-600" />
+                              <span>مسؤول</span>
+                            </div>
+                          </SelectItem>
+
                         </SelectContent>
                       </Select>
                     </TableCell>
