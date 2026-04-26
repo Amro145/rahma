@@ -62,7 +62,7 @@ export default function SignIn() {
               id="password"
               name="password"
               type="password"
-              required
+              required 
               className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
               placeholder="••••••••"
             />

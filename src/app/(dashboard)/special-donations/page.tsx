@@ -32,10 +32,19 @@ type Donation = {
   createdAt: string;
 };
 
+type MeResponse = {
+  user: {
+    role: string;
+  };
+};
+
 export default function SpecialDonationsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ donorName: "", amount: "" });
+
+  const { data: meData } = useSWR<MeResponse>("/api/me", () => apiFetch<MeResponse>("/api/me"));
+  const isAdmin = meData?.user?.role === "admin";
 
   const { data, isLoading, mutate } = useSWR<{ donations: Donation[] }>(
     "/api/special-donations",
@@ -145,13 +154,13 @@ export default function SpecialDonationsPage() {
               <TableHead className="text-right font-black text-slate-500">اسم المتبرع</TableHead>
               <TableHead className="text-right font-black text-slate-500">المبلغ</TableHead>
               <TableHead className="text-right font-black text-slate-500">التاريخ</TableHead>
-              <TableHead className="w-12"></TableHead>
+              {isAdmin && <TableHead className="w-12"></TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {data?.donations?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-slate-400 py-8">
+                <TableCell colSpan={isAdmin ? 4 : 3} className="text-center text-slate-400 py-8">
                   لا توجد تبرعات خاصة حتى الآن
                 </TableCell>
               </TableRow>
@@ -161,21 +170,23 @@ export default function SpecialDonationsPage() {
                   <TableCell className="font-bold text-slate-700">{donation.donorName}</TableCell>
                   <TableCell className="font-bold text-teal-600">{donation.amount.toLocaleString()} ج.م</TableCell>
                   <TableCell className="text-slate-400">{formatDate(donation.createdAt)}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleDelete(donation.id)} className="text-red-600 gap-2">
-                          <Trash2 className="w-4 h-4" />
-                          <span>حذف</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleDelete(donation.id)} className="text-red-600 gap-2">
+                            <Trash2 className="w-4 h-4" />
+                            <span>حذف</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             )}
