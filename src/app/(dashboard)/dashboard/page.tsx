@@ -3,7 +3,7 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, Banknote, UserPlus, FilePlus } from "lucide-react";
+import { Wallet, Banknote, UserPlus, FilePlus, Heart } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,10 +29,12 @@ type SummaryData = {
 export default function DashboardPage() {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [isFinanceDialogOpen, setIsFinanceDialogOpen] = useState(false);
+  const [isSpecialDonationDialogOpen, setIsSpecialDonationDialogOpen] = useState(false);
   
   const [submitting, setSubmitting] = useState(false);
   const [studentForm, setStudentForm] = useState({ name: "", whatsapp: "", requiredAmount: "", faculty: "medicine", semester: "1" });
   const [financeForm, setFinanceForm] = useState({ type: "income" as "income" | "expense", amount: "", category: "", description: "" });
+  const [specialDonationForm, setSpecialDonationForm] = useState({ donorName: "", amount: "" });
 
   const { data, isLoading, mutate: fetchSummary } = useSWR<SummaryData>(
     "/api/finance/summary",
@@ -83,6 +85,28 @@ export default function DashboardPage() {
       fetchSummary();
     } catch {
       toast.error("فشل تسجيل العملية");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCreateSpecialDonation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await apiFetch("/api/special-donations", {
+        method: "POST",
+        body: JSON.stringify({
+          donorName: specialDonationForm.donorName,
+          amount: Number(specialDonationForm.amount),
+        }),
+      });
+      setIsSpecialDonationDialogOpen(false);
+      setSpecialDonationForm({ donorName: "", amount: "" });
+      toast.success("تمت إضافة التبرع بنجاح");
+      fetchSummary();
+    } catch {
+      toast.error("فشل إضافة التبرع");
     } finally {
       setSubmitting(false);
     }
@@ -161,7 +185,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           
           <Dialog open={isStudentDialogOpen} onOpenChange={setIsStudentDialogOpen}>
             <DialogTrigger render={
@@ -256,6 +280,33 @@ export default function DashboardPage() {
                 </div>
                 <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-teal-600 rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
                   {submitting ? "جاري الحفظ..." : "حفظ السجل المالي"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isSpecialDonationDialogOpen} onOpenChange={setIsSpecialDonationDialogOpen}>
+            <DialogTrigger render={
+                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-rose-500 hover:bg-rose-50 text-slate-700 hover:text-rose-700 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
+                    <Heart className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-rose-500" />
+                    <span className="font-black text-xs md:text-sm">إضافة متبرع خاص</span>
+                </Button>
+            } />
+            <DialogContent className="sm:max-w-md rounded-2xl md:rounded-[2.5rem] p-4 md:p-8 font-[--font-cairo] max-h-[90vh] overflow-y-auto" dir="rtl">
+              <DialogHeader>
+                <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">إضافة متبرع خاص</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreateSpecialDonation} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
+                <div className="space-y-2">
+                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">اسم المتبرع</Label>
+                  <Input required className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="الاسم الكامل..." value={specialDonationForm.donorName} onChange={e => setSpecialDonationForm({...specialDonationForm, donorName: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ</Label>
+                  <Input required type="number" className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="0.00" value={specialDonationForm.amount} onChange={e => setSpecialDonationForm({...specialDonationForm, amount: e.target.value})} />
+                </div>
+                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-rose-500 hover:bg-rose-600 rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
+                  {submitting ? "جاري الحفظ..." : "حفظ التبرع"}
                 </Button>
               </form>
             </DialogContent>
