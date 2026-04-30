@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useSWR from "swr";
-import { LayoutDashboard, Users, FileText, Heart, X, UserCog } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Heart, X, UserCog, LogOut } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { logoutAction } from "@/app/actions/auth";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -80,6 +81,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             );
           })}
         </nav>
+        
+        <div className="p-4 border-t border-slate-200">
+          <form action={async () => {
+            await logoutAction();
+          }}>
+            <button 
+              type="submit"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all duration-200 text-red-500 hover:bg-red-50 w-full"
+            >
+              <LogOut className="h-5 w-5" />
+              <span>تسجيل الخروج</span>
+            </button>
+          </form>
+        </div>
       </aside>
     </>
   );
