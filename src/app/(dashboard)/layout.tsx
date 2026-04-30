@@ -33,6 +33,7 @@ export default function DashboardLayout({
     "/finance": "السجلات والتقارير المالية",
     "/users": "إدارة المستخدمين",
     "/special-donations": "التبرعات الخاصة",
+    "/" :"تسجيل الخروج"
   };
   const activeTitle = titleMapping[pathname] || "لوحة التحكم";
 

@@ -148,18 +148,10 @@ export default function UsersPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {isAdmin && (
-                            <SelectItem value="admin" className="font-bold">
-                              <div className="flex items-center gap-2">
-                                <Shield className="w-4 h-4 text-purple-600" />
-                                <span>مشرف</span>
-                              </div>
-                            </SelectItem>
-                          )}
                           <SelectItem value="management" className="font-bold">
                             <div className="flex items-center gap-2">
                               <UserCog className="w-4 h-4 text-blue-600" />
-                              <span>إدارة</span>
+                              <span>اداره الجمعيه</span>
                             </div>
                           </SelectItem>
                           <SelectItem value="student" className="font-bold">
@@ -168,7 +160,7 @@ export default function UsersPage() {
                               <span>طالب</span>
                             </div>
                           </SelectItem>
-                            <SelectItem value="admin" className="font-bold">
+                          <SelectItem value="admin" className="font-bold">
                             <div className="flex items-center gap-2">
                               <GraduationCap className="w-4 h-4 text-[#B38E2D]" />
                               <span>مسؤول</span>

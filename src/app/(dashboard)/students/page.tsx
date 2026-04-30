@@ -67,6 +67,11 @@ export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const { data: meData } = useSWR<{ user: { role: string } }>(
+    "/api/me",
+    () => apiFetch<{ user: { role: string } }>("/api/me")
+  );
+
   const { data, isLoading: loading, mutate } = useSWR<{ students: Student[] }>(
     "/api/students",
     () => apiFetch<{ students: Student[] }>("/api/students")
@@ -400,18 +405,20 @@ export default function StudentsPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-2xl p-4 md:p-6">
-          <DialogHeader>
-            <DialogTitle className="text-lg md:text-xl font-black text-right">حذف الطالب</DialogTitle>
-          </DialogHeader>
-          <p className="text-right text-sm md:text-base">هل أنت متأكد من حذف <span className="font-bold">{selectedStudent?.name}</span>؟</p>
-          <DialogFooter className="flex-row gap-2 sm:justify-end">
-            <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1 sm:flex-none rounded-xl h-10">إلغاء</Button>
-            <Button className="flex-1 sm:flex-none bg-red-600 text-white rounded-xl h-10" onClick={handleDeleteStudent} disabled={submitting}>حذف</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {(meData?.user?.role === "management" || meData?.user?.role === "admin") && (
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent className="sm:max-w-md rounded-2xl p-4 md:p-6">
+            <DialogHeader>
+              <DialogTitle className="text-lg md:text-xl font-black text-right">حذف الطالب</DialogTitle>
+            </DialogHeader>
+            <p className="text-right text-sm md:text-base">هل أنت متأكد من حذف <span className="font-bold">{selectedStudent?.name}</span>؟</p>
+            <DialogFooter className="flex-row gap-2 sm:justify-end">
+              <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1 sm:flex-none rounded-xl h-10">إلغاء</Button>
+              <Button className="flex-1 sm:flex-none bg-red-600 text-white rounded-xl h-10" onClick={handleDeleteStudent} disabled={submitting}>حذف</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

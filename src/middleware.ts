@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
   const jwt = request.cookies.get('jwt')?.value;
   const { pathname } = request.nextUrl;
 
-  const isAdminRoute = 
+  const isAdminRoute =
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/students') ||
     pathname.startsWith('/finance') ||
