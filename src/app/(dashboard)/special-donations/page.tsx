@@ -108,7 +108,7 @@ export default function SpecialDonationsPage() {
         <h1 className="text-2xl font-black text-slate-900">التبرعات الخاصة</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger render={
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-black gap-2">
+            <Button className="bg-gradient-to-r from-[#B38E2D] to-[#8B6914] hover:from-[#D4A843] hover:to-[#B38E2D] text-white rounded-xl font-black gap-2">
               <Plus className="w-4 h-4" />
               <span>إضافة متبرع خاص</span>
             </Button>
@@ -126,7 +126,7 @@ export default function SpecialDonationsPage() {
                 <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ</Label>
                 <Input required type="number" className="rounded-xl h-12 border-slate-200" placeholder="0.00" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} />
               </div>
-              <Button type="submit" disabled={submitting} className="w-full h-12 bg-teal-600 rounded-xl font-black text-white">
+              <Button type="submit" disabled={submitting} className="w-full h-12 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] rounded-xl font-black text-white">
                 {submitting ? "جاري الحفظ..." : "حفظ"}
               </Button>
             </form>
@@ -139,7 +139,7 @@ export default function SpecialDonationsPage() {
           <CardTitle className="text-sm font-black text-slate-400 uppercase">إجمالي التبرعات الخاصة</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-black text-teal-600 flex items-center gap-2">
+          <div className="text-3xl font-black text-[#B38E2D] flex items-center gap-2">
             <Heart className="w-6 h-6" />
             <span>{totalAmount.toLocaleString()}</span>
             <span className="text-sm font-bold text-slate-300">ج.م</span>
@@ -168,7 +168,7 @@ export default function SpecialDonationsPage() {
               data?.donations?.map((donation) => (
                 <TableRow key={donation.id}>
                   <TableCell className="font-bold text-slate-700">{donation.donorName}</TableCell>
-                  <TableCell className="font-bold text-teal-600">{donation.amount.toLocaleString()} ج.م</TableCell>
+                  <TableCell className="font-bold text-[#B38E2D]">{donation.amount.toLocaleString()} ج.م</TableCell>
                   <TableCell className="text-slate-400">{formatDate(donation.createdAt)}</TableCell>
                   {isAdmin && (
                     <TableCell>

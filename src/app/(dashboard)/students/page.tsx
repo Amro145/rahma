@@ -200,20 +200,20 @@ export default function StudentsPage() {
   return (
     <div className="space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-[--font-cairo]">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4">
-        <h2 className="text-lg md:text-2xl font-black tracking-tight text-slate-900 border-r-4 border-teal-600 pr-3">دليل الطلاب</h2>
+        <h2 className="text-lg md:text-2xl font-black tracking-tight text-slate-900 border-r-4 border-[#B38E2D] pr-3">دليل الطلاب</h2>
         <div className="flex flex-col sm:flex-row items-center gap-2 md:gap-3 w-full sm:w-auto">
           <div className="relative w-full sm:w-48 md:w-64 lg:w-80">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               placeholder="البحث..."
-              className="pr-10 h-10 md:h-11 bg-white border-slate-200 rounded-xl md:rounded-2xl shadow-sm focus-visible:ring-teal-600 text-sm font-bold w-full"
+              className="pr-10 h-10 md:h-11 bg-white border-slate-200 rounded-xl md:rounded-2xl shadow-sm focus-visible:ring-[#B38E2D] text-sm font-bold w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger render={<Button className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-200/50 rounded-xl md:rounded-2xl px-4 md:px-6 h-10 md:h-11 font-black text-sm transition-all hover:-translate-y-0.5 shrink-0" />}>
+            <DialogTrigger render={<Button className="w-full sm:w-auto bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-white hover:from-[#D4A843] hover:to-[#B38E2D] shadow-lg shadow-[#B38E2D]/20 rounded-xl md:rounded-2xl px-4 md:px-6 h-10 md:h-11 font-black text-sm transition-all hover:-translate-y-0.5 shrink-0" />}>
                 <Plus className="w-4 h-4 ml-1 md:ml-2 -mr-1" />
                 <span>إضافة</span>
             </DialogTrigger>
@@ -224,15 +224,15 @@ export default function StudentsPage() {
               <form onSubmit={handleCreateStudent} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
-                  <Input id="name" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                  <Input id="name" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
-                  <Input id="whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="+249..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value.replace(/[^\d+]/g, "") })} />
+                  <Input id="whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" placeholder="+249..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value.replace(/[^\d+]/g, "") })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
-                  <Input id="reqAmount" type="number" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
+                  <Input id="reqAmount" type="number" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</Label>
@@ -254,7 +254,7 @@ export default function StudentsPage() {
                     <option value="6">السادسة</option>
                   </select>
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-xl md:rounded-2xl font-black text-sm md:text-base">
+                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] hover:from-[#D4A843] hover:to-[#B38E2D] text-white rounded-xl md:rounded-2xl font-black text-sm md:text-base">
                   {submitting ? "جاري..." : "حفظ"}
                 </Button>
               </form>
@@ -298,7 +298,7 @@ export default function StudentsPage() {
                   </TableCell>
                   <TableCell className="text-left">
                     {student.status === "pending" ? (
-                      <Button size="sm" className="bg-teal-600 text-xs h-8" onClick={() => handleConfirmPayment(student.id)} disabled={actionLoading === student.id}>
+                      <Button size="sm" className="bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-xs h-8" onClick={() => handleConfirmPayment(student.id)} disabled={actionLoading === student.id}>
                         {actionLoading === student.id ? "..." : "دفع"}
                       </Button>
                     ) : (
@@ -330,15 +330,15 @@ export default function StudentsPage() {
           <form onSubmit={handleEditStudent} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
             <div className="space-y-2">
               <Label htmlFor="edit-name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
-              <Input id="edit-name" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+              <Input id="edit-name" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
-              <Input id="edit-whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" placeholder="+249..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value.replace(/[^\d+]/g, "") })} />
+              <Input id="edit-whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" placeholder="+249..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value.replace(/[^\d+]/g, "") })} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
-              <Input id="edit-reqAmount" type="number" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-teal-500 font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
+              <Input id="edit-reqAmount" type="number" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</Label>

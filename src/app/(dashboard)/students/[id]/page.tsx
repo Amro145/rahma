@@ -89,8 +89,8 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="h-8 w-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="h-8 w-8 border-4 border-[#B38E2D] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -111,7 +111,7 @@ export default function StudentPaymentPage({ params }: { params: Promise<{ id: s
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-slate-400 font-bold text-sm">
-            <Link href="/students" className="hover:text-teal-600 transition-colors">دليل الطلاب</Link>
+            <Link href="/students" className="hover:text-[#B38E2D] transition-colors">دليل الطلاب</Link>
             <ChevronRight className="w-4 h-4" />
             <span>سجل الدفع</span>
           </div>

@@ -42,11 +42,11 @@ export default function DashboardLayout({
       
       {/* Mobile Top Navbar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-slate-200 z-30 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2 text-teal-700">
-          <div className="w-7 h-7 rounded-lg bg-teal-600 flex items-center justify-center">
-            <span className="text-white font-bold text-base leading-none">ر</span>
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#D4A843] to-[#8B6914] flex items-center justify-center">
+            <span className="text-white font-bold text-base leading-none">Z</span>
           </div>
-          <h2 className="text-lg font-bold tracking-tight">رحمة</h2>
+          <h2 className="text-lg font-bold tracking-tight">ZSSA</h2>
         </div>
         <button 
           onClick={() => setIsSidebarOpen(true)}
@@ -78,7 +78,7 @@ export default function DashboardLayout({
                 type="submit"
                 className="flex items-center gap-1 md:gap-3 px-1 md:px-3 py-1.5 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
               >
-                <div className="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-700">
+                <div className="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-[#B38E2D]/10 flex items-center justify-center text-[#B38E2D]">
                   <User className="h-3 w-3 md:h-4 md:w-4" />
                 </div>
                 <span className="text-xs font-black text-slate-600 hidden sm:block">خروج</span>

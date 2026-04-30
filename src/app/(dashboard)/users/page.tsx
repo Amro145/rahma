@@ -42,7 +42,7 @@ type MeResponse = {
 const roleLabels: Record<string, { label: string; color: string }> = {
   admin: { label: "مشرف", color: "text-purple-600" },
   management: { label: "إدارة", color: "text-blue-600" },
-  student: { label: "طالب", color: "text-teal-600" },
+  student: { label: "طالب", color: "text-[#B38E2D]" },
 };
 
 export default function UsersPage() {
@@ -164,13 +164,13 @@ export default function UsersPage() {
                           </SelectItem>
                           <SelectItem value="student" className="font-bold">
                             <div className="flex items-center gap-2">
-                              <GraduationCap className="w-4 h-4 text-teal-600" />
+                              <GraduationCap className="w-4 h-4 text-[#B38E2D]" />
                               <span>طالب</span>
                             </div>
                           </SelectItem>
                             <SelectItem value="admin" className="font-bold">
                             <div className="flex items-center gap-2">
-                              <GraduationCap className="w-4 h-4 text-teal-600" />
+                              <GraduationCap className="w-4 h-4 text-[#B38E2D]" />
                               <span>مسؤول</span>
                             </div>
                           </SelectItem>

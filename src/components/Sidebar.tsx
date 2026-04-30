@@ -46,11 +46,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
       }`}>
         <div className="h-14 lg:h-16 flex items-center justify-between px-4 lg:px-6 border-b border-slate-200">
-          <div className="flex items-center gap-2 text-teal-700">
-            <div className="w-7 lg:w-8 h-7 lg:h-8 rounded-lg bg-teal-600 flex items-center justify-center">
-              <span className="text-white font-bold text-base leading-none">ر</span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 lg:w-8 h-7 lg:h-8 rounded-lg bg-gradient-to-br from-[#D4A843] to-[#8B6914] flex items-center justify-center">
+              <span className="text-white font-bold text-base leading-none">Z</span>
             </div>
-            <h2 className="text-lg lg:text-xl font-bold tracking-tight">رحمة</h2>
+            <h2 className="text-lg lg:text-xl font-bold tracking-tight">ZSSA</h2>
           </div>
           <button onClick={onClose} className="lg:hidden p-2 text-slate-400 hover:text-slate-600 transition-colors">
             <X className="h-5 lg:h-6 w-5 lg:w-6" />
@@ -70,11 +70,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 }}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all duration-200 ${
                   isActive
-                    ? "bg-teal-50 text-teal-700 hover:bg-teal-100 shadow-sm"
+                    ? "bg-[#B38E2D]/10 text-[#B38E2D] hover:bg-[#B38E2D]/15 shadow-sm"
                     : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
-                <item.icon className={`h-5 w-5 ${isActive ? "text-teal-700" : "text-slate-400"}`} />
+                <item.icon className={`h-5 w-5 ${isActive ? "text-[#B38E2D]" : "text-slate-400"}`} />
                 <span>{item.name}</span>
               </Link>
             );

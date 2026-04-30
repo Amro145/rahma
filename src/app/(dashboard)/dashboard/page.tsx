@@ -167,19 +167,19 @@ export default function DashboardPage() {
         </Card>
 
         <Card className="rounded-2xl md:rounded-[2rem] border-slate-200 overflow-hidden group hover:shadow-xl transition-all duration-500 border-none bg-slate-900 shadow-slate-400/20 relative md:col-span-2 lg:col-span-1">
-          <div className="absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-teal-500/20 rounded-full -mr-12 md:-mr-16 -mt-12 md:-mt-16 blur-2xl md:blur-3xl"></div>
+          <div className="absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-[#B38E2D]/20 rounded-full -mr-12 md:-mr-16 -mt-12 md:-mt-16 blur-2xl md:blur-3xl"></div>
           <CardHeader className="flex flex-row items-center justify-between p-4 md:p-8 pb-2 space-y-0 relative z-10">
-            <CardTitle className="text-xs md:text-sm font-black tracking-widest text-teal-100 uppercase">صافي الرصيد</CardTitle>
-            <div className="p-2 md:p-3 bg-teal-600/50 rounded-xl md:rounded-2xl backdrop-blur-md">
+            <CardTitle className="text-xs md:text-sm font-black tracking-widest text-[#B38E2D]/80 uppercase">صافي الرصيد</CardTitle>
+            <div className="p-2 md:p-3 bg-[#B38E2D]/50 rounded-xl md:rounded-2xl backdrop-blur-md">
               <Wallet className="w-4 h-4 md:w-6 md:h-6 text-white" />
             </div>
           </CardHeader>
           <CardContent className="p-4 md:p-8 pt-2 relative z-10">
             <div className="text-2xl md:text-5xl font-black text-white tracking-tighter gap-1 flex items-baseline">
               <span>{(data?.finance.netBalance || 0).toLocaleString()}</span>
-              <span className="text-sm md:text-xl font-bold text-teal-300 mr-1 md:mr-2 uppercase">ج.م</span>
+              <span className="text-sm md:text-xl font-bold text-[#D4A843] mr-1 md:mr-2 uppercase">ج.م</span>
             </div>
-            <p className="text-xs md:text-sm text-teal-100 mt-2 md:mt-4 font-bold">الرصيد المتاح حالياً</p>
+            <p className="text-xs md:text-sm text-[#B38E2D]/80 mt-2 md:mt-4 font-bold">الرصيد المتاح حالياً</p>
           </CardContent>
         </Card>
       </div>
@@ -189,8 +189,8 @@ export default function DashboardPage() {
           
           <Dialog open={isStudentDialogOpen} onOpenChange={setIsStudentDialogOpen}>
             <DialogTrigger render={
-                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-teal-500 hover:bg-teal-50 text-slate-700 hover:text-teal-700 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
-                    <UserPlus className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-teal-600" />
+                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-[#B38E2D] hover:bg-[#B38E2D]/5 text-slate-700 hover:text-[#B38E2D] rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
+                    <UserPlus className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-[#B38E2D]" />
                     <span className="font-black text-xs md:text-sm">إضافة طالب جديد</span>
                 </Button>
             } />
@@ -215,7 +215,7 @@ export default function DashboardPage() {
                   <Label className="text-slate-400 font-black text-xs uppercase text-right block">الكلية</Label>
                   <select
                     required
-                    className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold focus:outline-none focus:border-teal-500 text-sm md:text-base"
+                    className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold focus:outline-none focus:border-[#B38E2D] text-sm md:text-base"
                     value={studentForm.faculty}
                     onChange={(e) => setStudentForm({ ...studentForm, faculty: e.target.value })}
                   >
@@ -229,7 +229,7 @@ export default function DashboardPage() {
                   <Label className="text-slate-400 font-black text-xs uppercase text-right block">الفرقة الدراسية</Label>
                   <select
                     required
-                    className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold focus:outline-none focus:border-teal-500 text-sm md:text-base"
+                    className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold focus:outline-none focus:border-[#B38E2D] text-sm md:text-base"
                     value={studentForm.semester}
                     onChange={(e) => setStudentForm({ ...studentForm, semester: e.target.value })}
                   >
@@ -241,7 +241,7 @@ export default function DashboardPage() {
                     <option value="6">الفرقة السادسة</option>
                   </select>
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-teal-600 rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
+                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
                   {submitting ? "جاري الحفظ..." : "حفظ بيانات الطالب"}
                 </Button>
               </form>
@@ -250,8 +250,8 @@ export default function DashboardPage() {
 
           <Dialog open={isFinanceDialogOpen} onOpenChange={setIsFinanceDialogOpen}>
             <DialogTrigger render={
-                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
-                    <FilePlus className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-emerald-600" />
+                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-[#B38E2D] hover:bg-[#B38E2D]/5 text-slate-700 hover:text-[#B38E2D] rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
+                    <FilePlus className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-[#B38E2D]" />
                     <span className="font-black text-xs md:text-sm">تسجيل حركة مالية</span>
                 </Button>
             } />
@@ -261,7 +261,7 @@ export default function DashboardPage() {
               </DialogHeader>
               <form onSubmit={handleCreateFinance} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
                 <div className="flex gap-2 md:gap-4">
-                  <label className={`flex-1 flex items-center justify-center p-2 md:p-3 border-2 rounded-xl md:rounded-2xl cursor-pointer text-xs md:text-sm ${financeForm.type === 'income' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'border-slate-100'}`}>
+                  <label className={`flex-1 flex items-center justify-center p-2 md:p-3 border-2 rounded-xl md:rounded-2xl cursor-pointer text-xs md:text-sm ${financeForm.type === 'income' ? 'bg-[#B38E2D]/10 border-[#B38E2D] text-[#B38E2D]' : 'border-slate-100'}`}>
                     <input type="radio" className="sr-only" checked={financeForm.type === 'income'} onChange={() => setFinanceForm({...financeForm, type: 'income'})} />
                     <span className="font-black">إيراد</span>
                   </label>
@@ -278,7 +278,7 @@ export default function DashboardPage() {
                   <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ</Label>
                   <Input required type="number" className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="0.00" value={financeForm.amount} onChange={e => setFinanceForm({...financeForm, amount: e.target.value})} />
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-teal-600 rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
+                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
                   {submitting ? "جاري الحفظ..." : "حفظ السجل المالي"}
                 </Button>
               </form>
@@ -287,8 +287,8 @@ export default function DashboardPage() {
 
           <Dialog open={isSpecialDonationDialogOpen} onOpenChange={setIsSpecialDonationDialogOpen}>
             <DialogTrigger render={
-                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-rose-500 hover:bg-rose-50 text-slate-700 hover:text-rose-700 rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
-                    <Heart className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-rose-500" />
+                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-[#800000] hover:bg-[#800000]/5 text-slate-700 hover:text-[#800000] rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
+                    <Heart className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-[#800000]" />
                     <span className="font-black text-xs md:text-sm">إضافة متبرع خاص</span>
                 </Button>
             } />
@@ -305,7 +305,7 @@ export default function DashboardPage() {
                   <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ</Label>
                   <Input required type="number" className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="0.00" value={specialDonationForm.amount} onChange={e => setSpecialDonationForm({...specialDonationForm, amount: e.target.value})} />
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-rose-500 hover:bg-rose-600 rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
+                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-gradient-to-r from-[#800000] to-[#5c0000] hover:from-[#800000] hover:to-[#5c0000] rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
                   {submitting ? "جاري الحفظ..." : "حفظ التبرع"}
                 </Button>
               </form>

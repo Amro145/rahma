@@ -46,7 +46,7 @@ export function PaymentCalendar({
         <Card className="bg-white shadow-sm border-slate-200 overflow-hidden md:col-span-2">
           <CardHeader className="bg-slate-50 border-b border-slate-100 flex flex-row items-center justify-between py-6">
             <CardTitle className="text-xl font-black text-slate-800 flex items-center gap-2">
-              <CalendarIcon className="w-6 h-6 text-teal-600" />
+              <CalendarIcon className="w-6 h-6 text-[#B38E2D]" />
               تقويم دفع الرسوم - {academicYear}
             </CardTitle>
           </CardHeader>
@@ -112,7 +112,7 @@ export function PaymentCalendar({
           </CardContent>
         </Card>
 
-        <Card className="bg-teal-600 shadow-xl shadow-teal-100 border-none text-white overflow-hidden self-start">
+        <Card className="bg-gradient-to-br from-[#B38E2D] to-[#8B6914] shadow-xl shadow-[#B38E2D]/20 border-none text-white overflow-hidden self-start">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-black opacity-80 uppercase tracking-widest">إجمالي المستحق</CardTitle>
           </CardHeader>

@@ -14,8 +14,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-	title: "RAHMA Dashboard",
-	description: "Professional Charity and Financial Tracking Platform",
+	title: "ZSSA - صندوق التكافل الإجتماعي",
+	description: "صندوق ZSSA التكافلي - مبادرة تكافلية تطوعية لطلاب الجالية السودانية بزاكازق",
 };
 
 export default function RootLayout({

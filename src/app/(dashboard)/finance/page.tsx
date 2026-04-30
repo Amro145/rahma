@@ -69,18 +69,18 @@ export default function FinancePage() {
   return (
     <div className="space-y-4 md:space-y-6 font-[--font-cairo]">
       <div className="flex flex-col sm:flex-row justify-between gap-3 md:gap-4">
-        <h2 className="text-lg md:text-2xl font-black border-r-4 border-teal-600 pr-3">السجل المالي</h2>
+        <h2 className="text-lg md:text-2xl font-black border-r-4 border-[#B38E2D] pr-3">السجل المالي</h2>
         <div className="flex flex-wrap gap-2">
           {["all", "income", "expense"].map(f => (
-            <button key={f} onClick={() => setFilter(f as "all" | "income" | "expense")} className={`px-3 py-2 rounded-xl font-bold text-sm ${filter === f ? "bg-teal-600 text-white" : "bg-slate-100"}`}>{f === "all" ? "الكل" : f === "income" ? "إيراد" : "مصروف"}</button>
+            <button key={f} onClick={() => setFilter(f as "all" | "income" | "expense")} className={`px-3 py-2 rounded-xl font-bold text-sm ${filter === f ? "bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-white" : "bg-slate-100"}`}>{f === "all" ? "الكل" : f === "income" ? "إيراد" : "مصروف"}</button>
           ))}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger render={<Button className="bg-teal-600 h-10 px-3 md:px-4"><Plus className="w-4 h-4 ml-1 md:ml-2" /><span className="hidden xs:inline">إضافة</span></Button>} />
+            <DialogTrigger render={<Button className="bg-gradient-to-r from-[#B38E2D] to-[#8B6914] h-10 px-3 md:px-4"><Plus className="w-4 h-4 ml-1 md:ml-2" /><span className="hidden xs:inline">إضافة</span></Button>} />
             <DialogContent className="rounded-2xl md:rounded-[2rem] p-4 md:p-8 max-h-[90vh] overflow-y-auto">
               <DialogHeader><DialogTitle className="text-xl md:text-2xl font-black text-right">إضافة سجل</DialogTitle></DialogHeader>
               <form onSubmit={handleCreateRecord} className="space-y-4">
                 <div className="flex gap-2">
-                  <label className={`flex-1 p-2 md:p-3 border-2 rounded-xl cursor-pointer text-center text-sm ${formData.type === 'income' ? 'bg-emerald-50 border-emerald-500' : 'border-slate-100'}`}>
+                  <label className={`flex-1 p-2 md:p-3 border-2 rounded-xl cursor-pointer text-center text-sm ${formData.type === 'income' ? 'bg-[#B38E2D]/10 border-[#B38E2D]' : 'border-slate-100'}`}>
                     <input type="radio" checked={formData.type === 'income'} onChange={() => setFormData({...formData, type: 'income'})} className="sr-only" />
                     <span className="font-bold">إيراد</span>
                   </label>
@@ -101,7 +101,7 @@ export default function FinancePage() {
                   <Label className="text-right block text-slate-400 font-black text-xs uppercase">ملاحظات</Label>
                   <Input value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="rounded-xl h-11" />
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full h-11 bg-teal-600 text-white rounded-xl font-black">{submitting ? "..." : "حفظ"}</Button>
+                <Button type="submit" disabled={submitting} className="w-full h-11 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-white rounded-xl font-black">{submitting ? "..." : "حفظ"}</Button>
               </form>
             </DialogContent>
           </Dialog>

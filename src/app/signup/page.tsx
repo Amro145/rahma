@@ -24,10 +24,10 @@ export default function SignUp() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 font-[--font-cairo]" dir="rtl">
-      <div className="w-full max-w-md space-y-8 rounded-[2.5rem] bg-white p-10 shadow-2xl shadow-teal-100/50 border border-slate-100">
+      <div className="w-full max-w-md space-y-8 rounded-[2.5rem] bg-white p-10 shadow-2xl shadow-[#B38E2D]/20 border border-slate-100">
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-teal-600 text-white shadow-lg shadow-teal-200 mb-2">
-            <span className="text-3xl font-black">ر</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#D4A843] to-[#8B6914] text-white shadow-lg mb-2">
+            <span className="text-3xl font-black">Z</span>
           </div>
           <h2 className="text-3xl font-black text-slate-900 leading-tight">
             ابدأ رحلتك معنا
@@ -50,7 +50,7 @@ export default function SignUp() {
               id="name"
               name="name"
               required
-              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all"
               placeholder="الاسم الرباعي..."
             />
           </div>
@@ -62,7 +62,7 @@ export default function SignUp() {
               name="email"
               type="email"
               required
-              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all"
               placeholder="email@example.com"
             />
           </div>
@@ -75,7 +75,7 @@ export default function SignUp() {
               type="password"
               required
               minLength={6}
-              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all"
               placeholder="••••••••"
             />
           </div>
@@ -85,7 +85,7 @@ export default function SignUp() {
             <input
               id="whatsapp"
               name="whatsapp"
-              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all"
               placeholder="+249..."
               onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/[^\d+]/g, '')}
             />
@@ -99,7 +99,7 @@ export default function SignUp() {
               type="number"
               required
               min="1"
-              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all"
               placeholder="500"
             />
           </div>
@@ -110,7 +110,7 @@ export default function SignUp() {
               id="faculty"
               name="faculty"
               required
-              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all"
             >
               <option value="">اختر الكلية...</option>
               <option value="medicine">طب</option>
@@ -126,7 +126,7 @@ export default function SignUp() {
               id="semester"
               name="semester"
               required
-              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all"
+              className="w-full rounded-2xl border-2 border-slate-100 bg-white h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all"
             >
               <option value="">اختر الفرقة...</option>
               <option value="1">الفرقة الأولى</option>
@@ -141,7 +141,7 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl shadow-xl shadow-teal-100 text-lg font-black transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-14 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] hover:from-[#D4A843] hover:to-[#B38E2D] text-white rounded-2xl shadow-xl shadow-[#B38E2D]/20 text-lg font-black transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'جاري إنشاء الحساب...' : 'إنشاء حساب جديد'}
           </button>
@@ -152,7 +152,7 @@ export default function SignUp() {
             لديك حساب بالفعل؟{' '}
             <Link
               href="/signin"
-              className="text-teal-600 hover:text-teal-700 hover:underline transition-all"
+              className="text-[#B38E2D] hover:text-[#8B6914] hover:underline transition-all"
             >
               سجل دخولك من هنا
             </Link>

@@ -43,7 +43,7 @@ export default function ProfilePage() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50 font-[--font-cairo]" dir="rtl">
         <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-[#B38E2D] border-t-transparent rounded-full animate-spin"></div>
           <p className="text-slate-500 text-sm font-bold">جاري تحميل بياناتك...</p>
         </div>
       </div>
@@ -85,8 +85,8 @@ export default function ProfilePage() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
-              <span className="text-white font-bold text-lg leading-none">ر</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4A843] to-[#8B6914] flex items-center justify-center">
+              <span className="text-white font-bold text-lg leading-none">Z</span>
             </div>
             <h1 className="text-lg sm:text-xl font-black text-slate-800">الملف الشخصي</h1>
           </div>
@@ -102,7 +102,7 @@ export default function ProfilePage() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 mt-8 space-y-6">
         
         {/* Welcome Section */}
-        <div className="bg-gradient-to-l from-teal-600 to-teal-800 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-lg shadow-teal-900/20">
+        <div className="bg-gradient-to-l from-[#B38E2D] to-[#8B6914] rounded-[2rem] p-8 text-white relative overflow-hidden shadow-lg shadow-[#B38E2D]/20">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
             <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 shrink-0">
@@ -193,7 +193,7 @@ export default function ProfilePage() {
         {/* Detailed Info */}
         {student && (
           <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-6 sm:p-8">
-            <h3 className="text-lg font-black text-slate-800 mb-6 border-r-4 border-teal-600 pr-3">تفاصيل الحساب</h3>
+            <h3 className="text-lg font-black text-slate-800 mb-6 border-r-4 border-[#B38E2D] pr-3">تفاصيل الحساب</h3>
             
             <div className="grid sm:grid-cols-2 gap-6">
               <div className="space-y-1">
