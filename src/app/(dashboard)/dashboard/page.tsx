@@ -1,21 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, Banknote, UserPlus, FilePlus, Heart } from "lucide-react";
+import { Wallet, Banknote } from "lucide-react";
 import { apiFetch } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
 
 type SummaryData = {
   totalStudents: number;
@@ -27,90 +15,12 @@ type SummaryData = {
 };
 
 export default function DashboardPage() {
-  const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
-  const [isFinanceDialogOpen, setIsFinanceDialogOpen] = useState(false);
-  const [isSpecialDonationDialogOpen, setIsSpecialDonationDialogOpen] = useState(false);
-  
-  const [submitting, setSubmitting] = useState(false);
-  const [studentForm, setStudentForm] = useState({ name: "", whatsapp: "", requiredAmount: "", faculty: "medicine", semester: "1" });
-  const [financeForm, setFinanceForm] = useState({ type: "income" as "income" | "expense", amount: "", category: "", description: "" });
-  const [specialDonationForm, setSpecialDonationForm] = useState({ donorName: "", amount: "" });
-
   const { data, isLoading, mutate: fetchSummary } = useSWR<SummaryData>(
     "/api/finance/summary",
     () => apiFetch<SummaryData>("/api/finance/summary")
   );
 
-  const handleCreateStudent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      await apiFetch("/api/students", {
-        method: "POST",
-        body: JSON.stringify({
-          name: studentForm.name,
-          whatsapp: studentForm.whatsapp,
-          requiredAmount: Number(studentForm.requiredAmount),
-          faculty: studentForm.faculty,
-          semester: studentForm.semester,
-        }),
-      });
-      setIsStudentDialogOpen(false);
-      setStudentForm({ name: "", whatsapp: "", requiredAmount: "", faculty: "medicine", semester: "1" });
-      toast.success("تمت إضافة الطالب بنجاح");
-      fetchSummary();
-    } catch {
-      toast.error("فشل إضافة الطالب");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
-  const handleCreateFinance = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      await apiFetch("/api/finance/logs", {
-        method: "POST",
-        body: JSON.stringify({
-          type: financeForm.type,
-          amount: Number(financeForm.amount),
-          category: financeForm.category,
-          description: financeForm.description || "",
-        }),
-      });
-      setIsFinanceDialogOpen(false);
-      setFinanceForm({ type: "income", amount: "", category: "", description: "" });
-      toast.success("تم تسجيل العملية بنجاح");
-      fetchSummary();
-    } catch {
-      toast.error("فشل تسجيل العملية");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleCreateSpecialDonation = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      await apiFetch("/api/special-donations", {
-        method: "POST",
-        body: JSON.stringify({
-          donorName: specialDonationForm.donorName,
-          amount: Number(specialDonationForm.amount),
-        }),
-      });
-      setIsSpecialDonationDialogOpen(false);
-      setSpecialDonationForm({ donorName: "", amount: "" });
-      toast.success("تمت إضافة التبرع بنجاح");
-      fetchSummary();
-    } catch {
-      toast.error("فشل إضافة التبرع");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -184,136 +94,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-          
-          <Dialog open={isStudentDialogOpen} onOpenChange={setIsStudentDialogOpen}>
-            <DialogTrigger render={
-                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-[#B38E2D] hover:bg-[#B38E2D]/5 text-slate-700 hover:text-[#B38E2D] rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
-                    <UserPlus className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-[#B38E2D]" />
-                    <span className="font-black text-xs md:text-sm">إضافة طالب جديد</span>
-                </Button>
-            } />
-            <DialogContent className="sm:max-w-md rounded-2xl md:rounded-[2.5rem] p-4 md:p-8 font-[--font-cairo] max-h-[90vh] overflow-y-auto" dir="rtl">
-              <DialogHeader>
-                <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">طالب جديد</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateStudent} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
-                <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">اسم الطالب</Label>
-                  <Input required className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="الاسم الكامل..." value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">رقم الواتساب</Label>
-                  <Input required className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="2012..." value={studentForm.whatsapp} onChange={e => setStudentForm({...studentForm, whatsapp: e.target.value})} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ المطلوب</Label>
-                  <Input required type="number" className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="500..." value={studentForm.requiredAmount} onChange={e => setStudentForm({...studentForm, requiredAmount: e.target.value})} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">الكلية</Label>
-                  <select
-                    required
-                    className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold focus:outline-none focus:border-[#B38E2D] text-sm md:text-base"
-                    value={studentForm.faculty}
-                    onChange={(e) => setStudentForm({ ...studentForm, faculty: e.target.value })}
-                  >
-                    <option value="medicine">طب</option>
-                    <option value="dentistry">طب أسنان</option>
-                    <option value="engineering">هندسة</option>
-                    <option value="other">أخرى</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">الفرقة الدراسية</Label>
-                  <select
-                    required
-                    className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold focus:outline-none focus:border-[#B38E2D] text-sm md:text-base"
-                    value={studentForm.semester}
-                    onChange={(e) => setStudentForm({ ...studentForm, semester: e.target.value })}
-                  >
-                    <option value="1">الفرقة الأولى</option>
-                    <option value="2">الفرقة الثانية</option>
-                    <option value="3">الفرقة الثالثة</option>
-                    <option value="4">الفرقة الرابعة</option>
-                    <option value="5">الفرقة الخامسة</option>
-                    <option value="6">الفرقة السادسة</option>
-                  </select>
-                </div>
-                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
-                  {submitting ? "جاري الحفظ..." : "حفظ بيانات الطالب"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
 
-          <Dialog open={isFinanceDialogOpen} onOpenChange={setIsFinanceDialogOpen}>
-            <DialogTrigger render={
-                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-[#B38E2D] hover:bg-[#B38E2D]/5 text-slate-700 hover:text-[#B38E2D] rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
-                    <FilePlus className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-[#B38E2D]" />
-                    <span className="font-black text-xs md:text-sm">تسجيل حركة مالية</span>
-                </Button>
-            } />
-            <DialogContent className="sm:max-w-md rounded-2xl md:rounded-[2.5rem] p-4 md:p-8 font-[--font-cairo] max-h-[90vh] overflow-y-auto" dir="rtl">
-              <DialogHeader>
-                <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">تسجيل حركة مالية</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateFinance} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
-                <div className="flex gap-2 md:gap-4">
-                  <label className={`flex-1 flex items-center justify-center p-2 md:p-3 border-2 rounded-xl md:rounded-2xl cursor-pointer text-xs md:text-sm ${financeForm.type === 'income' ? 'bg-[#B38E2D]/10 border-[#B38E2D] text-[#B38E2D]' : 'border-slate-100'}`}>
-                    <input type="radio" className="sr-only" checked={financeForm.type === 'income'} onChange={() => setFinanceForm({...financeForm, type: 'income'})} />
-                    <span className="font-black">إيراد</span>
-                  </label>
-                  <label className={`flex-1 flex items-center justify-center p-2 md:p-3 border-2 rounded-xl md:rounded-2xl cursor-pointer text-xs md:text-sm ${financeForm.type === 'expense' ? 'bg-red-50 border-red-500 text-red-700' : 'border-slate-100'}`}>
-                    <input type="radio" className="sr-only" checked={financeForm.type === 'expense'} onChange={() => setFinanceForm({...financeForm, type: 'expense'})} />
-                    <span className="font-black">مصروف</span>
-                  </label>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">التصنيف</Label>
-                  <Input required className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="تبرع، إيجار..." value={financeForm.category} onChange={e => setFinanceForm({...financeForm, category: e.target.value})} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ</Label>
-                  <Input required type="number" className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="0.00" value={financeForm.amount} onChange={e => setFinanceForm({...financeForm, amount: e.target.value})} />
-                </div>
-                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
-                  {submitting ? "جاري الحفظ..." : "حفظ السجل المالي"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={isSpecialDonationDialogOpen} onOpenChange={setIsSpecialDonationDialogOpen}>
-            <DialogTrigger render={
-                <Button className="h-16 md:h-20 w-full bg-white border-2 border-slate-100 hover:border-[#800000] hover:bg-[#800000]/5 text-slate-700 hover:text-[#800000] rounded-2xl md:rounded-[1.5rem] shadow-sm flex flex-col items-center justify-center transition-all duration-300 group">
-                    <Heart className="w-5 h-5 md:w-6 md:h-6 mb-1 group-hover:scale-110 transition-transform text-[#800000]" />
-                    <span className="font-black text-xs md:text-sm">إضافة متبرع خاص</span>
-                </Button>
-            } />
-            <DialogContent className="sm:max-w-md rounded-2xl md:rounded-[2.5rem] p-4 md:p-8 font-[--font-cairo] max-h-[90vh] overflow-y-auto" dir="rtl">
-              <DialogHeader>
-                <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">إضافة متبرع خاص</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateSpecialDonation} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
-                <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">اسم المتبرع</Label>
-                  <Input required className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="الاسم الكامل..." value={specialDonationForm.donorName} onChange={e => setSpecialDonationForm({...specialDonationForm, donorName: e.target.value})} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ</Label>
-                  <Input required type="number" className="rounded-xl md:rounded-2xl h-11 md:h-12 border-slate-200" placeholder="0.00" value={specialDonationForm.amount} onChange={e => setSpecialDonationForm({...specialDonationForm, amount: e.target.value})} />
-                </div>
-                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-gradient-to-r from-[#800000] to-[#5c0000] hover:from-[#800000] hover:to-[#5c0000] rounded-xl md:rounded-2xl font-black text-sm md:text-base text-white">
-                  {submitting ? "جاري الحفظ..." : "حفظ التبرع"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-
-        </div>
-      </div>
     </div>
   );
 }
