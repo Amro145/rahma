@@ -5,6 +5,8 @@ import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Plus } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { donationSchema, type DonationInput } from "@/lib/schemas";
+import { sanitizeFormData } from "@/lib/sanitize";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +43,42 @@ type MeResponse = {
 export default function SpecialDonationsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ donorName: "", amount: "" });
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof DonationInput, string>>>({});
+  const [form, setForm] = useState<DonationInput>({ donorName: "", amount: 0 });
+
+  const validateForm = (): boolean => {
+    const result = donationSchema.safeParse(sanitizeFormData(form));
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof DonationInput, string>> = {};
+      const errors = (result.error as unknown as { errors: Array<{ path: (string | number)[]; message: string }> }).errors;
+      errors.forEach((err) => {
+        const field = err.path[0] as keyof DonationInput;
+        fieldErrors[field] = err.message;
+      });
+      setFormErrors(fieldErrors);
+      return false;
+    }
+    setFormErrors({});
+    return true;
+  };
+
+  const handleFieldChange = (field: keyof DonationInput, value: unknown) => {
+    let processedValue = value;
+    if (field === 'amount') {
+      processedValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+    }
+    setForm((prev) => ({ ...prev, [field]: processedValue }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const partialSchema = donationSchema.pick({ [field]: true } as any);
+    const result = partialSchema.safeParse({ [field]: processedValue });
+    if (!result.success) {
+      const errors = (result.error as unknown as { errors: Array<{ path: (string | number)[]; message: string }> }).errors;
+      const error = errors[0]?.message;
+      setFormErrors((prev) => ({ ...prev, [field]: error }));
+    } else {
+      setFormErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
 
   const { data: meData } = useSWR<MeResponse>("/api/me", () => apiFetch<MeResponse>("/api/me"));
   const isAdmin = meData?.user?.role === "admin";
@@ -53,21 +90,21 @@ export default function SpecialDonationsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
     setSubmitting(true);
     try {
       await apiFetch("/api/special-donations", {
         method: "POST",
-        body: JSON.stringify({
-          donorName: form.donorName,
-          amount: Number(form.amount),
-        }),
+        body: JSON.stringify(sanitizeFormData(form)),
       });
       setIsDialogOpen(false);
-      setForm({ donorName: "", amount: "" });
+      setForm({ donorName: "", amount: 0 });
+      setFormErrors({});
       toast.success("تمت إضافة التبرع بنجاح");
       mutate();
-    } catch {
-      toast.error("فشل إضافة التبرع");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "فشل إضافة التبرع";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -120,13 +157,15 @@ export default function SpecialDonationsPage() {
             <form onSubmit={handleCreate} className="space-y-4 mt-4">
               <div className="space-y-2">
                 <Label className="text-slate-400 font-black text-xs uppercase text-right block">اسم المتبرع</Label>
-                <Input required className="rounded-xl h-12 border-slate-200" placeholder="الاسم الكامل..." value={form.donorName} onChange={e => setForm({...form, donorName: e.target.value})} />
+                 <Input required className={`rounded-xl h-12 ${formErrors.donorName ? 'border-red-300 bg-red-50' : 'border-slate-200'}`} placeholder="الاسم الكامل..." value={form.donorName} onChange={e => handleFieldChange('donorName', e.target.value)} />
+                 {formErrors.donorName && <p className="text-red-500 text-xs font-bold text-right">{formErrors.donorName}</p>}
               </div>
               <div className="space-y-2">
                 <Label className="text-slate-400 font-black text-xs uppercase text-right block">المبلغ</Label>
-                <Input required type="number" className="rounded-xl h-12 border-slate-200" placeholder="0.00" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} />
+                 <Input required type="number" className={`rounded-xl h-12 ${formErrors.amount ? 'border-red-300 bg-red-50' : 'border-slate-200'}`} placeholder="0.00" value={form.amount || ''} onChange={e => handleFieldChange('amount', e.target.value)} />
+                 {formErrors.amount && <p className="text-red-500 text-xs font-bold text-right">{formErrors.amount}</p>}
               </div>
-              <Button type="submit" disabled={submitting} className="w-full h-12 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] rounded-xl font-black text-white">
+               <Button type="submit" disabled={submitting || Object.keys(formErrors).some(k => formErrors[k as keyof DonationInput])} className="w-full h-12 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] rounded-xl font-black text-white">
                 {submitting ? "جاري الحفظ..." : "حفظ"}
               </Button>
             </form>

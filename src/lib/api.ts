@@ -3,11 +3,29 @@
  * which reads the httpOnly JWT cookie server-side and forwards it as a Bearer token.
  * Never reads document.cookie directly (httpOnly cookies are invisible to JS).
  */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public originalError?: Error
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+const errorMessages: Record<number, string> = {
+  400: 'البيانات المدخلة غير صحيحة، يرجى التحقق من الحقول',
+  401: 'يرجى تسجيل الدخول للمتابعة',
+  403: 'ليس لديك صلاحية للقيام بهذا الإجراء',
+  404: 'الصفحة المطلوبة غير موجودة',
+  500: 'حدث خطأ في الخادم، يرجى المحاولة لاحقاً',
+};
+
 export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  // endpoint is expected to be like "/api/students" — proxy strips /api and calls backend
   const url = endpoint;
 
   const headers = {
@@ -25,7 +43,7 @@ export async function apiFetch<T>(
       if (typeof window !== 'undefined') {
         window.location.href = '/signin';
       }
-      throw new Error('Unauthorized');
+      throw new ApiError('يرجى تسجيل الدخول للمتابعة', 401);
     }
 
     const text = await res.text();
@@ -33,24 +51,27 @@ export async function apiFetch<T>(
     try {
       data = text ? JSON.parse(text) : {};
     } catch {
-      data = { error: text || 'Malformed response' };
+      data = { error: text || 'استجابة غير صحيحة من الخادم' };
     }
 
     if (!res.ok) {
-      const errorMessage =
-        (data as { error?: string })?.error ||
-        `API Error: ${res.status} ${res.statusText}`;
-      console.error(`API Error [${res.status}] at ${endpoint}:`, errorMessage);
-      throw new Error(errorMessage);
+      const status = res.status;
+      const serverError = (data as { error?: string })?.error;
+      const message = serverError || errorMessages[status] || `خطأ ${status}: ${res.statusText}`;
+      throw new ApiError(message, status);
     }
 
     return data as T;
   } catch (err) {
-    if (err instanceof Error && err.name === 'SyntaxError') {
-      console.error(`JSON Parse error at ${endpoint}:`, err);
-    } else {
-      console.error(`Fetch failure at ${endpoint}:`, err);
+    if (err instanceof ApiError) {
+      throw err;
     }
-    throw err;
+    if (err instanceof Error && err.name === 'SyntaxError') {
+      throw new ApiError('استجابة غير صحيحة من الخادم', 0, err);
+    }
+    if (err instanceof TypeError && err.message.includes('fetch')) {
+      throw new ApiError('تعذر الاتصال بالخادم، يرجى التحقق من اتصالك', 0, err);
+    }
+    throw new ApiError('حدث خطأ غير متوقع', 0, err as Error);
   }
 }

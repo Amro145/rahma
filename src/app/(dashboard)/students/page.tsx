@@ -39,6 +39,8 @@ import {
   CreditCard
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { studentSchema, type StudentInput } from "@/lib/schemas";
+import { sanitizeFormData, sanitizePhone } from "@/lib/sanitize";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -48,8 +50,8 @@ type Student = {
   whatsapp: string;
   requiredAmount: number;
   status: "pending" | "paid";
-  faculty: string;
-  semester: string;
+  faculty: "medicine" | "dentistry" | "engineering" | "other";
+  semester: "1" | "2" | "3" | "4" | "5" | "6";
   createdAt: string;
 };
 
@@ -62,13 +64,52 @@ export default function StudentsPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof StudentInput, string>>>({});
+  const [formData, setFormData] = useState<StudentInput>({
     name: "",
     whatsapp: "",
-    requiredAmount: "",
-    faculty: "medicine",
-    semester: "1",
+    requiredAmount: 0,
+    faculty: "medicine" as const,
+    semester: "1" as const,
   });
+
+  const validateForm = (): boolean => {
+    const sanitized = sanitizeFormData(formData);
+    const result = studentSchema.safeParse(sanitizeFormData(formData));
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof StudentInput, string>> = {};
+      const errors = (result.error as unknown as { errors: Array<{ path: (string | number)[]; message: string }> }).errors;
+      errors.forEach((err) => {
+        const field = err.path[0] as keyof StudentInput;
+        fieldErrors[field] = err.message;
+      });
+      setFormErrors(fieldErrors);
+      return false;
+    }
+    setFormErrors({});
+    return true;
+  };
+
+  const handleFieldChange = (field: keyof StudentInput, value: unknown) => {
+    let processedValue = value;
+    if (field === 'whatsapp' && typeof value === 'string') {
+      processedValue = sanitizePhone(value);
+    }
+    if (field === 'requiredAmount') {
+      processedValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+    }
+    setFormData((prev) => ({ ...prev, [field]: processedValue }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const partialSchema = studentSchema.pick({ [field]: true } as any);
+    const result = partialSchema.safeParse({ [field]: processedValue });
+    if (!result.success) {
+      const errors = (result.error as unknown as { errors: Array<{ path: (string | number)[]; message: string }> }).errors;
+      const error = errors[0]?.message;
+      setFormErrors((prev) => ({ ...prev, [field]: error }));
+    } else {
+      setFormErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
 
   const { data, isLoading: loading, mutate } = useSWR<{ students: Student[] }>(
     "/api/students",
@@ -107,22 +148,18 @@ export default function StudentsPage() {
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
     setSubmitting(true);
     try {
       const json = await apiFetch<{ student: Student }>("/api/students", {
         method: "POST",
-        body: JSON.stringify({
-          name: formData.name,
-          whatsapp: formData.whatsapp,
-          requiredAmount: Number(formData.requiredAmount),
-          faculty: formData.faculty,
-          semester: formData.semester,
-        }),
+        body: JSON.stringify(sanitizeFormData(formData)),
       });
 
       mutate({ students: [json.student, ...students] }, { revalidate: false });
-      
-      setFormData({ name: "", whatsapp: "", requiredAmount: "", faculty: "medicine", semester: "1" });
+
+      setFormData({ name: "", whatsapp: "", requiredAmount: 0, faculty: "medicine", semester: "1" });
+      setFormErrors({});
       setIsDialogOpen(false);
       toast.success("تمت إضافة الطالب بنجاح");
     } catch (err) {
@@ -136,24 +173,21 @@ export default function StudentsPage() {
   const handleEditStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStudent) return;
+    if (!validateForm()) return;
     setSubmitting(true);
     try {
       const json = await apiFetch<{ student: Student }>(`/api/students/${selectedStudent.id}`, {
         method: "PATCH",
-        body: JSON.stringify({
-          name: formData.name,
-          whatsapp: formData.whatsapp,
-          requiredAmount: Number(formData.requiredAmount),
-          faculty: formData.faculty,
-          semester: formData.semester,
-        }),
+        body: JSON.stringify(sanitizeFormData(formData)),
       });
 
       mutate({ students: students.map(s => s.id === selectedStudent.id ? json.student : s) }, { revalidate: false });
+      setFormErrors({});
       setIsEditDialogOpen(false);
       toast.success("تم تحديث بيانات الطالب");
-    } catch {
-      toast.error("فشل تحديث البيانات");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "فشل تحديث البيانات";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -181,7 +215,7 @@ export default function StudentsPage() {
     setFormData({
       name: student.name,
       whatsapp: student.whatsapp,
-      requiredAmount: student.requiredAmount.toString(),
+      requiredAmount: student.requiredAmount,
       faculty: student.faculty,
       semester: student.semester,
     });
@@ -222,41 +256,46 @@ export default function StudentsPage() {
                 <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">طالب جديد</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleCreateStudent} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
-                  <Input id="name" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
-                  <Input id="whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" placeholder="+249..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value.replace(/[^\d+]/g, "") })} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
-                  <Input id="reqAmount" type="number" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</Label>
-                  <select id="faculty" required className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base" value={formData.faculty} onChange={(e) => setFormData({ ...formData, faculty: e.target.value })}>
-                    <option value="medicine">طب</option>
-                    <option value="dentistry">طب أسنان</option>
-                    <option value="engineering">هندسة</option>
-                    <option value="other">أخرى</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="semester" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفرقة</Label>
-                  <select id="semester" required className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base" value={formData.semester} onChange={(e) => setFormData({ ...formData, semester: e.target.value })}>
-                    <option value="1">الأولى</option>
-                    <option value="2">الثانية</option>
-                    <option value="3">الثالثة</option>
-                    <option value="4">الرابعة</option>
-                    <option value="5">الخامسة</option>
-                    <option value="6">السادسة</option>
-                  </select>
-                </div>
-                <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] hover:from-[#D4A843] hover:to-[#B38E2D] text-white rounded-xl md:rounded-2xl font-black text-sm md:text-base">
-                  {submitting ? "جاري..." : "حفظ"}
-                </Button>
+                 <div className="space-y-2">
+                   <Label htmlFor="name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
+                   <Input id="name" required className={`rounded-xl md:rounded-2xl ${formErrors.name ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold`} placeholder="الاسم..." value={formData.name} onChange={(e) => handleFieldChange('name', e.target.value)} />
+                   {formErrors.name && <p className="text-red-500 text-xs font-bold text-right">{formErrors.name}</p>}
+                 </div>
+                 <div className="space-y-2">
+                   <Label htmlFor="whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
+                   <Input id="whatsapp" required className={`rounded-xl md:rounded-2xl ${formErrors.whatsapp ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold`} placeholder="+249..." value={formData.whatsapp} onChange={(e) => handleFieldChange('whatsapp', e.target.value)} />
+                   {formErrors.whatsapp && <p className="text-red-500 text-xs font-bold text-right">{formErrors.whatsapp}</p>}
+                 </div>
+                 <div className="space-y-2">
+                   <Label htmlFor="reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
+                   <Input id="reqAmount" type="number" required className={`rounded-xl md:rounded-2xl ${formErrors.requiredAmount ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold`} value={formData.requiredAmount || ''} onChange={(e) => handleFieldChange('requiredAmount', e.target.value)} />
+                   {formErrors.requiredAmount && <p className="text-red-500 text-xs font-bold text-right">{formErrors.requiredAmount}</p>}
+                 </div>
+                 <div className="space-y-2">
+                   <Label htmlFor="faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</Label>
+                   <select id="faculty" required className={`w-full rounded-xl md:rounded-2xl ${formErrors.faculty ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base`} value={formData.faculty} onChange={(e) => handleFieldChange('faculty', e.target.value)}>
+                     <option value="medicine">طب</option>
+                     <option value="dentistry">طب أسنان</option>
+                     <option value="engineering">هندسة</option>
+                     <option value="other">أخرى</option>
+                   </select>
+                   {formErrors.faculty && <p className="text-red-500 text-xs font-bold text-right">{formErrors.faculty}</p>}
+                 </div>
+                 <div className="space-y-2">
+                   <Label htmlFor="semester" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفرقة</Label>
+                   <select id="semester" required className={`w-full rounded-xl md:rounded-2xl ${formErrors.semester ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base`} value={formData.semester} onChange={(e) => handleFieldChange('semester', e.target.value)}>
+                     <option value="1">الأولى</option>
+                     <option value="2">الثانية</option>
+                     <option value="3">الثالثة</option>
+                     <option value="4">الرابعة</option>
+                     <option value="5">الخامسة</option>
+                     <option value="6">السادسة</option>
+                   </select>
+                   {formErrors.semester && <p className="text-red-500 text-xs font-bold text-right">{formErrors.semester}</p>}
+                 </div>
+                 <Button type="submit" disabled={submitting || Object.keys(formErrors).some(k => formErrors[k as keyof StudentInput])} className="w-full h-11 md:h-14 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] hover:from-[#D4A843] hover:to-[#B38E2D] text-white rounded-xl md:rounded-2xl font-black text-sm md:text-base">
+                   {submitting ? "جاري..." : "حفظ"}
+                 </Button>
               </form>
             </DialogContent>
           </Dialog>
@@ -327,43 +366,48 @@ export default function StudentsPage() {
           <DialogHeader>
             <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">تعديل بيانات الطالب</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleEditStudent} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
-              <Input id="edit-name" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" placeholder="الاسم..." value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
-              <Input id="edit-whatsapp" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" placeholder="+249..." value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value.replace(/[^\d+]/g, "") })} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
-              <Input id="edit-reqAmount" type="number" required className="rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold" value={formData.requiredAmount} onChange={(e) => setFormData({ ...formData, requiredAmount: e.target.value })} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</Label>
-              <select id="edit-faculty" required className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base" value={formData.faculty} onChange={(e) => setFormData({ ...formData, faculty: e.target.value })}>
-                <option value="medicine">طب</option>
-                <option value="dentistry">طب أسنان</option>
-                <option value="engineering">هندسة</option>
-                <option value="other">أخرى</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-semester" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفرقة</Label>
-              <select id="edit-semester" required className="w-full rounded-xl md:rounded-2xl border-slate-200 bg-white h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base" value={formData.semester} onChange={(e) => setFormData({ ...formData, semester: e.target.value })}>
-                <option value="1">الأولى</option>
-                <option value="2">الثانية</option>
-                <option value="3">الثالثة</option>
-                <option value="4">الرابعة</option>
-                <option value="5">الخامسة</option>
-                <option value="6">السادسة</option>
-              </select>
-            </div>
-            <Button type="submit" disabled={submitting} className="w-full h-11 md:h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-xl md:rounded-2xl font-black text-sm md:text-base">
-              {submitting ? "جاري..." : "حفظ التعديلات"}
-            </Button>
-          </form>
+           <form onSubmit={handleEditStudent} className="space-y-4 md:space-y-6 mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
+             <div className="space-y-2">
+               <Label htmlFor="edit-name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</Label>
+               <Input id="edit-name" required className={`rounded-xl md:rounded-2xl ${formErrors.name ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold`} placeholder="الاسم..." value={formData.name} onChange={(e) => handleFieldChange('name', e.target.value)} />
+               {formErrors.name && <p className="text-red-500 text-xs font-bold text-right">{formErrors.name}</p>}
+             </div>
+             <div className="space-y-2">
+               <Label htmlFor="edit-whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</Label>
+               <Input id="edit-whatsapp" required className={`rounded-xl md:rounded-2xl ${formErrors.whatsapp ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold`} placeholder="+249..." value={formData.whatsapp} onChange={(e) => handleFieldChange('whatsapp', e.target.value)} />
+               {formErrors.whatsapp && <p className="text-red-500 text-xs font-bold text-right">{formErrors.whatsapp}</p>}
+             </div>
+             <div className="space-y-2">
+               <Label htmlFor="edit-reqAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ (ج.م)</Label>
+               <Input id="edit-reqAmount" type="number" required className={`rounded-xl md:rounded-2xl ${formErrors.requiredAmount ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 focus-visible:ring-[#B38E2D] font-bold`} value={formData.requiredAmount || ''} onChange={(e) => handleFieldChange('requiredAmount', e.target.value)} />
+               {formErrors.requiredAmount && <p className="text-red-500 text-xs font-bold text-right">{formErrors.requiredAmount}</p>}
+             </div>
+             <div className="space-y-2">
+               <Label htmlFor="edit-faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</Label>
+               <select id="edit-faculty" required className={`w-full rounded-xl md:rounded-2xl ${formErrors.faculty ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base`} value={formData.faculty} onChange={(e) => handleFieldChange('faculty', e.target.value)}>
+                 <option value="medicine">طب</option>
+                 <option value="dentistry">طب أسنان</option>
+                 <option value="engineering">هندسة</option>
+                 <option value="other">أخرى</option>
+               </select>
+               {formErrors.faculty && <p className="text-red-500 text-xs font-bold text-right">{formErrors.faculty}</p>}
+             </div>
+             <div className="space-y-2">
+               <Label htmlFor="edit-semester" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفرقة</Label>
+               <select id="edit-semester" required className={`w-full rounded-xl md:rounded-2xl ${formErrors.semester ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'} h-11 md:h-12 px-3 md:px-4 font-bold text-sm md:text-base`} value={formData.semester} onChange={(e) => handleFieldChange('semester', e.target.value)}>
+                 <option value="1">الأولى</option>
+                 <option value="2">الثانية</option>
+                 <option value="3">الثالثة</option>
+                 <option value="4">الرابعة</option>
+                 <option value="5">الخامسة</option>
+                 <option value="6">السادسة</option>
+               </select>
+               {formErrors.semester && <p className="text-red-500 text-xs font-bold text-right">{formErrors.semester}</p>}
+             </div>
+             <Button type="submit" disabled={submitting || Object.keys(formErrors).some(k => formErrors[k as keyof StudentInput])} className="w-full h-11 md:h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-xl md:rounded-2xl font-black text-sm md:text-base">
+               {submitting ? "جاري..." : "حفظ التعديلات"}
+             </Button>
+           </form>
         </DialogContent>
       </Dialog>
 
