@@ -12,7 +12,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { financeLogSchema, type FinanceLogInput } from "@/lib/schemas";
-import { sanitizeFormData } from "@/lib/sanitize";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { sanitizeNumber } from "@/lib/sanitize";
 import { toast } from "sonner";
 
 type Log = { id: number; type: "income" | "expense"; amount: number; category: string; description: string; createdAt: string };
@@ -24,78 +26,80 @@ export default function FinancePage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [formErrors, setFormErrors] = useState<Partial<Record<keyof FinanceLogInput, string>>>({});
-  const [formData, setFormData] = useState<FinanceLogInput>({ type: "income", amount: 0, category: "", description: "" });
-
-  const validateForm = (): boolean => {
-    const result = financeLogSchema.safeParse(sanitizeFormData(formData));
-    if (!result.success) {
-      const fieldErrors: Partial<Record<keyof FinanceLogInput, string>> = {};
-      const errors = (result.error as unknown as { errors: Array<{ path: (string | number)[]; message: string }> }).errors;
-      errors.forEach((err) => {
-        const field = err.path[0] as keyof FinanceLogInput;
-        fieldErrors[field] = err.message;
-      });
-      setFormErrors(fieldErrors);
-      return false;
-    }
-    setFormErrors({});
-    return true;
-  };
-
-  const handleFieldChange = (field: keyof FinanceLogInput, value: unknown) => {
-    let processedValue = value;
-    if (field === 'amount') {
-      processedValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
-    }
-    setFormData((prev) => ({ ...prev, [field]: processedValue }));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const partialSchema = financeLogSchema.pick({ [field]: true } as any);
-    const result = partialSchema.safeParse({ [field]: processedValue });
-    if (!result.success) {
-      const errors = (result.error as unknown as { errors: Array<{ path: (string | number)[]; message: string }> }).errors;
-      const error = errors[0]?.message;
-      setFormErrors((prev) => ({ ...prev, [field]: error }));
-    } else {
-      setFormErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
 
   const { data, isLoading: loading, mutate } = useSWR<{ logs: Log[] }>("/api/finance/logs", () => apiFetch<{ logs: Log[] }>("/api/finance/logs"));
   const logs = data?.logs || [];
 
-  const handleCreateRecord = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  const createForm = useForm<FinanceLogInput>({
+    resolver: zodResolver(financeLogSchema),
+    mode: 'onChange',
+    defaultValues: {
+      type: "income",
+      amount: 0,
+      category: "",
+      description: "",
+    },
+  });
+
+  const editForm = useForm<FinanceLogInput>({
+    resolver: zodResolver(financeLogSchema),
+    mode: 'onChange',
+    defaultValues: {
+      type: "income",
+      amount: 0,
+      category: "",
+      description: "",
+    },
+  });
+
+  const handleCreateRecord = async (data: FinanceLogInput) => {
     setSubmitting(true);
     try {
-      const json = await apiFetch<{ log: Log }>("/api/finance/logs", { method: "POST", body: JSON.stringify(sanitizeFormData(formData)) });
+      const sanitized = {
+        ...data,
+        amount: sanitizeNumber(data.amount),
+      };
+
+      const json = await apiFetch<{ log: Log }>("/api/finance/logs", {
+        method: "POST",
+        body: JSON.stringify(sanitized),
+      });
+
       mutate({ logs: [json.log, ...logs] }, { revalidate: false });
-      setFormData({ type: "income", amount: 0, category: "", description: "" });
-      setFormErrors({});
+      createForm.reset();
       setIsDialogOpen(false);
       toast.success("تم التسجيل");
     } catch (err) {
       const message = err instanceof Error ? err.message : "فشل";
       toast.error(message);
-    } finally { setSubmitting(false); }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleEditRecord = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEditRecord = async (data: FinanceLogInput) => {
     if (!selectedLog) return;
-    if (!validateForm()) return;
     setSubmitting(true);
     try {
-      const json = await apiFetch<{ log: Log }>(`/api/finance/logs/${selectedLog.id}`, { method: "PATCH", body: JSON.stringify(sanitizeFormData(formData)) });
+      const sanitized = {
+        ...data,
+        amount: sanitizeNumber(data.amount),
+      };
+
+      const json = await apiFetch<{ log: Log }>(`/api/finance/logs/${selectedLog.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(sanitized),
+      });
+
       mutate({ logs: logs.map(l => l.id === selectedLog.id ? json.log : l) }, { revalidate: false });
-      setFormErrors({});
       setIsEditDialogOpen(false);
       toast.success("تم التحديث");
     } catch (err) {
       const message = err instanceof Error ? err.message : "فشل";
       toast.error(message);
-    } finally { setSubmitting(false); }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleDeleteRecord = async () => {
@@ -106,12 +110,86 @@ export default function FinancePage() {
       mutate({ logs: logs.filter(l => l.id !== selectedLog.id) }, { revalidate: false });
       setIsDeleteDialogOpen(false);
       toast.success("تم الحذف");
-    } catch { toast.error("فشل"); } finally { setSubmitting(false); }
+    } catch {
+      toast.error("فشل");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const openEditDialog = (log: Log) => { setSelectedLog(log); setFormData({ type: log.type, amount: log.amount, category: log.category, description: log.description || "" }); setIsEditDialogOpen(true); };
-  const openDeleteDialog = (log: Log) => { setSelectedLog(log); setIsDeleteDialogOpen(true); };
+  const openEditDialog = (log: Log) => {
+    setSelectedLog(log);
+    editForm.reset({
+      type: log.type,
+      amount: log.amount,
+      category: log.category,
+      description: log.description || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (log: Log) => {
+    setSelectedLog(log);
+    setIsDeleteDialogOpen(true);
+  };
+
   const filteredLogs = logs.filter(log => filter === "all" || log.type === filter);
+
+  const renderFormFields = (
+    form: ReturnType<typeof useForm<FinanceLogInput>>,
+    prefix: string
+  ) => (
+    <>
+      <div className="flex gap-2">
+        <label className={`flex-1 p-2 md:p-3 border-2 rounded-xl cursor-pointer text-center text-sm ${form.watch('type') === 'income' ? 'bg-[#B38E2D]/10 border-[#B38E2D]' : 'border-slate-100'}`}>
+          <input
+            type="radio"
+            {...form.register('type')}
+            value="income"
+            className="sr-only"
+            onChange={() => form.setValue('type', 'income')}
+          />
+          <span className="font-bold">إيراد</span>
+        </label>
+        <label className={`flex-1 p-2 md:p-3 border-2 rounded-xl cursor-pointer text-center text-sm ${form.watch('type') === 'expense' ? 'bg-red-50 border-red-500' : 'border-slate-100'}`}>
+          <input
+            type="radio"
+            {...form.register('type')}
+            value="expense"
+            className="sr-only"
+            onChange={() => form.setValue('type', 'expense')}
+          />
+          <span className="font-bold">مصروف</span>
+        </label>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-right block text-slate-400 font-black text-xs uppercase">الفئة</Label>
+        <Input
+          {...form.register('category')}
+          placeholder="مثال: تبرع"
+          className={`rounded-xl h-11 ${form.formState.errors.category ? 'border-red-300 bg-red-50' : ''}`}
+        />
+        {form.formState.errors.category && <p className="text-red-500 text-xs font-bold text-right">{form.formState.errors.category.message}</p>}
+      </div>
+      <div className="space-y-2">
+        <Label className="text-right block text-slate-400 font-black text-xs uppercase">المبلغ</Label>
+        <Input
+          type="number"
+          {...form.register('amount', { valueAsNumber: true })}
+          className={`rounded-xl h-11 ${form.formState.errors.amount ? 'border-red-300 bg-red-50' : ''}`}
+        />
+        {form.formState.errors.amount && <p className="text-red-500 text-xs font-bold text-right">{form.formState.errors.amount.message}</p>}
+      </div>
+      <div className="space-y-2">
+        <Label className="text-right block text-slate-400 font-black text-xs uppercase">ملاحظات</Label>
+        <Input
+          {...form.register('description')}
+          className={`rounded-xl h-11 ${form.formState.errors.description ? 'border-red-300 bg-red-50' : ''}`}
+        />
+        {form.formState.errors.description && <p className="text-red-500 text-xs font-bold text-right">{form.formState.errors.description.message}</p>}
+      </div>
+    </>
+  );
 
   return (
     <div className="space-y-4 md:space-y-6 font-[--font-cairo]">
@@ -119,39 +197,27 @@ export default function FinancePage() {
         <h2 className="text-lg md:text-2xl font-black border-r-4 border-[#B38E2D] pr-3">السجل المالي</h2>
         <div className="flex flex-wrap gap-2">
           {["all", "income", "expense"].map(f => (
-            <button key={f} onClick={() => setFilter(f as "all" | "income" | "expense")} className={`px-3 py-2 rounded-xl font-bold text-sm ${filter === f ? "bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-white" : "bg-slate-100"}`}>{f === "all" ? "الكل" : f === "income" ? "إيراد" : "مصروف"}</button>
+            <button
+              key={f}
+              onClick={() => setFilter(f as "all" | "income" | "expense")}
+              className={`px-3 py-2 rounded-xl font-bold text-sm ${filter === f ? "bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-white" : "bg-slate-100"}`}
+            >
+              {f === "all" ? "الكل" : f === "income" ? "إيراد" : "مصروف"}
+            </button>
           ))}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger render={<Button className="bg-gradient-to-r from-[#B38E2D] to-[#8B6914] h-10 px-3 md:px-4"><Plus className="w-4 h-4 ml-1 md:ml-2" /><span className="hidden xs:inline">إضافة</span></Button>} />
             <DialogContent className="rounded-2xl md:rounded-[2rem] p-4 md:p-8 max-h-[90vh] overflow-y-auto">
               <DialogHeader><DialogTitle className="text-xl md:text-2xl font-black text-right">إضافة سجل</DialogTitle></DialogHeader>
-              <form onSubmit={handleCreateRecord} className="space-y-4">
-                <div className="flex gap-2">
-                  <label className={`flex-1 p-2 md:p-3 border-2 rounded-xl cursor-pointer text-center text-sm ${formData.type === 'income' ? 'bg-[#B38E2D]/10 border-[#B38E2D]' : 'border-slate-100'}`}>
-                    <input type="radio" checked={formData.type === 'income'} onChange={() => setFormData({ ...formData, type: 'income'})} className="sr-only" />
-                    <span className="font-bold">إيراد</span>
-                  </label>
-                  <label className={`flex-1 p-2 md:p-3 border-2 rounded-xl cursor-pointer text-center text-sm ${formData.type === 'expense' ? 'bg-red-50 border-red-500' : 'border-slate-100'}`}>
-                    <input type="radio" checked={formData.type === 'expense'} onChange={() => setFormData({ ...formData, type: 'expense'})} className="sr-only" />
-                    <span className="font-bold">مصروف</span>
-                  </label>
-                </div>
-                 <div className="space-y-2">
-                   <Label className="text-right block text-slate-400 font-black text-xs uppercase">الفئة</Label>
-                   <Input required value={formData.category} onChange={e => handleFieldChange('category', e.target.value)} placeholder="مثال: تبرع" className={`rounded-xl h-11 ${formErrors.category ? 'border-red-300 bg-red-50' : ''}`} />
-                   {formErrors.category && <p className="text-red-500 text-xs font-bold text-right">{formErrors.category}</p>}
-                 </div>
-                 <div className="space-y-2">
-                   <Label className="text-right block text-slate-400 font-black text-xs uppercase">المبلغ</Label>
-                   <Input type="number" required value={formData.amount || ''} onChange={e => handleFieldChange('amount', e.target.value)} className={`rounded-xl h-11 ${formErrors.amount ? 'border-red-300 bg-red-50' : ''}`} />
-                   {formErrors.amount && <p className="text-red-500 text-xs font-bold text-right">{formErrors.amount}</p>}
-                 </div>
-                 <div className="space-y-2">
-                   <Label className="text-right block text-slate-400 font-black text-xs uppercase">ملاحظات</Label>
-                   <Input value={formData.description} onChange={e => handleFieldChange('description', e.target.value)} className={`rounded-xl h-11 ${formErrors.description ? 'border-red-300 bg-red-50' : ''}`} />
-                   {formErrors.description && <p className="text-red-500 text-xs font-bold text-right">{formErrors.description}</p>}
-                 </div>
-                 <Button type="submit" disabled={submitting || Object.keys(formErrors).some(k => formErrors[k as keyof FinanceLogInput])} className="w-full h-11 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-white rounded-xl font-black">{submitting ? "..." : "حفظ"}</Button>
+              <form onSubmit={createForm.handleSubmit(handleCreateRecord)} className="space-y-4">
+                {renderFormFields(createForm, 'create')}
+                <Button
+                  type="submit"
+                  disabled={submitting || !createForm.formState.isValid}
+                  className="w-full h-11 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-white rounded-xl font-black"
+                >
+                  {submitting ? "..." : "حفظ"}
+                </Button>
               </form>
             </DialogContent>
           </Dialog>
@@ -192,12 +258,54 @@ export default function FinancePage() {
                   <TableCell className={`text-left font-black text-sm ${log.type === "income" ? "text-emerald-600" : "text-red-600"}`}>
                     {log.type === "income" ? "+" : "-"}{log.amount.toLocaleString()}
                   </TableCell>
+                  <TableCell className="text-left">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEditDialog(log)}>تعديل</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openDeleteDialog(log)} className="text-red-600">حذف</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="rounded-2xl md:rounded-[2rem] p-4 md:p-8 max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle className="text-xl md:text-2xl font-black text-right">تعديل سجل</DialogTitle></DialogHeader>
+          <form onSubmit={editForm.handleSubmit(handleEditRecord)} className="space-y-4 mt-4">
+            {renderFormFields(editForm, 'edit')}
+            <Button
+              type="submit"
+              disabled={submitting || !editForm.formState.isValid}
+              className="w-full h-11 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-black"
+            >
+              {submitting ? "..." : "حفظ التعديلات"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl p-4 md:p-6">
+          <DialogHeader>
+            <DialogTitle className="text-lg md:text-xl font-black text-right">حذف السجل</DialogTitle>
+          </DialogHeader>
+          <p className="text-right text-sm md:text-base">هل أنت متأكد من حذف هذا السجل؟</p>
+          <DialogFooter className="flex-row gap-2 sm:justify-end">
+            <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1 sm:flex-none rounded-xl h-10">إلغاء</Button>
+            <Button className="flex-1 sm:flex-none bg-red-600 text-white rounded-xl h-10" onClick={handleDeleteRecord} disabled={submitting}>حذف</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

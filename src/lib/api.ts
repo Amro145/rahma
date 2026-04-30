@@ -56,6 +56,30 @@ export async function apiFetch<T>(
 
     if (!res.ok) {
       const status = res.status;
+      
+      // Handle Zod validation errors from backend (zValidator format)
+      if (status === 400 && typeof data === 'object' && data !== null && 'error' in data) {
+        const errorData = data as { error?: unknown };
+        
+        // Check if it's a Zod error format (has _errors or nested structure)
+        if (errorData.error && typeof errorData.error === 'object') {
+          const zodError = errorData.error as Record<string, { _errors?: string[] }>;
+          const fieldErrors = Object.entries(zodError)
+            .filter(([key]) => key !== '_errors')
+            .map(([field, value]) => `${field}: ${value?._errors?.join(', ') || 'خطأ'}`)
+            .join(' | ');
+          
+          if (fieldErrors) {
+            throw new ApiError(`خطأ في البيانات: ${fieldErrors}`, 400);
+          }
+        }
+        
+        const serverError = errorData.error as string;
+        if (typeof serverError === 'string') {
+          throw new ApiError(serverError, 400);
+        }
+      }
+      
       const serverError = (data as { error?: string })?.error;
       const message = serverError || errorMessages[status] || `خطأ ${status}: ${res.statusText}`;
       throw new ApiError(message, status);

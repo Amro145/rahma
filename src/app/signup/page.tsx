@@ -1,89 +1,78 @@
 'use client';
 
-import { signupAction } from '@/app/actions/auth';
-import Link from 'next/link';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { signupSchema, type SignupInput } from '@/lib/schemas';
-import { sanitizeFormData, sanitizePhone } from '@/lib/sanitize';
+import { sanitizePhone, sanitizeNumber } from '@/lib/sanitize';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import Link from 'next/link';
 
-const initialData: SignupInput = {
-  email: '',
-  password: '',
-  name: '',
-  whatsapp: '',
-  requiredAmount: 0,
-  faculty: 'medicine',
-  semester: '1',
-};
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend.amroaltayeb14.workers.dev';
 
 export default function SignUp() {
-  const [formData, setFormData] = useState<SignupInput>(initialData);
-  const [errors, setErrors] = useState<Partial<Record<keyof SignupInput, string>>>({});
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
 
-  const validateField = (field: keyof SignupInput, value: unknown) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const partialSchema = signupSchema.pick({ [field]: true } as any);
-    const result = partialSchema.safeParse({ [field]: value });
-    if (!result.success) {
-      const errors = (result.error as unknown as { errors: Array<{ path: (string | number)[]; message: string }> }).errors;
-      const error = errors[0]?.message;
-      setErrors((prev) => ({ ...prev, [field]: error }));
-    } else {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
-    return true;
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    watch,
+    setValue,
+  } = useForm<SignupInput>({
+    resolver: zodResolver(signupSchema),
+    mode: 'onChange',
+    defaultValues: {
+      email: '',
+      password: '',
+      name: '',
+      whatsapp: '',
+      requiredAmount: 0,
+      faculty: 'medicine',
+      semester: '1',
+    },
+  });
 
-  const validateForm = (): boolean => {
-    const sanitized = sanitizeFormData(formData);
-    const result = signupSchema.safeParse(sanitized);
-    if (!result.success) {
-      const fieldErrors: Partial<Record<keyof SignupInput, string>> = {};
-      const errors = (result.error as unknown as { errors: Array<{ path: (string | number)[]; message: string }> }).errors;
-      errors.forEach((err) => {
-        const field = err.path[0] as keyof SignupInput;
-        fieldErrors[field] = err.message;
-      });
-      setErrors(fieldErrors);
-      return false;
-    }
-    setErrors({});
-    return true;
-  };
-
-  const handleChange = (field: keyof SignupInput, value: unknown) => {
-    let processedValue = value;
-    if (field === 'whatsapp' && typeof value === 'string') {
-      processedValue = sanitizePhone(value);
-    }
-    if (field === 'requiredAmount') {
-      processedValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
-    }
-    setFormData((prev) => ({ ...prev, [field]: processedValue }));
-    validateField(field, processedValue);
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMessage('');
-
-    if (!validateForm()) return;
-
+  const onSubmit = async (data: SignupInput) => {
     setIsLoading(true);
+    try {
+      const sanitized = {
+        ...data,
+        whatsapp: data.whatsapp ? sanitizePhone(data.whatsapp) : undefined,
+        requiredAmount: sanitizeNumber(data.requiredAmount),
+      };
 
-    const formDataObj = new FormData();
-    const sanitized = sanitizeFormData(formData);
-    Object.entries(sanitized).forEach(([key, value]) => {
-      formDataObj.append(key, String(value));
-    });
+      const res = await fetch(`${API_URL}/api/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sanitized),
+      });
 
-    const result = await signupAction(formDataObj);
+      const result = await res.json() as { error?: string; token?: string };
 
-    if (result && 'error' in result) {
-      setMessage(result.error as string);
+      if (!res.ok) {
+        if (res.status === 400 && result.error) {
+          toast.error('يرجى التحقق من البيانات المدخلة');
+        } else if (res.status === 409) {
+          toast.error('البريد الإلكتروني مسجل بالفعل');
+        } else {
+          toast.error('حدث خطأ غير متوقع، يرجى المحاولة لاحقاً');
+        }
+        return;
+      }
+
+      if (!result.token) {
+        toast.error('لم يتم استلام رمز المصادقة');
+        return;
+      }
+
+      document.cookie = `jwt=${result.token}; path=/; max-age=${60 * 60 * 24 * 7}; ${process.env.NODE_ENV === 'production' ? 'secure;' : ''} samesite=lax`;
+      router.push('/dashboard');
+    } catch {
+      toast.error('حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -103,88 +92,70 @@ export default function SignUp() {
           </p>
         </div>
 
-        {message && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 font-bold text-sm text-center">
-            {message}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
           <div className="space-y-2">
             <label htmlFor="name" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">اسم الطالب</label>
             <input
               id="name"
-              name="name"
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
+              {...register('name')}
               className={`w-full rounded-2xl border-2 ${errors.name ? 'border-red-300 bg-red-50' : 'border-slate-100 bg-white'} h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all`}
               placeholder="الاسم الرباعي..."
             />
-            {errors.name && <p className="text-red-500 text-xs font-bold text-right">{errors.name}</p>}
+            {errors.name && <p className="text-red-500 text-xs font-bold text-right">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
             <label htmlFor="email" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">البريد الإلكتروني</label>
             <input
               id="email"
-              name="email"
               type="email"
-              value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
+              {...register('email')}
               className={`w-full rounded-2xl border-2 ${errors.email ? 'border-red-300 bg-red-50' : 'border-slate-100 bg-white'} h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all`}
               placeholder="email@example.com"
             />
-            {errors.email && <p className="text-red-500 text-xs font-bold text-right">{errors.email}</p>}
+            {errors.email && <p className="text-red-500 text-xs font-bold text-right">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-2">
             <label htmlFor="password" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">كلمة المرور</label>
             <input
               id="password"
-              name="password"
               type="password"
-              value={formData.password}
-              onChange={(e) => handleChange('password', e.target.value)}
+              {...register('password')}
               className={`w-full rounded-2xl border-2 ${errors.password ? 'border-red-300 bg-red-50' : 'border-slate-100 bg-white'} h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all`}
               placeholder="••••••••"
             />
-            {errors.password && <p className="text-red-500 text-xs font-bold text-right">{errors.password}</p>}
+            {errors.password && <p className="text-red-500 text-xs font-bold text-right">{errors.password.message}</p>}
           </div>
 
           <div className="space-y-2">
             <label htmlFor="whatsapp" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">رقم الواتساب</label>
             <input
               id="whatsapp"
-              name="whatsapp"
-              value={formData.whatsapp}
-              onChange={(e) => handleChange('whatsapp', e.target.value)}
+              {...register('whatsapp')}
               className={`w-full rounded-2xl border-2 ${errors.whatsapp ? 'border-red-300 bg-red-50' : 'border-slate-100 bg-white'} h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all`}
               placeholder="+249..."
             />
-            {errors.whatsapp && <p className="text-red-500 text-xs font-bold text-right">{errors.whatsapp}</p>}
+            {errors.whatsapp && <p className="text-red-500 text-xs font-bold text-right">{errors.whatsapp.message}</p>}
           </div>
 
           <div className="space-y-2">
             <label htmlFor="requiredAmount" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">المبلغ المطلوب (ج.م)</label>
             <input
               id="requiredAmount"
-              name="requiredAmount"
               type="number"
-              value={formData.requiredAmount || ''}
-              onChange={(e) => handleChange('requiredAmount', e.target.value)}
+              {...register('requiredAmount', { valueAsNumber: true })}
               className={`w-full rounded-2xl border-2 ${errors.requiredAmount ? 'border-red-300 bg-red-50' : 'border-slate-100 bg-white'} h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all`}
               placeholder="500"
             />
-            {errors.requiredAmount && <p className="text-red-500 text-xs font-bold text-right">{errors.requiredAmount}</p>}
+            {errors.requiredAmount && <p className="text-red-500 text-xs font-bold text-right">{errors.requiredAmount.message}</p>}
           </div>
 
           <div className="space-y-2">
             <label htmlFor="faculty" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الكلية</label>
             <select
               id="faculty"
-              name="faculty"
-              value={formData.faculty}
-              onChange={(e) => handleChange('faculty', e.target.value)}
+              {...register('faculty')}
               className={`w-full rounded-2xl border-2 ${errors.faculty ? 'border-red-300 bg-red-50' : 'border-slate-100 bg-white'} h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all`}
             >
               <option value="medicine">طب</option>
@@ -192,16 +163,14 @@ export default function SignUp() {
               <option value="engineering">هندسة</option>
               <option value="other">أخرى</option>
             </select>
-            {errors.faculty && <p className="text-red-500 text-xs font-bold text-right">{errors.faculty}</p>}
+            {errors.faculty && <p className="text-red-500 text-xs font-bold text-right">{errors.faculty.message}</p>}
           </div>
 
           <div className="space-y-2">
             <label htmlFor="semester" className="text-slate-400 font-black text-xs uppercase tracking-widest block text-right">الفرقة الدراسية</label>
             <select
               id="semester"
-              name="semester"
-              value={formData.semester}
-              onChange={(e) => handleChange('semester', e.target.value)}
+              {...register('semester')}
               className={`w-full rounded-2xl border-2 ${errors.semester ? 'border-red-300 bg-red-50' : 'border-slate-100 bg-white'} h-12 px-4 font-bold focus:outline-none focus:border-[#B38E2D] focus:ring-2 focus:ring-[#B38E2D]/20 transition-all`}
             >
               <option value="1">الفرقة الأولى</option>
@@ -211,12 +180,12 @@ export default function SignUp() {
               <option value="5">الفرقة الخامسة</option>
               <option value="6">الفرقة السادسة</option>
             </select>
-            {errors.semester && <p className="text-red-500 text-xs font-bold text-right">{errors.semester}</p>}
+            {errors.semester && <p className="text-red-500 text-xs font-bold text-right">{errors.semester.message}</p>}
           </div>
 
           <button
             type="submit"
-            disabled={isLoading || Object.keys(errors).some((k) => errors[k as keyof SignupInput])}
+            disabled={isLoading || !isValid}
             className="w-full h-14 bg-gradient-to-r from-[#B38E2D] to-[#8B6914] hover:from-[#D4A843] hover:to-[#B38E2D] text-white rounded-2xl shadow-xl shadow-[#B38E2D]/20 text-lg font-black transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'جاري إنشاء الحساب...' : 'إنشاء حساب جديد'}
