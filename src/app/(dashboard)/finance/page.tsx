@@ -224,9 +224,8 @@ export default function FinancePage() {
         </div>
       </div>
 
-      <div className="rounded-2xl md:rounded-[2rem] border bg-white shadow-sm overflow-x-auto -mx-3 md:mx-0">
-        <div className="min-w-[640px] md:min-w-0">
-        <Table>
+       <div className="rounded-2xl md:rounded-[2rem] border bg-white shadow-sm overflow-x-auto w-full">
+         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
               <TableHead className="text-right font-black text-sm">النوع</TableHead>
@@ -278,7 +277,6 @@ export default function FinancePage() {
           </TableBody>
          </Table>
          </div>
-       </div>
 
        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="rounded-2xl md:rounded-[2rem] p-4 md:p-8 max-h-[90vh] overflow-y-auto">

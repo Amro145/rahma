@@ -328,35 +328,34 @@ export default function StudentsPage() {
         </div>
       </div>
 
-       <div className="rounded-2xl md:rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-x-auto -mx-3 md:mx-0">
-         <div className="min-w-[640px] md:min-w-0">
-         <Table>
-           <TableHeader>
-             <TableRow className="bg-slate-50/80">
-               <TableHead className="text-right font-black text-sm">الاسم</TableHead>
-               <TableHead className="text-right font-black text-sm hidden sm:table-cell">الكلية</TableHead>
-               <TableHead className="text-right font-black text-sm hidden sm:table-cell">الفرقة</TableHead>
-               <TableHead className="text-right font-black text-sm hidden md:table-cell">المبلغ</TableHead>
-               <TableHead className="text-right font-black text-sm">الحالة</TableHead>
-               <TableHead className="text-left font-black text-sm">الإجراءات</TableHead>
-             </TableRow>
-           </TableHeader>
-           <TableBody>
-             {loading ? (
-               <TableRow>
-                 <TableCell colSpan={6} className="h-24 md:h-40 text-center">جاري...</TableCell>
-               </TableRow>
-             ) : filteredStudents.length === 0 ? (
-               <TableRow>
-                 <TableCell colSpan={6} className="h-24 md:h-40 text-center">لا يوجد طلاب</TableCell>
-               </TableRow>
-             ) : (
-               filteredStudents.map((student) => (
-                 <TableRow key={student.id}>
-                   <TableCell className="font-black text-sm">{student.name}</TableCell>
-                   <TableCell className="font-bold text-sm hidden sm:table-cell">{student.faculty}</TableCell>
-                   <TableCell className="font-bold text-sm hidden sm:table-cell">{student.semester}</TableCell>
-                   <TableCell className="font-black text-sm hidden md:table-cell">{student.requiredAmount.toLocaleString()} ج.م</TableCell>
+        <div className="rounded-2xl md:rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-x-auto w-full">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-50/80">
+                <TableHead className="text-right font-black text-sm">الاسم</TableHead>
+                <TableHead className="text-right font-black text-sm hidden xs:table-cell">الكلية</TableHead>
+                <TableHead className="text-right font-black text-sm hidden sm:table-cell">الفرقة</TableHead>
+                <TableHead className="text-right font-black text-sm hidden md:table-cell">المبلغ</TableHead>
+                <TableHead className="text-right font-black text-sm">الحالة</TableHead>
+                <TableHead className="text-left font-black text-sm">الإجراءات</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">جاري...</TableCell>
+                </TableRow>
+              ) : filteredStudents.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">لا يوجد طلاب</TableCell>
+                </TableRow>
+              ) : (
+                filteredStudents.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell className="font-black text-sm">{student.name}</TableCell>
+                    <TableCell className="font-bold text-sm hidden xs:table-cell">{student.faculty}</TableCell>
+                    <TableCell className="font-bold text-sm hidden sm:table-cell">{student.semester}</TableCell>
+                    <TableCell className="font-black text-sm hidden md:table-cell">{student.requiredAmount.toLocaleString()} ج.م</TableCell>
                    <TableCell>
                      <Badge variant="outline" className={`text-xs md:text-sm ${student.status === "paid" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
                        {student.status === "paid" ? "مدفوع" : "معلق"}
@@ -386,7 +385,6 @@ export default function StudentsPage() {
              )}
           </TableBody>
          </Table>
-       </div>
        </div>
 
        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
