@@ -2,10 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { logoutAction } from "@/app/actions/auth";
 import { Sidebar } from "@/components/Sidebar";
-import { User, Menu } from "lucide-react";
+import { User, LayoutDashboard, Users, FileText, Heart, UserCog } from "lucide-react";
 import { Toaster } from "sonner";
+import useSWR from "swr";
+import { apiFetch } from "@/lib/api";
+
+type MeResponse = {
+  user: {
+    role: string;
+  };
+};
 
 export default function DashboardLayout({
   children,
@@ -15,6 +24,10 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [dateStr, setDateStr] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const { data: meData } = useSWR<MeResponse>("/api/me", () => apiFetch<MeResponse>("/api/me"));
+  const userRole = meData?.user?.role;
+  const isManagement = userRole === "admin" || userRole === "management";
 
   useEffect(() => {
     setDateStr(
@@ -36,30 +49,22 @@ export default function DashboardLayout({
   };
   const activeTitle = titleMapping[pathname] || "لوحة التحكم";
 
+  const navItems = [
+    { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
+    { name: "الطلاب", href: "/students", icon: Users },
+    { name: "المالية", href: "/finance", icon: FileText },
+    { name: "التبرعات", href: "/special-donations", icon: Heart },
+    { name: "المستخدمين", href: "/users", icon: UserCog, requiresRole: "management" },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 flex text-slate-900 font-[--font-cairo]" dir="rtl">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
-      {/* Mobile Top Navbar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-slate-200 z-30 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#D4A843] to-[#8B6914] flex items-center justify-center">
-            <span className="text-white font-bold text-base leading-none">Z</span>
-          </div>
-          <h2 className="text-lg font-bold tracking-tight">ZSSA</h2>
-        </div>
-        <button 
-          onClick={() => setIsSidebarOpen(true)}
-          className="p-2 text-slate-500 hover:text-slate-900 transition-colors"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-      </div>
-
       <div className="lg:mr-64 mr-0 flex flex-col flex-1 min-h-screen transition-all duration-300">
         <Toaster position="top-center" richColors />
         
-        <header className="h-14 md:h-16 flex items-center justify-between px-3 md:px-8 bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-14 md:top-0 z-20">
+        <header className="h-14 md:h-16 flex items-center justify-between px-3 md:px-8 bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-20">
           <div className="flex flex-col">
             <h1 className="text-base md:text-xl font-black text-slate-800">{activeTitle}</h1>
           </div>
@@ -87,9 +92,32 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <main className="flex-1 p-3 md:p-8 mt-14 md:mt-0">
+        <main className="flex-1 p-3 md:p-8 pb-20 md:pb-8">
           {children}
         </main>
+
+        {/* Mobile Bottom Navbar */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 z-30 flex items-center justify-around px-2 pb-safe">
+          {navItems
+            .filter(item => !item.requiresRole || isManagement)
+            .map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-all ${
+                  isActive
+                    ? "text-[#B38E2D]"
+                    : "text-slate-500"
+                }`}
+              >
+                <item.icon className={`h-5 w-5 ${isActive ? "text-[#B38E2D]" : "text-slate-400"}`} />
+                <span className="text-[10px] font-bold">{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );

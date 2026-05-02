@@ -195,16 +195,16 @@ export default function FinancePage() {
     <div className="space-y-4 md:space-y-6 font-[--font-cairo]">
       <div className="flex flex-col sm:flex-row justify-between gap-3 md:gap-4">
         <h2 className="text-lg md:text-2xl font-black border-r-4 border-[#B38E2D] pr-3">السجل المالي</h2>
-        <div className="flex flex-wrap gap-2">
-          {["all", "income", "expense"].map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f as "all" | "income" | "expense")}
-              className={`px-3 py-2 rounded-xl font-bold text-sm ${filter === f ? "bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-white" : "bg-slate-100"}`}
-            >
-              {f === "all" ? "الكل" : f === "income" ? "إيراد" : "مصروف"}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+           {["all", "income", "expense"].map(f => (
+             <button
+               key={f}
+               onClick={() => setFilter(f as "all" | "income" | "expense")}
+               className={`flex-1 sm:flex-none px-3 py-2.5 sm:py-2 rounded-xl font-bold text-sm min-h-[2.5rem] ${filter === f ? "bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-white" : "bg-slate-100"}`}
+             >
+               {f === "all" ? "الكل" : f === "income" ? "إيراد" : "مصروف"}
+             </button>
+           ))}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger render={<Button className="bg-gradient-to-r from-[#B38E2D] to-[#8B6914] h-10 px-3 md:px-4"><Plus className="w-4 h-4 ml-1 md:ml-2" /><span className="hidden xs:inline">إضافة</span></Button>} />
             <DialogContent className="rounded-2xl md:rounded-[2rem] p-4 md:p-8 max-h-[90vh] overflow-y-auto">
@@ -224,7 +224,8 @@ export default function FinancePage() {
         </div>
       </div>
 
-      <div className="rounded-2xl md:rounded-[2rem] border bg-white shadow-sm overflow-x-auto">
+      <div className="rounded-2xl md:rounded-[2rem] border bg-white shadow-sm overflow-x-auto -mx-3 md:mx-0">
+        <div className="min-w-[640px] md:min-w-0">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -261,7 +262,7 @@ export default function FinancePage() {
                   <TableCell className="text-left">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[2rem] min-w-[2rem]">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -275,10 +276,11 @@ export default function FinancePage() {
               ))
             )}
           </TableBody>
-        </Table>
-      </div>
+         </Table>
+         </div>
+       </div>
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="rounded-2xl md:rounded-[2rem] p-4 md:p-8 max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle className="text-xl md:text-2xl font-black text-right">تعديل سجل</DialogTitle></DialogHeader>
           <form onSubmit={editForm.handleSubmit(handleEditRecord)} className="space-y-4 mt-4">

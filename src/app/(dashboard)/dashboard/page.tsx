@@ -76,7 +76,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl md:rounded-[2rem] border-slate-200 overflow-hidden group hover:shadow-xl transition-all duration-500 border-none bg-slate-900 shadow-slate-400/20 relative md:col-span-2 lg:col-span-1">
+        <Card className="rounded-2xl md:rounded-[2rem] border-slate-200 overflow-hidden group hover:shadow-xl transition-all duration-500 border-none bg-slate-900 shadow-slate-400/20 relative col-span-full md:col-span-1">
           <div className="absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-[#B38E2D]/20 rounded-full -mr-12 md:-mr-16 -mt-12 md:-mt-16 blur-2xl md:blur-3xl"></div>
           <CardHeader className="flex flex-row items-center justify-between p-4 md:p-8 pb-2 space-y-0 relative z-10">
             <CardTitle className="text-xs md:text-sm font-black tracking-widest text-[#B38E2D]/80 uppercase">صافي الرصيد</CardTitle>

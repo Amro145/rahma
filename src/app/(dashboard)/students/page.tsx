@@ -328,66 +328,68 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl md:rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-50/80">
-              <TableHead className="text-right font-black text-sm">الاسم</TableHead>
-              <TableHead className="text-right font-black text-sm hidden sm:table-cell">الكلية</TableHead>
-              <TableHead className="text-right font-black text-sm hidden sm:table-cell">الفرقة</TableHead>
-              <TableHead className="text-right font-black text-sm hidden md:table-cell">المبلغ</TableHead>
-              <TableHead className="text-right font-black text-sm">الحالة</TableHead>
-              <TableHead className="text-left font-black text-sm">الإجراءات</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 md:h-40 text-center">جاري...</TableCell>
-              </TableRow>
-            ) : filteredStudents.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 md:h-40 text-center">لا يوجد طلاب</TableCell>
-              </TableRow>
-            ) : (
-              filteredStudents.map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell className="font-black text-sm">{student.name}</TableCell>
-                  <TableCell className="font-bold text-sm hidden sm:table-cell">{student.faculty}</TableCell>
-                  <TableCell className="font-bold text-sm hidden sm:table-cell">{student.semester}</TableCell>
-                  <TableCell className="font-black text-sm hidden md:table-cell">{student.requiredAmount.toLocaleString()} ج.م</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={`text-xs md:text-sm ${student.status === "paid" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                      {student.status === "paid" ? "مدفوع" : "معلق"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-left">
-                    {student.status === "pending" ? (
-                      <Button size="sm" className="bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-xs h-8" onClick={() => handleConfirmPayment(student.id)} disabled={actionLoading === student.id}>
-                        {actionLoading === student.id ? "..." : "دفع"}
-                      </Button>
-                    ) : (
-                      <span className="text-emerald-600 font-bold text-xs">مدفوع</span>
-                    )}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="ml-1 h-8 w-8"><MoreVertical className="w-3 h-3 md:w-4 md:h-4" /></Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild><Link href={`/students/${student.id}`}>سجل الدفع</Link></DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openEditDialog(student)}>تعديل</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openDeleteDialog(student)} className="text-red-600">حذف</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
+       <div className="rounded-2xl md:rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-x-auto -mx-3 md:mx-0">
+         <div className="min-w-[640px] md:min-w-0">
+         <Table>
+           <TableHeader>
+             <TableRow className="bg-slate-50/80">
+               <TableHead className="text-right font-black text-sm">الاسم</TableHead>
+               <TableHead className="text-right font-black text-sm hidden sm:table-cell">الكلية</TableHead>
+               <TableHead className="text-right font-black text-sm hidden sm:table-cell">الفرقة</TableHead>
+               <TableHead className="text-right font-black text-sm hidden md:table-cell">المبلغ</TableHead>
+               <TableHead className="text-right font-black text-sm">الحالة</TableHead>
+               <TableHead className="text-left font-black text-sm">الإجراءات</TableHead>
+             </TableRow>
+           </TableHeader>
+           <TableBody>
+             {loading ? (
+               <TableRow>
+                 <TableCell colSpan={6} className="h-24 md:h-40 text-center">جاري...</TableCell>
+               </TableRow>
+             ) : filteredStudents.length === 0 ? (
+               <TableRow>
+                 <TableCell colSpan={6} className="h-24 md:h-40 text-center">لا يوجد طلاب</TableCell>
+               </TableRow>
+             ) : (
+               filteredStudents.map((student) => (
+                 <TableRow key={student.id}>
+                   <TableCell className="font-black text-sm">{student.name}</TableCell>
+                   <TableCell className="font-bold text-sm hidden sm:table-cell">{student.faculty}</TableCell>
+                   <TableCell className="font-bold text-sm hidden sm:table-cell">{student.semester}</TableCell>
+                   <TableCell className="font-black text-sm hidden md:table-cell">{student.requiredAmount.toLocaleString()} ج.م</TableCell>
+                   <TableCell>
+                     <Badge variant="outline" className={`text-xs md:text-sm ${student.status === "paid" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                       {student.status === "paid" ? "مدفوع" : "معلق"}
+                     </Badge>
+                   </TableCell>
+                   <TableCell className="text-left">
+                     {student.status === "pending" ? (
+                       <Button size="sm" className="bg-gradient-to-r from-[#B38E2D] to-[#8B6914] text-xs h-8 min-h-[2rem] min-w-[2rem]" onClick={() => handleConfirmPayment(student.id)} disabled={actionLoading === student.id}>
+                         {actionLoading === student.id ? "..." : "دفع"}
+                       </Button>
+                     ) : (
+                       <span className="text-emerald-600 font-bold text-xs">مدفوع</span>
+                     )}
+                     <DropdownMenu>
+                       <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" size="icon" className="ml-1 h-8 w-8 min-h-[2rem] min-w-[2rem]"><MoreVertical className="w-3 h-3 md:w-4 md:h-4" /></Button>
+                       </DropdownMenuTrigger>
+                       <DropdownMenuContent align="end">
+                         <DropdownMenuItem asChild><Link href={`/students/${student.id}`}>سجل الدفع</Link></DropdownMenuItem>
+                         <DropdownMenuItem onClick={() => openEditDialog(student)}>تعديل</DropdownMenuItem>
+                         <DropdownMenuItem onClick={() => openDeleteDialog(student)} className="text-red-600">حذف</DropdownMenuItem>
+                       </DropdownMenuContent>
+                     </DropdownMenu>
+                   </TableCell>
+                 </TableRow>
+               ))
+             )}
           </TableBody>
-        </Table>
-      </div>
+         </Table>
+       </div>
+       </div>
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-2xl md:rounded-[2.5rem] p-4 md:p-8 font-[--font-cairo] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 text-right">تعديل بيانات الطالب</DialogTitle>
