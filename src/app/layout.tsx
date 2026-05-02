@@ -16,6 +16,7 @@ const inter = Inter({
 export const metadata: Metadata = {
 	title: "ZSSA - صندوق التكافل الإجتماعي",
 	description: "صندوق ZSSA التكافلي - مبادرة تكافلية تطوعية لطلاب الجالية السودانية بزاكازق",
+	viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
@@ -28,7 +29,7 @@ export default function RootLayout({
 			<head>
 				<link rel="icon" href="/favicon.svg" type="image/svg+xml"></link>
 			</head>
-			<body className="antialiased bg-slate-50 font-sans">
+			<body className="antialiased bg-slate-50 font-sans overflow-x-hidden">
 				{children}
 			</body>
 		</html>

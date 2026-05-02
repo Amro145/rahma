@@ -54,7 +54,7 @@ export default function DashboardLayout({
     { name: "الطلاب", href: "/students", icon: Users },
     { name: "المالية", href: "/finance", icon: FileText },
     { name: "التبرعات", href: "/special-donations", icon: Heart },
-    { name: "المستخدمين", href: "/users", icon: UserCog, requiresRole: "management" },
+    { name: "المستخدمين", href: "/users", icon: UserCog },
   ];
 
   return (
@@ -99,7 +99,6 @@ export default function DashboardLayout({
         {/* Mobile Bottom Navbar */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 z-30 flex items-center justify-around px-2 pb-safe">
           {navItems
-            .filter(item => !item.requiresRole || isManagement)
             .map((item) => {
             const isActive = pathname === item.href;
             return (
