@@ -224,7 +224,7 @@ export default function FinancePage() {
         </div>
       </div>
 
-       <div className="rounded-2xl md:rounded-[2rem] border bg-white shadow-sm overflow-x-auto w-full">
+       <div className="hidden md:block rounded-2xl md:rounded-[2rem] border bg-white shadow-sm overflow-hidden w-full">
          <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -276,7 +276,46 @@ export default function FinancePage() {
             )}
           </TableBody>
          </Table>
-         </div>
+       </div>
+
+       <div className="md:hidden flex flex-col gap-4 w-full">
+         {loading ? (
+           <div className="text-center py-8 text-slate-400">جاري...</div>
+         ) : filteredLogs.length === 0 ? (
+           <div className="text-center py-8 text-slate-400">لا توجد بيانات</div>
+         ) : (
+           filteredLogs.map(log => (
+             <div key={log.id} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col gap-3">
+               <div className="flex justify-between items-start">
+                 <div className="flex items-center gap-2">
+                   <Badge variant="outline" className={`text-xs ${log.type === "income" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+                     {log.type === "income" ? "إيراد" : "مصروف"}
+                   </Badge>
+                   <span className="font-bold text-sm text-slate-800">{log.category}</span>
+                 </div>
+                 <div className="flex items-center gap-2">
+                   <span className={`font-black text-sm ${log.type === "income" ? "text-emerald-600" : "text-red-600"}`}>
+                     {log.type === "income" ? "+" : "-"}{log.amount.toLocaleString()}
+                   </span>
+                   <DropdownMenu>
+                     <DropdownMenuTrigger asChild>
+                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[2rem] min-w-[2rem] -mt-1 -mr-2">
+                         <MoreVertical className="w-4 h-4" />
+                       </Button>
+                     </DropdownMenuTrigger>
+                     <DropdownMenuContent align="end">
+                       <DropdownMenuItem onClick={() => openEditDialog(log)}>تعديل</DropdownMenuItem>
+                       <DropdownMenuItem onClick={() => openDeleteDialog(log)} className="text-red-600">حذف</DropdownMenuItem>
+                     </DropdownMenuContent>
+                   </DropdownMenu>
+                 </div>
+               </div>
+               {log.description && <div className="text-slate-500 text-sm">{log.description}</div>}
+               <div className="text-slate-400 text-xs">{new Date(log.createdAt).toLocaleDateString("ar-EG")}</div>
+             </div>
+           ))
+         )}
+       </div>
 
        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="rounded-2xl md:rounded-[2rem] p-4 md:p-8 max-h-[90vh] overflow-y-auto">

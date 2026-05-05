@@ -43,7 +43,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         />
       )}
 
-      <aside className={`w-64 h-screen border-l border-slate-200 bg-white flex-col fixed right-0 top-0 z-50 font-[--font-cairo] transition-transform duration-300 transform hidden lg:flex ${
+      <aside className={`w-64 h-screen border-l border-slate-200 bg-white flex-col fixed right-0 top-0 z-50 font-[--font-cairo] transition-transform duration-300 transform hidden lg:flex lg:translate-x-0 ${
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}>
         <div className="h-14 lg:h-16 flex items-center justify-between px-4 lg:px-6 border-b border-slate-200">

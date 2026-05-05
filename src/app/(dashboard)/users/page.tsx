@@ -107,7 +107,7 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <Card className="rounded-2xl border-slate-200 shadow-sm overflow-hidden">
+      <Card className="hidden md:block rounded-2xl border-slate-200 shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -178,6 +178,58 @@ export default function UsersPage() {
           </TableBody>
         </Table>
       </Card>
+
+      <div className="md:hidden flex flex-col gap-4">
+        {isLoading ? (
+          <div className="text-center py-8 text-slate-400">جاري التحميل...</div>
+        ) : data?.users?.length === 0 ? (
+          <div className="text-center py-8 text-slate-400">لا توجد مستخدمين</div>
+        ) : (
+          data?.users?.map((user) => {
+            const roleInfo = roleLabels[user.role] || roleLabels.student;
+            return (
+              <Card key={user.id} className="p-4 flex flex-col gap-4 border-slate-200 shadow-sm rounded-2xl">
+                <div>
+                  <div className="font-bold text-slate-700">{user.name}</div>
+                  <div className="text-sm text-slate-500">{user.email}</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <Select
+                    value={user.role}
+                    onValueChange={(value: string) => handleRoleChange(user.id, value)}
+                    disabled={updatingId === user.id}
+                  >
+                    <SelectTrigger className={`w-32 h-9 ${roleInfo.color} border-0 bg-slate-50 font-bold`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="management" className="font-bold">
+                        <div className="flex items-center gap-2">
+                          <UserCog className="w-4 h-4 text-blue-600" />
+                          <span>اداره الجمعيه</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="student" className="font-bold">
+                        <div className="flex items-center gap-2">
+                          <GraduationCap className="w-4 h-4 text-[#B38E2D]" />
+                          <span>طالب</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="admin" className="font-bold">
+                        <div className="flex items-center gap-2">
+                          <GraduationCap className="w-4 h-4 text-[#B38E2D]" />
+                          <span>مسؤول</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="text-xs text-slate-400">{formatDate(user.createdAt)}</div>
+                </div>
+              </Card>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }
