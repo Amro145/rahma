@@ -27,7 +27,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -203,25 +202,9 @@ export default function UsersPage() {
                     </TableCell>
                     <TableCell className="text-slate-400 text-sm">{formatDate(user.createdAt)}</TableCell>
                     <TableCell>
-                      <Dialog open={deleteDialogOpen && deletingId === user.id} onOpenChange={(open: boolean) => { setDeleteDialogOpen(open); if (!open) setDeletingId(null); }}>
-                        <DialogTrigger render={<Button variant="destructive" size="icon-xs" />}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>تأكيد الحذف</DialogTitle>
-                            <DialogDescription>
-                              هل أنت متأكد من حذف المستخدم &quot;{user.name}&quot;؟ لا يمكن التراجع عن هذا الإجراء.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <DialogFooter>
-                            <DialogClose render={<Button variant="outline" />}>إلغاء</DialogClose>
-                            <Button variant="destructive" onClick={() => handleDeleteUser(user.id)} disabled={deletingId === user.id}>
-                              {deletingId === user.id ? "جاري الحذف..." : "حذف"}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                      <Button variant="destructive" size="icon-xs" onClick={() => { setDeletingId(user.id); setDeleteDialogOpen(true); }}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
@@ -230,6 +213,23 @@ export default function UsersPage() {
           </TableBody>
         </Table>
       </Card>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={(open: boolean) => { if (!open) { setDeleteDialogOpen(false); setDeletingId(null); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تأكيد الحذف</DialogTitle>
+            <DialogDescription>
+              هل أنت متأكد من حذف المستخدم &quot;{data?.users?.find(u => u.id === deletingId)?.name}&quot;؟ لا يمكن التراجع عن هذا الإجراء.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>إلغاء</DialogClose>
+            <Button variant="destructive" onClick={() => deletingId && handleDeleteUser(deletingId)} disabled={!deletingId}>
+              {!deletingId ? "جاري الحذف..." : "حذف"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="md:hidden flex flex-col gap-4">
         {isLoading ? (
@@ -277,25 +277,9 @@ export default function UsersPage() {
                   </Select>
                   <div className="flex items-center gap-2">
                     <div className="text-xs text-slate-400">{formatDate(user.createdAt)}</div>
-                    <Dialog open={deleteDialogOpen && deletingId === user.id} onOpenChange={(open: boolean) => { setDeleteDialogOpen(open); if (!open) setDeletingId(null); }}>
-                      <DialogTrigger render={<Button variant="destructive" size="icon-xs" />}>
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>تأكيد الحذف</DialogTitle>
-                          <DialogDescription>
-                            هل أنت متأكد من حذف المستخدم &quot;{user.name}&quot;؟ لا يمكن التراجع عن هذا الإجراء.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                          <DialogClose render={<Button variant="outline" />}>إلغاء</DialogClose>
-                          <Button variant="destructive" onClick={() => handleDeleteUser(user.id)} disabled={deletingId === user.id}>
-                            {deletingId === user.id ? "جاري الحذف..." : "حذف"}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                    <Button variant="destructive" size="icon-xs" onClick={() => { setDeletingId(user.id); setDeleteDialogOpen(true); }}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 </div>
               </Card>
