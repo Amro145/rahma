@@ -3,7 +3,7 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Shield, UserCog, GraduationCap } from "lucide-react";
+import { Users, UserCog, GraduationCap, Trash2 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import {
   Table,
@@ -20,6 +20,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 type Role = "admin" | "management" | "student";
@@ -47,6 +58,8 @@ const roleLabels: Record<string, { label: string; color: string }> = {
 
 export default function UsersPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { data: meData } = useSWR<MeResponse>("/api/me", () => apiFetch<MeResponse>("/api/me"));
 
@@ -72,6 +85,23 @@ export default function UsersPage() {
       toast.error(message);
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    setDeletingId(userId);
+    try {
+      await apiFetch(`/api/users/${userId}`, {
+        method: "DELETE",
+      });
+      mutate();
+      toast.success("تم حذف المستخدم بنجاح");
+      setDeleteDialogOpen(false);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "فشل حذف المستخدم";
+      toast.error(message);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -115,18 +145,19 @@ export default function UsersPage() {
               <TableHead className="text-right font-black text-slate-500">البريد</TableHead>
               <TableHead className="text-right font-black text-slate-500">الدور</TableHead>
               <TableHead className="text-right font-black text-slate-500">تاريخ التسجيل</TableHead>
+              <TableHead className="text-right font-black text-slate-500">إجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-slate-400">
+                <TableCell colSpan={5} className="text-center py-8 text-slate-400">
                   جاري التحميل...
                 </TableCell>
               </TableRow>
             ) : data?.users?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-slate-400">
+                <TableCell colSpan={5} className="text-center py-8 text-slate-400">
                   لا توجد مستخدمين
                 </TableCell>
               </TableRow>
@@ -171,6 +202,27 @@ export default function UsersPage() {
                       </Select>
                     </TableCell>
                     <TableCell className="text-slate-400 text-sm">{formatDate(user.createdAt)}</TableCell>
+                    <TableCell>
+                      <Dialog open={deleteDialogOpen && deletingId === user.id} onOpenChange={(open: boolean) => { setDeleteDialogOpen(open); if (!open) setDeletingId(null); }}>
+                        <DialogTrigger render={<Button variant="destructive" size="icon-xs" />}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>تأكيد الحذف</DialogTitle>
+                            <DialogDescription>
+                              هل أنت متأكد من حذف المستخدم &quot;{user.name}&quot;؟ لا يمكن التراجع عن هذا الإجراء.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <DialogClose render={<Button variant="outline" />}>إلغاء</DialogClose>
+                            <Button variant="destructive" onClick={() => handleDeleteUser(user.id)} disabled={deletingId === user.id}>
+                              {deletingId === user.id ? "جاري الحذف..." : "حذف"}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </TableCell>
                   </TableRow>
                 );
               })
@@ -223,7 +275,28 @@ export default function UsersPage() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <div className="text-xs text-slate-400">{formatDate(user.createdAt)}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs text-slate-400">{formatDate(user.createdAt)}</div>
+                    <Dialog open={deleteDialogOpen && deletingId === user.id} onOpenChange={(open: boolean) => { setDeleteDialogOpen(open); if (!open) setDeletingId(null); }}>
+                      <DialogTrigger render={<Button variant="destructive" size="icon-xs" />}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>تأكيد الحذف</DialogTitle>
+                          <DialogDescription>
+                            هل أنت متأكد من حذف المستخدم &quot;{user.name}&quot;؟ لا يمكن التراجع عن هذا الإجراء.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <DialogClose render={<Button variant="outline" />}>إلغاء</DialogClose>
+                          <Button variant="destructive" onClick={() => handleDeleteUser(user.id)} disabled={deletingId === user.id}>
+                            {deletingId === user.id ? "جاري الحذف..." : "حذف"}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               </Card>
             );
